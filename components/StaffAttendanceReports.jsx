@@ -1,0 +1,90 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { apiClient } from '@/lib/api';
+
+const StaffAttendanceReports = () => {
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const fetchAttendanceData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams();
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      
+      const data = await apiClient.get(`/attendance/stats?${params.toString()}`);
+      setAttendanceData(data);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAttendanceData();
+  }, []);
+
+  return (
+    <div className="space-y-6 container mx-auto px-4 py-8">
+      <div className="space-y-0.5">
+        <h1 className="text-2xl md:text-3xl font-black text-blue-600 tracking-tight">
+          Staff Attendance Insights
+        </h1>
+        <p className="text-slate-500 font-medium text-sm">
+          Analytics dashboard for institutional personnel presence and reliability.
+        </p>
+      </div>
+      <div className="flex items-center mb-4">
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="border rounded-md p-2 mr-2"
+        />
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          className="border rounded-md p-2 mr-2"
+        />
+        <button
+          onClick={fetchAttendanceData}
+          className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-200 transition-all active:scale-95 whitespace-nowrap"
+        >
+          Generate Report
+        </button>
+      </div>
+      {loading && (
+        <div className="flex justify-center py-10">
+          <LoadingSpinner size="lg" />
+        </div>
+      )}
+      {error && <div className="text-red-500">Error: {error}</div>}
+      {attendanceData.length > 0 && (
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={attendanceData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="present" fill="#82ca9d" />
+              <Bar dataKey="absent" fill="#ff0000" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default StaffAttendanceReports;

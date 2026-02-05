@@ -1,0 +1,155 @@
+// HRSidebar.tsx
+"use client";
+import React, { useState, useEffect, ReactNode } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  Home,
+  Calendar,
+  BarChart3,
+  Settings,
+  Briefcase,
+  ChevronLeft,
+  ChevronRight,
+  Users,
+  ClipboardList,
+} from "lucide-react";
+
+const NavLink = ({
+  icon,
+  label,
+  isCollapsed,
+  isActive,
+  href,
+}) => (
+  <li>
+    <Link
+      href={href}
+      className={`flex items-center gap-3 p-3 my-1 rounded-xl transition-all duration-200 w-full text-left group relative ${
+        isActive
+          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20"
+          : "text-slate-500 hover:bg-white hover:text-blue-700"
+      }`}
+      title={isCollapsed ? label : ""}
+    >
+      {icon}
+      <span
+        className={`ml-3 transition-all duration-300 font-medium ${
+          isCollapsed
+            ? "opacity-0 absolute left-full ml-2 bg-slate-800 text-white px-2 py-1 rounded text-sm invisible group-hover:visible group-hover:opacity-100 z-50 whitespace-nowrap shadow-xl"
+            : "opacity-100 relative"
+        }`}
+      >
+        {label}
+      </span>
+    </Link>
+  </li>
+);
+
+const HR_NAV_ITEMS = [
+  {
+    label: "Dashboard",
+    icon: <Home size={20} />,
+    href: "/hr/dashboard",
+  },
+  {
+    label: "Staff",
+    icon: <Briefcase size={20} />,
+    href: "/hr/staff",
+  },
+  {
+    label: "Job Postings",
+    icon: <ClipboardList size={20} />,
+    href: "/hr/job-postings",
+  },
+  {
+    label: "Attendance",
+    icon: <Calendar size={20} />,
+    href: "/hr/attendance",
+  },
+  {
+    label: "Manage Attendance",
+    icon: <Users size={20} />,
+    href: "/hr/manage-attendance",
+  },
+  {
+    label: "Reports & Analytics",
+    icon: <BarChart3 size={20} />,
+    href: "/hr/reports",
+  },
+];
+
+const HRSidebar = ({ isOpen, setIsOpen }) => {
+  const isCollapsed = !isOpen;
+  const pathname = usePathname();
+
+  return (
+    <>
+      <div
+        className={`fixed inset-0 bg-black bg-opacity-50 z-30 transition-opacity md:hidden ${
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsOpen(false)}
+      />
+
+      <aside
+        className={`bg-[#EBF4F6] border-r border-slate-200 text-slate-800 flex flex-col fixed md:relative transition-all duration-300 ease-in-out z-40 h-full ${
+          isOpen ? "min-w-max" : "w-20"
+        } overflow-hidden shadow-2xl`}
+      >
+        <div className="flex items-center p-5 border-b border-slate-200 h-20 relative">
+          {!isCollapsed && (
+            <div className="flex items-center space-x-3">
+              <div className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <Users size={20} className="text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-black tracking-tight leading-none text-slate-800">HR Portal</h1>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Management</p>
+              </div>
+            </div>
+          )}
+          
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-500 hover:text-blue-600 transition-all border border-slate-200 hover:border-slate-300 absolute right-4 top-1/2 -translate-y-1/2"
+            aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+          >
+            {isOpen ? (
+              <ChevronLeft className="w-4 h-4" />
+            ) : (
+              <ChevronRight className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+
+        <nav className="flex-1 px-3 py-6 overflow-y-auto">
+          <ul className="space-y-1.5">
+            {HR_NAV_ITEMS.map((item) => (
+              <NavLink
+                key={item.label}
+                icon={item.icon}
+                label={item.label}
+                href={item.href}
+                isActive={pathname === item.href}
+                isCollapsed={isCollapsed}
+              />
+            ))}
+          </ul>
+        </nav>
+
+        <div className="px-3 py-4 border-t border-slate-200">
+          <NavLink
+            icon={<Settings size={20} />}
+            label="Settings"
+            href="/hr/settings"
+            isActive={pathname === "/settings"}
+            isCollapsed={isCollapsed}
+          />
+        </div>
+      </aside>
+    </>
+  );
+};
+
+export default HRSidebar;

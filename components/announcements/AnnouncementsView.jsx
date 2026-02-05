@@ -1,0 +1,161 @@
+import { apiClient } from "@/lib/api";
+
+export default function AnnouncementsView({ courseId, loggedInUser, hideHeader = false }) {
+  const [announcements, setAnnouncements] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [announcementToEdit, setAnnouncementToEdit] = useState(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [announcementToDelete, setAnnouncementToDelete] = useState(null);
+
+
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      // Backend /announcements supports courseId filtering if implemented, 
+      // or we use separate paths. Our current announcementRoutes is generic.
+      const data = await apiClient.get(courseId ? `/announcements?courseId=${courseId}` : "/announcements");
+      setAnnouncements(data || []);
+    } catch (err) {
+      console.error(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [courseId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleSave = async (formData) => {
+    setIsLoading(true);
+    try {
+      if (announcementToEdit) {
+        await apiClient.put(`/announcements/${announcementToEdit.id}`, formData);
+      } else {
+        // Ensure authorId is included
+        const data = { ...formData, authorId: loggedInUser.id, courseId };
+        await apiClient.post("/announcements", data);
+      }
+      
+      console.log(`Announcement ${announcementToEdit ? "updated" : "created"} successfully!`);
+      setIsModalOpen(false);
+      setAnnouncementToEdit(null);
+      await fetchData();
+    } catch (err) {
+      console.error(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEdit = (announcement) => {
+    setAnnouncementToEdit(announcement);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (announcementId) => {
+    setAnnouncementToDelete(announcementId);
+    setShowConfirmation(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!announcementToDelete) return;
+    setIsLoading(true);
+    try {
+      await apiClient.del(`/announcements/${announcementToDelete}`);
+      console.log("Announcement deleted successfully!");
+      await fetchData();
+    } catch (err) {
+      console.error(err.message);
+    } finally {
+      setIsLoading(false);
+      setShowConfirmation(false);
+      setAnnouncementToDelete(null);
+    }
+  };
+  
+  const canCreate = loggedInUser?.role === 'ADMIN';
+
+  return (
+    <div className={hideHeader ? "" : "p-6"}>
+      {!hideHeader && (
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div className="space-y-0.5">
+            <h1 className="text-2xl md:text-3xl font-black text-blue-600 tracking-tight">
+              {courseId ? "Course Announcements" : "Announcements Registry"}
+            </h1>
+            <p className="text-slate-500 font-medium text-sm">
+              Broadcast critical updates, academic notices, and institutional news.
+            </p>
+          </div>
+          {canCreate && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-200 transition-all active:scale-95 whitespace-nowrap"
+            >
+              <Plus size={14} />
+              New Announcement
+            </button>
+          )}
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
+          <div className="relative">
+            <div className="absolute -inset-4 bg-blue-100/50 rounded-full blur-2xl animate-pulse" />
+            <LoadingSpinner size="lg" />
+          </div>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Syncing Bulletins</p>
+        </div>
+      ) : announcements.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 opacity-40">
+          <Bell size={40} className="mb-4 text-slate-300" />
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No bulletins recorded yet</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {announcements.map((ann) => (
+            <AnnouncementCard
+              key={ann.id}
+              announcement={ann}
+              onEdit={() => handleEdit(ann)}
+              onDelete={() => handleDelete(ann.id)}
+              currentUser={loggedInUser}
+            />
+          ))}
+        </div>
+      )}
+
+      <AnnouncementModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setAnnouncementToEdit(null);
+        }}
+        onSave={handleSave}
+        isLoading={isLoading}
+        announcement={announcementToEdit}
+      />
+
+      {showConfirmation && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg p-6">
+            <h2 className="text-xl font-bold mb-4">Delete Announcement</h2>
+            <p>Are you sure you want to delete this announcement?</p>
+            <div className="flex justify-end gap-4 mt-6">
+              <button onClick={() => setShowConfirmation(false)} disabled={isLoading} className="px-4 py-2 bg-gray-200 rounded-md">
+                Cancel
+              </button>
+              <button onClick={confirmDelete} disabled={isLoading} className="px-4 py-2 bg-red-600 text-white rounded-md">
+                {isLoading ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+

@@ -1,0 +1,136 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import Image from "next/image";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { apiClient } from "@/lib/api";
+
+const CertificateDetailPage = () => {
+  const { id } = useParams();
+  const [certificate, setCertificate] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCertificate = async () => {
+      try {
+        const data = await apiClient.get(`/certificates/${id}`);
+        setCertificate(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchCertificate();
+    }
+  }, [id]);
+
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/certificates/${id}/download`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `certificate-${certificate?.uniqueId || id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (error) {
+      console.error("Failed to download certificate:", error);
+    }
+  };
+
+  if (loading)
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        <LoadingSpinner size="lg" message="Loading certificate..." />
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex justify-center items-center min-h-screen text-red-600">
+        Error: {error}
+      </div>
+    );
+
+  if (!certificate)
+    return (
+      <div className="flex justify-center items-center min-h-screen text-gray-600">
+        Certificate not found.
+      </div>
+    );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col items-center justify-center py-10 px-4">
+      <div className="relative bg-white w-full max-w-4xl aspect-[1.414/1] rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.05)] p-12 border border-gray-200 text-center">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="relative w-32 h-16 mx-auto mb-4">
+            <Image 
+              src="/logo/STEP.png" 
+              alt="STEP Logo" 
+              fill 
+              className="object-contain"
+              priority
+            />
+          </div>
+          <h1 className="text-3xl font-semibold text-gray-800 tracking-tight">
+            Certificate of Completion
+          </h1>
+          <p className="text-gray-500 text-base mt-2">This certifies that</p>
+        </div>
+
+        {/* Recipient */}
+        <div className="my-10">
+          <h2 className="text-5xl font-bold text-gray-900 mb-3">
+            {certificate.recipient}
+          </h2>
+          <p className="text-lg text-gray-500">
+            has successfully completed the course
+          </p>
+        </div>
+
+        {/* Course */}
+        <div className="my-8">
+          <h3 className="text-2xl font-medium text-blue-600">
+            {certificate.course?.name || "No Course Info"}
+          </h3>
+          <p className="text-gray-500 mt-2">
+            Issued on {new Date(certificate.issueDate).toLocaleDateString()}
+          </p>
+          {certificate.expiryDate && (
+            <p className="text-gray-400 text-sm mt-1">
+              Valid until{" "}
+              {new Date(certificate.expiryDate).toLocaleDateString()}
+            </p>
+          )}
+        </div>
+
+        {/* Footer Info */}
+        <div className="flex justify-between items-center mt-16 text-sm text-gray-400 font-mono">
+          <p>Certificate ID: {certificate.uniqueId || "N/A"}</p>
+          <div className="text-right">
+            <div className="border-t border-gray-300 w-40 mx-auto mb-1"></div>
+            <p className="text-gray-500 font-medium">Authorized Signature</p>
+          </div>
+        </div>
+      </div>
+      <button
+        onClick={handleDownload}
+        className="mt-8 px-6 py-3 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700"
+      >
+        Download Certificate (PDF)
+      </button>
+    </div>
+  );
+};
+
+export default CertificateDetailPage;
