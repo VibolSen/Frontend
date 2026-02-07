@@ -6,6 +6,8 @@ import { UserProvider } from "@/context/UserContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
 
+import { NextAuthProvider } from "@/components/providers/NextAuthProvider";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -20,11 +22,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className} suppressHydrationWarning={true}>
-        <AccessibilityProvider>
-          <ThemeProvider>
-            <UserProvider>{children}</UserProvider>
-          </ThemeProvider>
-        </AccessibilityProvider>
+        <NextAuthProvider>
+          <AccessibilityProvider>
+            <ThemeProvider>
+              <UserProvider>{children}</UserProvider>
+            </ThemeProvider>
+          </AccessibilityProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

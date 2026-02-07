@@ -24,7 +24,7 @@ export default function StudentCoursesView({ loggedInUser }) {
     if (!studentId) return;
     setIsLoading(true);
     try {
-      const data = await apiClient.get(`/student/my-courses?studentId=${studentId}`);
+      const data = await apiClient.get(`/students/my-courses?studentId=${studentId}`);
       setCourses(data || []);
     } catch (err) {
       console.error(err);

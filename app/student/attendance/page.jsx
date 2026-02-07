@@ -5,16 +5,20 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { motion } from "framer-motion";
 import { Calendar } from "lucide-react";
 import { apiClient } from "@/lib/api";
+import { useSession } from "next-auth/react";
 
 export default function AttendancePage() {
+  const { data: session } = useSession();
   const [attendance, setAttendance] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchAttendance = async () => {
+      if (!session?.user?.id) return;
+      
       try {
-        const data = await apiClient.get("/student/attendance");
+        const data = await apiClient.get(`/students/my-attendance?studentId=${session.user.id}`);
         setAttendance(data || []);
       } catch (error) {
         setError(error.message);
@@ -23,8 +27,13 @@ export default function AttendancePage() {
       }
     };
 
-    fetchAttendance();
-  }, []);
+    if (session?.user?.id) {
+       fetchAttendance();
+    } else if (session === null) {
+       setLoading(false);
+       setError("Authentication required");
+    }
+  }, [session]);
 
   if (loading) {
     return (

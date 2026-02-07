@@ -22,7 +22,7 @@ export default function StudentCourseDetailView({ courseId, loggedInUser }) {
   useEffect(() => {
     const fetchCourseDetails = async () => {
       try {
-        const data = await apiClient.get(`/courses?id=${courseId}`);
+        const data = await apiClient.get(`/courses/${courseId}`);
         setCourse(data);
       } catch (error) {
         console.error("Error fetching course details:", error);

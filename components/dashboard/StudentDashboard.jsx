@@ -149,7 +149,7 @@ const StudentDashboard = ({ loggedInUser }) => {
             { label: "Total Courses", value: totalCourses, icon: BookOpen, color: "blue", href: "/student/courses" },
             { label: "Assignments", value: pendingAssignmentsCount, icon: ClipboardList, color: "indigo", href: "/student/assignments" },
             { label: "Pending Exams", value: pendingExamsCount, icon: FileText, color: "violet", href: "/student/exams" },
-            { label: "My Groups", value: myProfile.groups.length, icon: Users, color: "sky", href: "/student/profile" },
+            { label: "My Groups", value: myProfile.groups?.length || 0, icon: Users, color: "sky", href: "/student/profile" },
           ].map((stat, i) => (
             <motion.div variants={itemVariants} key={stat.label} whileHover={{ y: -5 }}>
               <Link href={stat.href} className="group flex flex-col p-4 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300">
@@ -209,14 +209,14 @@ const StudentDashboard = ({ loggedInUser }) => {
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {myProfile.groups.map((group) => (
+                {myProfile.groups?.map((group) => (
                   <div key={group.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200/50 hover:bg-white hover:border-blue-200 transition-all group">
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-black text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors uppercase text-[12px]">
                         {group.name}
                       </span>
                       <div className="flex -space-x-1.5">
-                        {group.students.slice(0, 3).map((s, i) => (
+                        {group.students?.slice(0, 3).map((s, i) => (
                           <div key={s.id} className={`h-6 w-6 rounded-full bg-slate-200 border-2 border-slate-50 flex items-center justify-center text-[8px] font-black ${i === 0 ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'}`}>
                             {s.firstName[0]}
                           </div>

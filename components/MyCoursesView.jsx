@@ -20,7 +20,7 @@ export default function MyCoursesView({ loggedInUser }) {
     if (!teacherId) return;
     setIsLoading(true);
     try {
-      const data = await apiClient.get(`/teacher/my-courses?teacherId=${teacherId}`);
+      const data = await apiClient.get(`/teachers/my-courses?teacherId=${teacherId}`);
       setCourses(data || []);
     } catch (err) {
       console.error(err);

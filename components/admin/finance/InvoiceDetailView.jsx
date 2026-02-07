@@ -1,4 +1,31 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { apiClient } from "@/lib/api";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { ArrowLeft, Printer, Download, MapPin, Mail, Hash, Calendar, Clock, User, ExternalLink, CreditCard, AlertCircle } from "lucide-react";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+
+// Helper Component for Status Stamp
+const StatusStamp = ({ status }) => {
+    let colorClass, text;
+    switch (status) {
+      case 'PAID': colorClass = 'text-emerald-500 border-emerald-500 bg-emerald-50/10 rotate-[-12deg]'; text = 'PAID IN FULL'; break;
+      case 'OVERDUE': colorClass = 'text-rose-500 border-rose-500 bg-rose-50/10 rotate-[-12deg]'; text = 'OVERDUE'; break;
+      case 'SENT': colorClass = 'text-blue-500 border-blue-500 bg-blue-50/10 rotate-[-12deg]'; text = 'AWAITING PAYMENT'; break;
+      case 'DRAFT': colorClass = 'text-slate-400 border-slate-300 bg-slate-50/10 rotate-[0deg] opacity-50'; text = 'DRAFT'; break;
+      default: colorClass = 'text-slate-500'; text = status || 'UNKNOWN';
+    }
+  
+    return (
+      <div className={`absolute top-12 right-12 z-10 pointer-events-none opacity-20 transform scale-[3] md:scale-[3] border-4 border-double rounded-lg px-2 py-1 flex items-center justify-center font-black ${colorClass}`}>
+         <span className="text-[10px] tracking-widest whitespace-nowrap">{text}</span>
+      </div>
+    );
+};
 
 export default function InvoiceDetailView() {
   const { id } = useParams();
@@ -209,12 +236,16 @@ export default function InvoiceDetailView() {
                     </div>
                     <div>
                       <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight leading-none">{payment.paymentMethod}</p>
-                      <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase leading-none">{new Date(payment.paymentDate).toLocaleDateString()}</p>
+                      <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase leading-none">
+                        {payment.senderName && payment.senderName !== 'BAKONG_USER' ? payment.senderName : 'Standard Transaction'}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-black text-blue-600 leading-none">+${payment.amount.toLocaleString()}</p>
-                    <p className="text-[8px] text-slate-300 font-medium uppercase tracking-tighter mt-1">ID: {payment.transactionId?.substring(0,8) || 'RCV_BANK'}</p>
+                    <p className="text-[8px] text-slate-300 font-medium uppercase tracking-tighter mt-1">
+                        {payment.senderAccount ? `ACC: ${payment.senderAccount}` : `TxID: ${payment.transactionId?.substring(0,8)}`}
+                    </p>
                   </div>
                 </div>
               ))}

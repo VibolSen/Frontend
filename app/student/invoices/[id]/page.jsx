@@ -1,4 +1,31 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { apiClient } from "@/lib/api";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { ArrowLeft, Printer, Download, MapPin, Mail, Hash, Calendar, Clock, User, CreditCard, AlertCircle } from "lucide-react";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+
+// Helper Component for Status Stamp
+const StatusStamp = ({ status }) => {
+    let colorClass, text;
+    switch (status) {
+      case 'PAID': colorClass = 'text-emerald-500 border-emerald-500 bg-emerald-50/10 rotate-[-12deg]'; text = 'PAID IN FULL'; break;
+      case 'OVERDUE': colorClass = 'text-rose-500 border-rose-500 bg-rose-50/10 rotate-[-12deg]'; text = 'OVERDUE'; break;
+      case 'SENT': colorClass = 'text-blue-500 border-blue-500 bg-blue-50/10 rotate-[-12deg]'; text = 'AWAITING PAYMENT'; break;
+      case 'DRAFT': colorClass = 'text-slate-400 border-slate-300 bg-slate-50/10 rotate-[0deg] opacity-50'; text = 'DRAFT'; break;
+      default: colorClass = 'text-slate-500'; text = status;
+    }
+  
+    return (
+      <div className={`absolute top-12 right-12 z-10 pointer-events-none opacity-20 transform scale-[3] md:scale-[3] border-4 border-double rounded-lg px-2 py-1 flex items-center justify-center font-black ${colorClass}`}>
+         <span className="text-[10px] tracking-widest whitespace-nowrap">{text}</span>
+      </div>
+    );
+};
 
 const InvoiceDetailPage = () => {
   const { id } = useParams();

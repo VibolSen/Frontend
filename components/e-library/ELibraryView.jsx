@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useMemo } from "react";
 import { apiClient } from "@/lib/api";
 import ConfirmationDialog from "@/components/ConfirmationDialog";

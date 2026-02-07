@@ -79,7 +79,7 @@ export default function InvoicesManagement() {
   const confirmDelete = async () => {
     if (!deleteId) return;
     try {
-      await apiClient.del(`/financial/invoices/${deleteId}`);
+      await apiClient.delete(`/financial/invoices/${deleteId}`);
       showMessage("Invoice deleted successfully!", "success");
       fetchInvoices();
     } catch (error) {

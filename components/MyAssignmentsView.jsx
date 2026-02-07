@@ -34,7 +34,7 @@ export default function MyAssignmentsView({ loggedInUser }) {
     if (!studentId) return;
     setIsLoading(true);
     try {
-      const data = await apiClient.get(`/student/my-assignments?studentId=${studentId}`);
+      const data = await apiClient.get(`/students/my-assignments?studentId=${studentId}`);
       setSubmissions(data || []);
     } catch (err) {
       console.error(err.message);

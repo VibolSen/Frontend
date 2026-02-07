@@ -1,4 +1,11 @@
+"use client";
+
+import React, { useState, useEffect, useCallback } from "react";
+import { Plus, Bell } from "lucide-react";
 import { apiClient } from "@/lib/api";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import AnnouncementCard from "./AnnouncementCard";
+import AnnouncementModal from "./AnnouncementModal";
 
 export default function AnnouncementsView({ courseId, loggedInUser, hideHeader = false }) {
   const [announcements, setAnnouncements] = useState([]);
@@ -63,7 +70,7 @@ export default function AnnouncementsView({ courseId, loggedInUser, hideHeader =
     if (!announcementToDelete) return;
     setIsLoading(true);
     try {
-      await apiClient.del(`/announcements/${announcementToDelete}`);
+      await apiClient.delete(`/announcements/${announcementToDelete}`);
       console.log("Announcement deleted successfully!");
       await fetchData();
     } catch (err) {

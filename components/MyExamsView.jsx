@@ -19,7 +19,7 @@ export default function MyExamsView({ loggedInUser }) {
     if (!studentId) return;
     setIsLoading(true);
     try {
-      const data = await apiClient.get(`/student/my-exams?studentId=${studentId}`);
+      const data = await apiClient.get(`/students/my-exams?studentId=${studentId}`);
       setSubmissions(data || []);
     } catch (err) {
       console.error(err.message);

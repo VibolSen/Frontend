@@ -1,8 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { FiEye, FiCalendar, FiDollarSign } from "react-icons/fi";
+import { QrCode } from "lucide-react"; // Or react-icons equivalent
+import BakongPaymentModal from "@/components/finance/BakongPaymentModal";
 
 const StudentInvoicesList = ({ invoices }) => {
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+
+  const handlePayClick = (invoice) => {
+    setSelectedInvoice(invoice);
+    setIsPayModalOpen(true);
+  };
+
   if (!invoices || invoices.length === 0) {
     return (
       <div className="text-center py-10">
@@ -13,6 +23,7 @@ const StudentInvoicesList = ({ invoices }) => {
   }
 
   return (
+    <>
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white rounded-lg shadow-md">
         <thead>
@@ -65,19 +76,34 @@ const StudentInvoicesList = ({ invoices }) => {
                   {invoice.status}
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex items-center gap-3">
                 <Link
                   href={`/student/invoices/${invoice.id}`}
                   className="text-blue-600 hover:text-blue-900 flex items-center"
                 >
                   <FiEye className="mr-1" /> View
                 </Link>
+                {invoice.status !== "PAID" && (
+                    <button
+                        onClick={() => handlePayClick(invoice)}
+                        className="text-red-600 hover:text-red-800 flex items-center font-bold"
+                    >
+                        <QrCode className="w-4 h-4 mr-1" /> Pay
+                    </button>
+                )}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+
+    <BakongPaymentModal 
+        isOpen={isPayModalOpen} 
+        invoice={selectedInvoice} 
+        onClose={() => setIsPayModalOpen(false)} 
+    />
+    </>
   );
 };
 

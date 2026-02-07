@@ -1,4 +1,41 @@
+"use client";
+
+import React, { useState, useEffect, useMemo } from "react";
 import { apiClient } from "@/lib/api";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Receipt, 
+  TrendingUp, 
+  TrendingDown, 
+  AlertCircle, 
+  CreditCard,
+  Wallet
+} from "lucide-react";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import StudentInvoicesList from "@/components/student/StudentInvoicesList"; 
+
+// Minimal Stat Component
+const StatCard = ({ title, value, icon: Icon, color, subtitle }) => (
+  <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+    <div className="flex justify-between items-start mb-2">
+      <div className={`p-2.5 rounded-xl ${color} bg-opacity-10`}>
+        <Icon className={`w-5 h-5 ${color.replace('bg-', 'text-')}`} />
+      </div>
+      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{title}</span>
+    </div>
+    <div className="mt-1">
+      <h3 className="text-xl font-black text-slate-900 tracking-tight">{value}</h3>
+      <p className="text-[10px] font-medium text-slate-500 mt-1">{subtitle}</p>
+    </div>
+  </div>
+);
+
+// Wrapper for list item
+const InvoiceItem = ({ invoice }) => (
+    <div className="bg-white border border-slate-100 rounded-xl p-0 overflow-hidden shadow-sm hover:border-blue-100 transition-colors">
+       <StudentInvoicesList invoices={[invoice]} />
+    </div>
+);
 
 const StudentInvoicesPage = () => {
   const [invoices, setInvoices] = useState([]);
