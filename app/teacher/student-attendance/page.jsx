@@ -28,7 +28,7 @@ const StudentAttendancePage = () => {
 
   useEffect(() => {
     if (user?.id) {
-      apiClient.get(`/teacher/my-groups?teacherId=${user.id}`)
+      apiClient.get(`/teachers/my-groups?teacherId=${user.id}`)
         .then(setGroups)
         .catch((error) => {
           console.error("Failed to fetch groups:", error);
@@ -44,7 +44,7 @@ const StudentAttendancePage = () => {
     if (selectedGroup && date) {
       setLoadingStudents(true);
       Promise.all([
-        apiClient.get(`/teacher/groups/${selectedGroup}/students`)
+        apiClient.get(`/teachers/groups/${selectedGroup}/students`)
           .then(setStudents)
           .catch((error) => {
             console.error("Failed to fetch students:", error);
@@ -54,7 +54,7 @@ const StudentAttendancePage = () => {
             });
             return [];
           }),
-        apiClient.get(`/teacher/groups/${selectedGroup}/attendance?date=${date}`)
+        apiClient.get(`/teachers/groups/${selectedGroup}/attendance?date=${date}`)
           .then((data) => {
             const newAttendance = {};
             (data || []).forEach((att) => {
@@ -95,7 +95,7 @@ const StudentAttendancePage = () => {
     }));
 
     try {
-      await apiClient.post(`/teacher/groups/${selectedGroup}/attendance`, { date, attendances });
+      await apiClient.post(`/teachers/groups/${selectedGroup}/attendance`, { date, attendances });
       setStatus({
         type: "success",
         message: "Attendance submitted successfully!",

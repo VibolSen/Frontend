@@ -18,7 +18,7 @@ export default function MyStudentsView({ loggedInUser }) {
 
     setIsLoading(true);
     try {
-      const data = await apiClient.get(`/teacher/my-students?teacherId=${teacherId}`);
+      const data = await apiClient.get(`/teachers/my-students?teacherId=${teacherId}`);
       setStudents(data || []);
     } catch (err) {
       console.error(err);

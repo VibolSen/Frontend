@@ -25,7 +25,7 @@ export default function AssignmentsView({ loggedInUser }) {
     if (!loggedInUser) return;
     setIsLoading(true);
     try {
-      let assignmentsUrl = `/teacher/assignments?teacherId=${loggedInUser.id}`;
+      let assignmentsUrl = `/assignments?teacherId=${loggedInUser.id}`;
       if (
         loggedInUser.role === "ADMIN" ||
         loggedInUser.role === "STUDY_OFFICE" ||
@@ -37,7 +37,7 @@ export default function AssignmentsView({ loggedInUser }) {
       const requests = [apiClient.get(assignmentsUrl)];
       
       if (loggedInUser.role === "TEACHER") {
-         requests.push(apiClient.get(`/teacher/my-groups?teacherId=${loggedInUser.id}`));
+         requests.push(apiClient.get(`/teachers/my-groups?teacherId=${loggedInUser.id}`));
       }
 
       const results = await Promise.allSettled(requests);
@@ -68,7 +68,7 @@ export default function AssignmentsView({ loggedInUser }) {
   const handleSaveAssignment = async (formData) => {
     setIsLoading(true);
     try {
-      await apiClient.post("/teacher/assignments", { ...formData, teacherId });
+      await apiClient.post("/assignments", { ...formData, teacherId });
       console.log("Assignment created successfully!");
       setIsAddModalOpen(false);
       await fetchData();
@@ -88,7 +88,7 @@ export default function AssignmentsView({ loggedInUser }) {
     if (!assignmentToEdit) return;
     setIsLoading(true);
     try {
-      await apiClient.put(`/teacher/assignments/${assignmentToEdit.id}`, formData);
+      await apiClient.put(`/assignments/${assignmentToEdit.id}`, formData);
       console.log("Assignment updated successfully!");
       setIsEditModalOpen(false);
       setAssignmentToEdit(null);
@@ -109,7 +109,7 @@ export default function AssignmentsView({ loggedInUser }) {
     if (!assignmentToDelete) return;
     setIsLoading(true);
     try {
-      await apiClient.delete(`/teacher/assignments/${assignmentToDelete}`);
+      await apiClient.delete(`/assignments/${assignmentToDelete}`);
       console.log("Assignment deleted successfully!");
       await fetchData();
     } catch (err) {
