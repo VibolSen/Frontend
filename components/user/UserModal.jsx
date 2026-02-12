@@ -11,7 +11,15 @@ const initialFormState = {
   lastName: "",
   email: "",
   password: "",
-  role: "", // Added role to initial form state
+  role: "", 
+  gender: "",
+  academicStatus: "ACTIVE",
+  emergencyContactName: "",
+  emergencyContactPhone: "",
+  emergencyContactRelation: "",
+  specialization: "",
+  maxWorkload: "",
+  departmentId: "",
 };
 
 export default function UserModal({
@@ -20,17 +28,19 @@ export default function UserModal({
   onSave,
   userToEdit,
   roles,
+  departments = [],
   isLoading = false,
 }) {
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
-  const [mounted, setMounted] = useState(false); // To handle createPortal
+  const [mounted, setMounted] = useState(false); 
   const [showPassword, setShowPassword] = useState(false);
+  const [showDetailed, setShowDetailed] = useState(false);
 
   const isEditMode = !!userToEdit;
 
   useEffect(() => {
-    setMounted(true); // For createPortal
+    setMounted(true); 
   }, []);
 
   useEffect(() => {
@@ -41,18 +51,24 @@ export default function UserModal({
           lastName: userToEdit.lastName || "",
           email: userToEdit.email || "",
           role: userToEdit.role || roles?.[0] || "",
-          password: "", // Password not pre-filled for security
+          password: "",
+          gender: userToEdit.profile?.gender || "",
+          academicStatus: userToEdit.profile?.academicStatus || "ACTIVE",
+          emergencyContactName: userToEdit.profile?.emergencyContactName || "",
+          emergencyContactPhone: userToEdit.profile?.emergencyContactPhone || "",
+          emergencyContactRelation: userToEdit.profile?.emergencyContactRelation || "",
+          specialization: userToEdit.profile?.specialization?.join(", ") || "",
+          maxWorkload: userToEdit.profile?.maxWorkload || "",
+          departmentId: userToEdit.departmentId || "",
         });
       } else {
         setFormData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          password: "",
+          ...initialFormState,
           role: roles?.[0] || "",
         });
       }
       setErrors({});
+      setShowDetailed(false);
     }
   }, [isOpen, userToEdit, roles]);
 
@@ -65,20 +81,8 @@ export default function UserModal({
   const validateForm = () => {
     const newErrors = {};
     
-    // Validate first name
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = "First name is required";
-    } else if (!/^[a-zA-Z\s'-]+$/.test(formData.firstName)) {
-      newErrors.firstName = "First name must contain only letters";
-    }
-    
-    // Validate last name
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "Last name is required";
-    } else if (!/^[a-zA-Z\s'-]+$/.test(formData.lastName)) {
-      newErrors.lastName = "Last name must contain only letters";
-    }
-    
+    if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
+    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
     if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email))
       newErrors.email = "A valid email is required";
     if (!formData.role) newErrors.role = "Role is required";
@@ -94,19 +98,27 @@ export default function UserModal({
     if (validateForm()) {
       const dataToSend = { ...formData };
       if (isEditMode && !dataToSend.password) {
-        delete dataToSend.password; // Don't send empty password on edit
+        delete dataToSend.password; 
       }
+      
+      // Convert specialization string to array
+      if (typeof dataToSend.specialization === 'string') {
+        dataToSend.specialization = dataToSend.specialization
+          .split(',')
+          .map(s => s.trim())
+          .filter(s => s !== "");
+      }
+      
       onSave(dataToSend);
     }
   };
 
-  if (!isOpen || !mounted) return null; // Use mounted state for createPortal
+  if (!isOpen || !mounted) return null; 
 
   const modalContent = (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex justify-center items-center p-4">
-          {/* Glassmorphism Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -115,14 +127,12 @@ export default function UserModal({
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
           />
 
-          {/* Modal Container */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-full overflow-hidden flex flex-col border border-white/20"
+            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-white/20"
           >
-            {/* Header with Gradient Background */}
             <div className="p-5 border-b bg-gradient-to-r from-slate-50 to-white">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
@@ -131,17 +141,16 @@ export default function UserModal({
                   </div>
                   <div>
                     <h2 id="add-user-modal-title" className="text-lg font-bold text-slate-800">
-                      {isEditMode ? "Edit User Account" : "Create New User"}
+                      {isEditMode ? "Account Configuration" : "New Personnel Enrollment"}
                     </h2>
                     <p className="text-xs text-slate-500">
-                      {isEditMode ? "Update basic account information" : "Fill in details to register a new user"}
+                      {isEditMode ? "Modify existing credentials and profile data" : "Initialize a new system account"}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={onClose}
                   className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all duration-200"
-                  aria-label="Close modal"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -149,184 +158,193 @@ export default function UserModal({
             </div>
 
             <form onSubmit={handleSubmit} noValidate className="flex flex-col overflow-hidden">
-              <div className="p-6 space-y-5 overflow-y-auto max-h-[70vh]">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* First Name */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 ml-1">
-                      First Name
-                    </label>
-                    <div className="relative group">
+              <div className="p-6 space-y-5 overflow-y-auto">
+                <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-4">
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Core Identity</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700 ml-1">First Name</label>
                       <input
-                        type="text"
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleChange}
-                        className={`w-full pl-3 pr-3 py-2 bg-slate-50 border rounded-xl text-sm transition-all duration-200 ${
-                          errors.firstName
-                            ? "border-red-500 ring-4 ring-red-500/10"
-                            : "border-slate-200 group-hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white"
-                        }`}
+                        className={`w-full px-3 py-2 bg-white border rounded-xl text-sm transition-all ${errors.firstName ? 'border-red-500' : 'border-slate-200 focus:border-blue-500'}`}
                       />
                     </div>
-                    {errors.firstName && (
-                      <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-[10px] text-red-500 ml-1">
-                        {errors.firstName}
-                      </motion.p>
-                    )}
-                  </div>
-
-                  {/* Last Name */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 ml-1">
-                      Last Name
-                    </label>
-                    <div className="relative group">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700 ml-1">Last Name</label>
                       <input
-                        type="text"
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleChange}
-                        className={`w-full pl-3 pr-3 py-2 bg-slate-50 border rounded-xl text-sm transition-all duration-200 ${
-                          errors.lastName
-                            ? "border-red-500 ring-4 ring-red-500/10"
-                            : "border-slate-200 group-hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white"
-                        }`}
+                        className={`w-full px-3 py-2 bg-white border rounded-xl text-sm transition-all ${errors.lastName ? 'border-red-500' : 'border-slate-200 focus:border-blue-500'}`}
                       />
                     </div>
-                    {errors.lastName && (
-                      <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-[10px] text-red-500 ml-1">
-                        {errors.lastName}
-                      </motion.p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700 ml-1">Email Address</label>
+                      <input
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className={`w-full px-3 py-2 bg-white border rounded-xl text-sm transition-all ${errors.email ? 'border-red-500' : 'border-slate-200 focus:border-blue-500'}`}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700 ml-1">Account Role</label>
+                      <select
+                        name="role"
+                        value={formData.role}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
+                      >
+                        {(roles || []).map(r => <option key={r} value={r}>{r}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5 flex-1">
+                      <label className="text-xs font-semibold text-slate-700 ml-1">Department Liaison</label>
+                      <select
+                        name="departmentId"
+                        value={formData.departmentId}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
+                        disabled={isLoading}
+                      >
+                        <option value="">No Department Assigned</option>
+                        {departments.map(dept => (
+                          <option key={dept.id} value={dept.id}>{dept.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {!isEditMode && (
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700 ml-1">Password</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          name="password"
+                          value={formData.password}
+                          onChange={handleChange}
+                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
+                        />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-2.5 text-slate-400">
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowDetailed(!showDetailed)}
+                    className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 flex items-center gap-1.5 mb-4"
+                  >
+                    {showDetailed ? "Hide Profile Attributes" : "Configure Extended Profile"}
+                    <svg className={`w-3 h-3 transition-transform ${showDetailed ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  <AnimatePresence>
+                    {showDetailed && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden space-y-4"
+                      >
+                        <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-semibold text-slate-700 ml-1">Gender</label>
+                              <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                                </select>
+                              </div>
+                             {formData.role === 'STUDENT' && (
+                               <div className="space-y-1.5">
+                                 <label className="text-xs font-semibold text-slate-700 ml-1">Academic Status</label>
+                                 <select name="academicStatus" value={formData.academicStatus} onChange={handleChange} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm">
+                                   <option value="ACTIVE">Active</option>
+                                   <option value="ON_LEAVE">On Leave</option>
+                                   <option value="GRADUATED">Graduated</option>
+                                   <option value="WITHDRAWN">Withdrawn</option>
+                                 </select>
+                               </div>
+                             )}
+                             {formData.role === 'TEACHER' && (
+                                <div className="space-y-1.5">
+                                  <label className="text-xs font-semibold text-slate-700 ml-1">Specializations (tag separated)</label>
+                                  <input 
+                                    name="specialization" 
+                                    placeholder="e.g. Math, Physics"
+                                    value={formData.specialization} 
+                                    onChange={handleChange} 
+                                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm" 
+                                  />
+                                </div>
+                             )}
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {formData.role === 'TEACHER' && (
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-slate-700 ml-1">Max Course Load</label>
+                                <input 
+                                  type="number"
+                                  name="maxWorkload" 
+                                  value={formData.maxWorkload} 
+                                  onChange={handleChange} 
+                                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm" 
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="space-y-3">
+                            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">Emergency Contact Information</h3>
+                            <div className="space-y-1.5">
+                              <label className="text-xs font-semibold text-slate-700 ml-1">Contact Name</label>
+                              <input name="emergencyContactName" value={formData.emergencyContactName} onChange={handleChange} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm" />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-slate-700 ml-1">Phone Number</label>
+                                <input name="emergencyContactPhone" value={formData.emergencyContactPhone} onChange={handleChange} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm" />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-slate-700 ml-1">Relation</label>
+                                <input name="emergencyContactRelation" value={formData.emergencyContactRelation} onChange={handleChange} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
                     )}
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 ml-1">
-                    Email Address
-                  </label>
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                    </div>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="example@school.com"
-                      className={`w-full pl-10 pr-3 py-2.5 bg-slate-50 border rounded-xl text-sm transition-all duration-200 ${
-                        errors.email
-                          ? "border-red-500 ring-4 ring-red-500/10"
-                          : "border-slate-200 group-hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white"
-                      }`}
-                    />
-                  </div>
-                  {errors.email && (
-                    <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-[10px] text-red-500 ml-1">
-                      {errors.email}
-                    </motion.p>
-                  )}
-                </div>
-
-                {/* Role */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 ml-1">
-                    Account Role
-                  </label>
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <ShieldCheck className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                    </div>
-                    <select
-                      name="role"
-                      value={formData.role}
-                      onChange={handleChange}
-                      className={`w-full pl-10 pr-3 py-2.5 bg-slate-50 border rounded-xl text-sm transition-all duration-200 appearance-none ${
-                        errors.role
-                          ? "border-red-500 ring-4 ring-red-500/10"
-                          : "border-slate-200 group-hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white"
-                      }`}
-                    >
-                      <option value="" disabled>Select User Role</option>
-                      {(roles || []).filter((role) => role !== "ADMIN").map((role) => (
-                        <option key={role} value={role}>{role}</option>
-                      ))}
-                    </select>
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </div>
-                  {errors.role && (
-                    <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-[10px] text-red-500 ml-1">
-                      {errors.role}
-                    </motion.p>
-                  )}
-                </div>
-
-                {/* Password */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 ml-1">
-                    Password {isEditMode ? "(Optional)" : ""}
-                  </label>
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                    </div>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      placeholder={isEditMode ? "Leave empty to keep current" : "Minimum 6 characters"}
-                      value={formData.password}
-                      onChange={handleChange}
-                      className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-xl text-sm transition-all duration-200 ${
-                        errors.password
-                          ? "border-red-500 ring-4 ring-red-500/10"
-                          : "border-slate-200 group-hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white"
-                      }`}
-                    />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-600 transition-colors"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  {errors.password && (
-                    <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-[10px] text-red-500 ml-1">
-                      {errors.password}
-                    </motion.p>
-                  )}
+                  </AnimatePresence>
                 </div>
               </div>
 
-              {/* Footer Actions */}
               <div className="p-5 bg-slate-50 border-t flex justify-end items-center gap-3">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all duration-200"
-                >
-                  Cancel
-                </button>
+                <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-all">Cancel</button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="relative overflow-hidden px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-200 hover:shadow-xl hover:shadow-blue-300 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-200 hover:-translate-y-0.5 transition-all disabled:opacity-70"
                 >
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <LoadingSpinner size="xs" color="white" />
-                      <span>Saving...</span>
-                    </div>
-                  ) : (
-                    <span>{isEditMode ? "Update Account" : "Create Account"}</span>
-                  )}
+                  {isLoading ? "Synchronizing..." : isEditMode ? "Commit Changes" : "Register User"}
                 </button>
               </div>
             </form>

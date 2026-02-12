@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { Edit, Eye, Trash2, Search, ShieldCheck, Filter, UserPlus } from "lucide-react";
+import { Edit, Eye, Trash2, Search, ShieldCheck, Filter, UserPlus, Lock, Power } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SortIndicator = ({ direction }) => {
@@ -19,9 +19,14 @@ export default function UserTable({
   onAddUserClick,
   onEditClick,
   onDeleteClick,
+  onToggleStatus,
+  onResetPassword,
+  onMigrate,
   allRoles = [],
   isLoading = false,
   currentUserRole,
+  selectedUserIds = [],
+  onSelectionChange,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
@@ -52,6 +57,22 @@ export default function UserTable({
     });
   }, [filteredUsers, sortConfig]);
 
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      onSelectionChange(sortedUsers.map(u => u.id));
+    } else {
+      onSelectionChange([]);
+    }
+  };
+
+  const handleSelectUser = (id) => {
+    if (selectedUserIds.includes(id)) {
+      onSelectionChange(selectedUserIds.filter(i => i !== id));
+    } else {
+      onSelectionChange([...selectedUserIds, id]);
+    }
+  };
+
   const handleSort = (key) => {
     let direction = "ascending";
     if (sortConfig.key === key && sortConfig.direction === "ascending") {
@@ -73,7 +94,7 @@ export default function UserTable({
       {/* Filters Area */}
       <div className="p-4 border-b border-slate-100 bg-slate-50/30 space-y-3">
         <div className="flex flex-col md:flex-row justify-between items-center gap-3">
-           <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <div className="h-8 w-1 bg-indigo-600 rounded-full" />
             <h2 className="text-sm font-black text-slate-800 uppercase tracking-tight">Active Personnel</h2>
           </div>
@@ -112,14 +133,22 @@ export default function UserTable({
           </div>
         </div>
       </div>
-
+      
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead className="bg-slate-50/10 border-b border-slate-100">
             <tr>
-              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer group" onClick={() => handleSort("firstName")}>
+              <th className="px-5 py-3 text-left w-10">
+                <input 
+                  type="checkbox" 
+                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 w-4 h-4 cursor-pointer"
+                  checked={sortedUsers.length > 0 && selectedUserIds.length === sortedUsers.length}
+                  onChange={handleSelectAll}
+                />
+              </th>
+              <th className="px-2 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer group" onClick={() => handleSort("firstName")}>
                 <div className="flex items-center gap-1">
-                  User Identity
+                   Identity
                   <SortIndicator direction={sortConfig.key === "firstName" ? sortConfig.direction : null} />
                 </div>
               </th>
@@ -135,13 +164,16 @@ export default function UserTable({
                   <SortIndicator direction={sortConfig.key === "role" ? sortConfig.direction : null} />
                 </div>
               </th>
+              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                Status / Workload
+              </th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Management</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
             {isLoading && sortedUsers.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-12 border-none">
+                <td colSpan={6} className="py-12 border-none">
                   <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                     <div className="h-5 w-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Authenticating Data...</span>
@@ -150,76 +182,144 @@ export default function UserTable({
               </tr>
             ) : sortedUsers.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-12 text-center">
-                   <div className="flex flex-col items-center opacity-40">
-                     <ShieldCheck size={24} className="mb-2" />
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No personnel records found</p>
-                   </div>
+                <td colSpan={6} className="py-12 text-center">
+                  <div className="flex flex-col items-center opacity-40">
+                    <ShieldCheck size={24} className="mb-2" />
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No personnel records found</p>
+                  </div>
                 </td>
               </tr>
             ) : (
-              sortedUsers.map((user, index) => (
-                <motion.tr 
-                  key={user.id}
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: Math.min(index * 0.02, 0.4) }}
-                  className="group hover:bg-blue-50/20 transition-colors"
-                >
-                  <td className="px-5 py-3 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-indigo-700 flex items-center justify-center font-black text-[10px] shrink-0 border border-blue-200 shadow-sm shadow-blue-100">
-                        {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+              sortedUsers.map((user, index) => {
+                const courseCount = user._count?.ledCourses || 0;
+                const maxLoad = user.profile?.maxWorkload || 5;
+                const workloadPercent = Math.min((courseCount / maxLoad) * 100, 100);
+                
+                return (
+                  <motion.tr 
+                    key={user.id}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(index * 0.02, 0.4) }}
+                    className={`group hover:bg-blue-50/20 transition-colors ${selectedUserIds.includes(user.id) ? 'bg-indigo-50/40' : ''}`}
+                  >
+                    <td className="px-5 py-3">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 w-4 h-4 cursor-pointer"
+                        checked={selectedUserIds.includes(user.id)}
+                        onChange={() => handleSelectUser(user.id)}
+                      />
+                    </td>
+                    <td className="px-2 py-3 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-blue-50 text-indigo-700 flex items-center justify-center font-black text-[10px] shrink-0 border border-blue-200 shadow-sm shadow-blue-100">
+                          {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[13px] font-black text-slate-800 tracking-tight">{user.firstName} {user.lastName}</span>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                            {user.profile?.studentId || "System Personnel"}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-[13px] font-black text-slate-800 tracking-tight">{user.firstName} {user.lastName}</span>
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">System Personnel</span>
+                    </td>
+                    <td className="px-5 py-3 whitespace-nowrap hidden md:table-cell">
+                      <span className="text-[13px] font-semibold text-slate-600">{user.email}</span>
+                    </td>
+                    <td className="px-5 py-3 whitespace-nowrap">
+                      <span className={`px-2 py-0.5 text-[9px] font-black rounded-md border uppercase tracking-wide ${roleColors[user.role] || "bg-slate-50 text-slate-700 border-slate-100"}`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3 whitespace-nowrap">
+                      <div className="flex flex-col gap-1.5 min-w-[120px]">
+                        <div className="flex items-center gap-1.5">
+                          <div className={`w-1.5 h-1.5 rounded-full ${user.isActive ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                          <span className={`text-[11px] font-bold ${user.isActive ? 'text-emerald-600' : 'text-slate-400'}`}>
+                            {user.isActive ? 'Active' : 'Suspended'}
+                          </span>
+                        </div>
+                        {user.role === 'TEACHER' && (
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[9px] font-bold text-slate-500">
+                              <span>Load: {courseCount}/{maxLoad}</span>
+                              <span>{Math.round(workloadPercent)}%</span>
+                            </div>
+                            <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+                              <div 
+                                className={`h-full transition-all duration-500 ${
+                                  workloadPercent > 90 ? 'bg-rose-500' : workloadPercent > 60 ? 'bg-amber-500' : 'bg-emerald-500'
+                                }`}
+                                style={{ width: `${workloadPercent}%` }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 whitespace-nowrap hidden md:table-cell">
-                    <span className="text-[13px] font-semibold text-slate-600">{user.email}</span>
-                  </td>
-                  <td className="px-5 py-3 whitespace-nowrap">
-                    <span className={`px-2 py-0.5 text-[9px] font-black rounded-md border uppercase tracking-wide ${roleColors[user.role] || "bg-slate-50 text-slate-700 border-slate-100"}`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 whitespace-nowrap text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      {(currentUserRole === "ADMIN" || currentUserRole === "HR") && (
-                        <button
-                          onClick={() => onEditClick(user)}
-                          className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
-                          disabled={isLoading}
-                          title="Quick Edit"
-                        >
-                          <Edit className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                      {currentUserRole && (
-                        <Link 
-                          href={`/${currentUserRole.toLowerCase()}/users/${user.id}`}
-                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                          title="Full Profile"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                        </Link>
-                      )}
-                      {(currentUserRole === "ADMIN" || currentUserRole === "HR") && (
-                        <button
-                          onClick={() => onDeleteClick(user.id)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
-                          disabled={isLoading}
-                          title="Remove Account"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </motion.tr>
-              ))
+                    </td>
+                    <td className="px-5 py-3 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        {(currentUserRole === "ADMIN" || currentUserRole === "HR") && (
+                          <>
+                            <button
+                              onClick={() => onEditClick(user)}
+                              className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                              disabled={isLoading}
+                              title="Quick Edit"
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                               onClick={() => onMigrate(user)}
+                               className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                               disabled={isLoading}
+                               title="Migrate Role"
+                             >
+                               <ShieldCheck className="w-3.5 h-3.5" />
+                             </button>
+                            <button
+                              onClick={() => onResetPassword(user)}
+                              className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
+                              disabled={isLoading}
+                              title="Reset Password"
+                            >
+                              <Lock className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => onToggleStatus(user)}
+                              className={`p-1.5 transition-all rounded-lg ${user.isActive ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50' : 'text-emerald-500 hover:bg-emerald-50'}`}
+                              disabled={isLoading}
+                              title={user.isActive ? "Suspend Account" : "Activate Account"}
+                            >
+                              <Power className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        )}
+                        {currentUserRole && (
+                          <Link 
+                            href={`/${currentUserRole.toLowerCase()}/users/${user.id}`}
+                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                            title="Full Profile"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </Link>
+                        )}
+                        {(currentUserRole === "ADMIN" || currentUserRole === "HR") && (
+                          <button
+                            onClick={() => onDeleteClick(user.id)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                            disabled={isLoading}
+                            title="Remove Account"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </motion.tr>
+                );
+              })
             )}
           </tbody>
         </table>
