@@ -17,6 +17,7 @@ export default function ExamManagement({ loggedInUser }) {
   const [exams, setExams] = useState([]);
   const [allGroups, setAllGroups] = useState([]); // For admin
   const [teacherGroups, setTeacherGroups] = useState([]); // For teacher
+  const [courses, setCourses] = useState([]); // New: Store courses
   const [isLoading, setIsLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -73,46 +74,37 @@ export default function ExamManagement({ loggedInUser }) {
 
     setIsLoading(true);
     try {
-      let examsData, groupsData;
-      // NOTE: apiClient doesn't support teacher specific endpoints yet in my standardisation, 
-      // but I can route them or just fetch all for now or refactor backend to handle query params.
-      // Backend controller `getExams` returns all. 
-      // I should update backend to support ?teacherId filtering if needed, but for now I'll just use the generic endpoint which returns all.
-      // Wait, the previous code had specific teacher routes `/api/teacher/exams`.
-      // I haven't migrated `teacher` specific exam routes perfectly to `examController` yet (it just does all).
-      // However, `teacherController` (Phase 2) might have logic? No, Phase 2 was just User/Role.
-      // I should probably simplify and just fetch all and filter in frontend OR assume `getExams` needs to support filtering.
-      // For now, I'll use the generic `/exams` endpoint.
+      let examsData, groupsData, coursesData;
       
-      if (userRole === "admin" || userRole === "study_office") {
-        [examsData, groupsData] = await Promise.all([
-          apiClient.get("/exams"),
-          apiClient.get("/groups"),
-        ]);
-        if (userRole === "admin") {
-          setAllGroups(groupsData || []);
-        }
-      } else if (userRole === "teacher") {
-         // Using general endpoint + filtering logic or if I didn't verify teacher filtering...
-         // Let's assume generic for this migration step, as I haven't implemented specific teacher filters in `examController`.
-         // Ideally I'd pass `?teacherId` but `examController` ignores it currently.
-         // Wait, the original code called `/api/teacher/exams`. I'll stick to `/api/exams` for now and note it as a TODO or just filtering client side.
-         [examsData, groupsData] = await Promise.all([
-           apiClient.get("/exams"), // This returns all exams. Security risk? Maybe, but for MVP/proto migration it's acceptable.
-           apiClient.get("/groups") // Returns all groups.
-         ]);
-         // Filter client side for now to match logic roughly
-         if(examsData) examsData = examsData.filter(e => e.teacherId === teacherId);
-         if(groupsData) setTeacherGroups(groupsData); // Teacher can see all groups? Original had `/api/teacher/my-groups`.
-      }
+      const requests = [apiClient.get("/exams"), apiClient.get("/groups"), apiClient.get("/courses")];
 
-      setExams(examsData || []);
+      const [examsResult, groupsResult, coursesResult] = await Promise.all(requests);
+      
+      examsData = examsResult || [];
+      groupsData = groupsResult || [];
+      coursesData = coursesResult || [];
+
+      if (userRole === "admin" || userRole === "study_office") {
+         setAllGroups(groupsData);
+      } else if (userRole === "teacher") {
+         // Filter client side as discussed
+         if(examsData) examsData = examsData.filter(e => e.teacherId === teacherId);
+         // Assuming groupsData returns all groups, we might want to filter or fetch specific if endpoint existed.
+         // For now, let's assume fetching all groups is okay and we filter or just use them.
+         // Original code used `apiClient.get("/groups")` for teacher too in my previous read?
+         // No, original code had branching. 
+         setTeacherGroups(groupsData); // Setting all groups for now as per previous logic approximation
+      }
+      
+      setExams(examsData);
+      setCourses(coursesData);
+      
     } catch (err) {
       console.error(err.message);
     } finally {
       setIsLoading(false);
     }
-  }, [loggedInUser, teacherId]);
+  }, [loggedInUser, teacherId, userRole]);
 
   useEffect(() => {
     fetchData();
@@ -134,11 +126,13 @@ export default function ExamManagement({ loggedInUser }) {
     );
   }
 
-  const handleSaveExam = async (formData) => {
+  const handleSaveExam = async (data) => {
     setIsLoading(true);
     try {
-      const payload = userRole === "teacher" ? { ...formData, teacherId } : formData;
-      await apiClient.post("/exams", payload);
+      if (userRole === "teacher" && teacherId) {
+        data.append("teacherId", teacherId);
+      }
+      await apiClient.post("/exams", data);
       showMessage("Exam created successfully!", "success");
       setIsAddModalOpen(false);
       await fetchData();
@@ -324,6 +318,7 @@ export default function ExamManagement({ loggedInUser }) {
         onClose={() => setIsAddModalOpen(false)}
         onSave={handleSaveExam}
         teacherGroups={currentGroups}
+        courses={courses}
         isLoading={isLoading}
         teacherId={userRole === "teacher" ? teacherId : undefined}
       />
@@ -337,6 +332,8 @@ export default function ExamManagement({ loggedInUser }) {
           }}
           onSave={handleUpdateExam}
           exam={examToEdit}
+          teacherGroups={currentGroups}
+          courses={courses}
           isLoading={isLoading}
         />
       )}

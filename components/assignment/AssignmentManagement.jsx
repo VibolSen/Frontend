@@ -72,10 +72,13 @@ export default function AssignmentManagement() {
     fetchData();
   }, [fetchData]);
 
-  const handleSaveAssignment = async (formData) => {
+  const handleSaveAssignment = async (data) => {
     setIsLoading(true);
     try {
-      await apiClient.post("/assignments", formData);
+      if (user?.id) {
+        data.append("teacherId", user.id);
+      }
+      await apiClient.post("/assignments", data);
       showMessage("Assignment created successfully!", "success");
       setIsAddModalOpen(false);
       await fetchData();

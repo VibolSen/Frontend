@@ -20,6 +20,7 @@ export default function DepartmentManagementView() {
   const [successMessage, setSuccessMessage] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [potentialHeads, setPotentialHeads] = useState([]);
 
   const showMessage = (message, type = "success") => {
     if (type === "error") {
@@ -55,6 +56,7 @@ export default function DepartmentManagementView() {
   useEffect(() => {
     fetchDepartments();
     fetchFaculties();
+    apiClient.get('/users?roleType=nonStudent').then(setPotentialHeads).catch(console.error);
   }, [fetchDepartments, fetchFaculties]);
 
   const handleSaveDepartment = async (formData) => {
@@ -168,6 +170,7 @@ export default function DepartmentManagementView() {
           departmentToEdit={editingDepartment}
           isLoading={isLoading}
           faculties={faculties}
+          heads={potentialHeads}
         />
       )}
 

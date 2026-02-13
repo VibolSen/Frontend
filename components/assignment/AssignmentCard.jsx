@@ -65,15 +65,31 @@ const AssignmentCard = ({
       
       <div className="p-4 flex-1 flex flex-col">
         {/* Header: Badges */}
-        <div className="flex justify-between items-start mb-3">
-          <div className="flex items-center gap-1.5 px-2 py-1 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 text-[9px] font-black uppercase tracking-wider">
-            <Users size={10} />
-            {assignment.group?.name || "Global Cohort"}
-          </div>
-          <div className={`flex items-center gap-1 px-2 py-1 ${theme.bg} ${theme.text} ${theme.border} rounded-lg border text-[9px] font-black uppercase tracking-wider`}>
-            {theme.icon}
-            {theme.label}
-          </div>
+        <div className="flex justify-between items-start mb-3 gap-2">
+           <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-1.5 px-2 py-1 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 text-[9px] font-black uppercase tracking-wider w-fit">
+                <Users size={10} />
+                {assignment.group?.name || "Group"}
+              </div>
+              {assignment.course && (
+                 <div className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-lg border border-blue-100 text-[9px] font-black uppercase tracking-wider w-fit">
+                  <Layers size={10} />
+                  {assignment.course.name}
+                </div>
+              )}
+           </div>
+
+           <div className="flex flex-col gap-1 items-end">
+              <div className={`flex items-center gap-1 px-2 py-1 ${theme.bg} ${theme.text} ${theme.border} rounded-lg border text-[9px] font-black uppercase tracking-wider`}>
+                {theme.icon}
+                {theme.label}
+              </div>
+               {assignment.type && (
+                  <div className="text-[8px] text-slate-400 font-bold uppercase tracking-widest px-1">
+                    {assignment.type}
+                  </div>
+               )}
+           </div>
         </div>
 
         {/* Title & Description */}
@@ -100,9 +116,9 @@ const AssignmentCard = ({
                  {assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString() : "No Deadline"}
                </span>
              </div>
-             {assignment.points && (
+             {(assignment.maxPoints || assignment.points) && (
                <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-0.5">
-                 {assignment.points} Points Available
+                 {assignment.maxPoints || assignment.points} Points
                </div>
              )}
           </div>

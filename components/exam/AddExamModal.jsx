@@ -11,16 +11,26 @@ export default function AddExamModal({
   onClose,
   onSave,
   teacherGroups,
+  courses,
   isLoading,
 }) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    examDate: "",
+    date: "", // Use 'date' instead of 'examDate' to match backend map (though controller also accepted examDate, I unified it)
+    startTime: "",
+    endTime: "",
+    location: "",
+    type: "WRITTEN",
+    status: "SCHEDULED",
+    maxScore: "100",
     groupId: "",
+    courseId: "",
   });
   const [error, setError] = useState("");
   const [mounted, setMounted] = useState(false);
+
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   useEffect(() => {
     setMounted(true);
@@ -31,9 +41,17 @@ export default function AddExamModal({
       setFormData({
         title: "",
         description: "",
-        examDate: "",
+        date: "",
+        startTime: "",
+        endTime: "",
+        location: "",
+        type: "WRITTEN",
+        status: "SCHEDULED",
+        maxScore: "100",
+        courseId: "",
         groupId: teacherGroups.length > 0 ? teacherGroups[0].id : "",
       });
+      setSelectedFiles([]);
       setError("");
     }
   }, [isOpen, teacherGroups]);
@@ -41,6 +59,28 @@ export default function AddExamModal({
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+    const validFiles = [];
+
+    for (const file of files) {
+      if (file.size > MAX_SIZE) {
+        setError(`File ${file.name} is too large. Max size is 10MB.`);
+        return;
+      }
+      validFiles.push(file);
+    }
+
+    setSelectedFiles((prev) => [...prev, ...validFiles]);
+    setError("");
+    e.target.value = "";
+  };
+
+  const removeSelectedFile = (index) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = (e) => {
@@ -53,7 +93,18 @@ export default function AddExamModal({
       setError("You must select a group for this exam.");
       return;
     }
-    onSave(formData);
+    
+    // Use FormData for multi-part
+    const data = new FormData();
+    Object.keys(formData).forEach(key => {
+        data.append(key, formData[key] || "");
+    });
+    
+    selectedFiles.forEach(file => {
+        data.append("attachments", file);
+    });
+    
+    onSave(data);
   };
 
   if (!isOpen || !mounted) return null;
@@ -129,19 +180,6 @@ export default function AddExamModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-700 ml-1 flex items-center">
-                      <Calendar className="w-3 h-3 mr-1 text-slate-400" /> Exam Date
-                    </label>
-                    <input
-                      type="date"
-                      name="examDate"
-                      value={formData.examDate}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-purple-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 focus:bg-white"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700 ml-1 flex items-center">
                       <Users className="w-3 h-3 mr-1 text-slate-400" /> Target Group
                     </label>
                     <div className="relative group">
@@ -154,18 +192,12 @@ export default function AddExamModal({
                         }`}
                         disabled={teacherGroups.length === 0}
                       >
-                        {teacherGroups.length === 0 ? (
-                          <option value="">No Groups</option>
-                        ) : (
-                          <>
-                            <option value="">Select Category</option>
-                            {teacherGroups.map((group) => (
-                              <option key={group.id} value={group.id}>
-                                {group.name}
-                              </option>
-                            ))}
-                          </>
-                        )}
+                         <option value="">Select Group</option>
+                         {teacherGroups.map((group) => (
+                           <option key={group.id} value={group.id}>
+                             {group.name}
+                           </option>
+                         ))}
                       </select>
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-purple-500 transition-colors">
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,6 +205,184 @@ export default function AddExamModal({
                         </svg>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1 flex items-center">
+                       Course
+                    </label>
+                    <div className="relative group">
+                      <select
+                        name="courseId"
+                        value={formData.courseId}
+                        onChange={handleChange}
+                        className="w-full pl-3 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 appearance-none hover:border-purple-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 focus:bg-white"
+                      >
+                         <option value="">Select Course (Optional)</option>
+                         {courses && courses.map((course) => (
+                            <option key={course.id} value={course.id}>
+                              {course.name}
+                            </option>
+                         ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-purple-500 transition-colors">
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1 flex items-center">
+                      <Calendar className="w-3 h-3 mr-1 text-slate-400" /> Date
+                    </label>
+                    <input
+                      type="date"
+                      name="date"
+                      value={formData.date}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-purple-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 focus:bg-white"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">Start Time</label>
+                    <input
+                      type="datetime-local" 
+                      name="startTime" 
+                      value={formData.startTime}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-purple-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 focus:bg-white"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">End Time</label>
+                    <input
+                      type="datetime-local"
+                      name="endTime"
+                      value={formData.endTime}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-purple-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                   <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">Location</label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-purple-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 focus:bg-white"
+                      placeholder="e.g. Room 304 or Online"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">Type</label>
+                     <select
+                        name="type"
+                        value={formData.type}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 appearance-none hover:border-purple-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 focus:bg-white"
+                      >
+                        <option value="WRITTEN">Written</option>
+                        <option value="ORAL">Oral</option>
+                        <option value="PRACTICAL">Practical</option>
+                        <option value="ONLINE_QUIZ">Online Quiz</option>
+                        <option value="MIDTERM">Midterm</option>
+                        <option value="FINAL">Final</option>
+                      </select>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                    <label className="text-xs font-semibold text-slate-700 ml-1 flex items-center gap-2">
+                       <FileText className="w-4 h-4 text-purple-500" /> Exam Materials (PDF/Images)
+                    </label>
+                    
+                    {/* New Selected Files */}
+                    {selectedFiles.length > 0 && (
+                        <div className="space-y-2">
+                             <div className="grid grid-cols-1 gap-2">
+                                {selectedFiles.map((file, idx) => (
+                                    <div key={idx} className="flex items-center justify-between p-2 bg-purple-50/50 border border-purple-100 rounded-xl group">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <div className="w-8 h-8 flex items-center justify-center bg-white rounded-lg border border-purple-100 shrink-0">
+                                                <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                                </svg>
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-xs text-purple-700 font-medium truncate">{file.name}</span>
+                                                <span className="text-[9px] text-purple-400">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                                            </div>
+                                        </div>
+                                        <button 
+                                            type="button"
+                                            onClick={() => removeSelectedFile(idx)}
+                                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                        >
+                                            <X className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                ))}
+                             </div>
+                        </div>
+                    )}
+
+                    <div className="flex items-center justify-center w-full">
+                        <label className={`flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-200 ${
+                            error ? 'border-red-200 bg-red-50/30' : 'border-slate-200 bg-slate-50/50 hover:bg-purple-50/50 hover:border-purple-300'
+                        }`}>
+                            <div className="flex flex-col items-center justify-center pt-3 pb-4">
+                                <svg className="w-6 h-6 mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <p className="text-xs text-slate-500 font-medium">Add exam papers or materials</p>
+                                <p className="text-[10px] text-slate-400 mt-1">PDF, JPG, PNG or WEBP (MAX. 10MB)</p>
+                            </div>
+                            <input 
+                                type="file" 
+                                className="hidden" 
+                                multiple 
+                                onChange={handleFileChange}
+                                accept="application/pdf,image/*"
+                                disabled={isLoading}
+                            />
+                        </label>
+                    </div>
+                </div>
+                
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                   <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">Max Score</label>
+                    <input
+                      type="number"
+                      name="maxScore"
+                      value={formData.maxScore}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-purple-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 focus:bg-white"
+                      placeholder="100"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">Status</label>
+                     <select
+                        name="status"
+                        value={formData.status}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 appearance-none hover:border-purple-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 focus:bg-white"
+                      >
+                        <option value="SCHEDULED">Scheduled</option>
+                        <option value="ONGOING">Ongoing</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="GRADED">Graded</option>
+                        <option value="CANCELLED">Cancelled</option>
+                      </select>
                   </div>
                 </div>
 

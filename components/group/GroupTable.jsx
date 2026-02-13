@@ -129,8 +129,10 @@ export default function GroupsTable({
                   <SortIndicator direction={sortConfig.key === "course.name" ? sortConfig.direction : null} />
                 </div>
               </th>
-              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Enrollment</th>
-              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Management</th>
+              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest hidden lg:table-cell">Academic Lifecycle</th>
+              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Group Leadership</th>
+              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Census</th>
+              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Controls</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
@@ -181,9 +183,30 @@ export default function GroupsTable({
                       )) || <span className="text-slate-400 italic text-[10px]">No courses</span>}
                     </div>
                   </td>
+                  <td className="px-5 py-3 whitespace-nowrap hidden lg:table-cell">
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-bold text-slate-600 uppercase tracking-tight">{group.academicYear || "N/A"}</span>
+                      <span className="text-[8px] font-medium text-slate-400 uppercase">Operational Span</span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-3 whitespace-nowrap">
+                    {group.monitor ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[8px] font-black border border-slate-200">
+                           {group.monitor.firstName[0]}{group.monitor.lastName[0]}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[11px] font-bold text-slate-700 leading-tight">{group.monitor.firstName} {group.monitor.lastName}</span>
+                          <span className="text-[8px] font-medium text-slate-400 uppercase tracking-tighter">Cohort Monitor</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-[10px] font-bold text-slate-300 italic">No Monitor</span>
+                    )}
+                  </td>
                   <td className="px-5 py-3 whitespace-nowrap text-center">
-                    <span className="px-2 py-0.5 text-[10px] font-black text-blue-700 bg-blue-50 rounded-md border border-blue-100">
-                      {group._count?.students ?? 0} Students
+                    <span className="px-2 py-0.5 text-[10px] font-black text-blue-700 bg-blue-50 rounded bg-blue-50/50 border border-blue-100 uppercase tracking-widest">
+                      {group._count?.students ?? 0} students
                     </span>
                   </td>
                   <td className="px-5 py-3 whitespace-nowrap text-center">

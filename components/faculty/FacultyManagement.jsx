@@ -19,6 +19,7 @@ export default function FacultyManagement() {
   const [successMessage, setSuccessMessage] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [potentialHeads, setPotentialHeads] = useState([]);
 
   const showMessage = (message, type = "success") => {
     if (type === "error") {
@@ -45,6 +46,7 @@ export default function FacultyManagement() {
 
   useEffect(() => {
     fetchFaculties();
+    apiClient.get('/users?roleType=nonStudent').then(setPotentialHeads).catch(console.error);
   }, [fetchFaculties]);
 
   const handleSaveFaculty = async (formData) => {
@@ -158,6 +160,7 @@ export default function FacultyManagement() {
           onSave={handleSaveFaculty}
           facultyToEdit={editingFaculty}
           isLoading={isLoading}
+          heads={potentialHeads}
         />
       )}
 

@@ -1,15 +1,16 @@
-# School Management System - Frontend
+# School Management System - Frontend (v2.0.0)
 
 This directory contains the frontend for the School Management System, built with Next.js and Tailwind CSS. It provides a modern, responsive, and user-friendly interface for all school-related operations.
 
 ## Features
 
-- **Role-Based Dashboards**: Customized views for Admins, Teachers, and Students.
-- **Dynamic Routing**: User-friendly URLs for different sections.
-- **Component-Based Architecture**: Reusable UI components for a consistent look and feel.
-- **State Management**: Using React Context for managing application state.
-- **API Integration**: Seamless communication with the backend API.
-- **Authentication**: Secure login and user session management.
+- **Role-Based Dashboards**: Custom-tailored views for Admins, Teachers, Students, HR, and Study Office.
+- **Modern UI/UX**: Built with Tailwind CSS and Framer Motion for smooth, interactive experiences.
+- **LMS Interface**: Rich text assignment creation, file uploading, and grade tracking.
+- **Financial Module**: Invoice tracking and Bakong KHQR display for payments.
+- **Dynamic Routing**: SEO-friendly and user-friendly App Router structure.
+- **Real-time State**: React Context for global state and session management.
+- **Secure Auth**: Protected routes and JWT-based session handling.
 
 ## Technologies Used
 

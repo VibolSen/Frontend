@@ -99,19 +99,47 @@ export interface LeaveRequest {
   requestDate: string; // YYYY-MM-DD
 }
 
+
+export enum AssignmentType {
+  HOMEWORK = 'HOMEWORK',
+  PROJECT = 'PROJECT',
+  ESSAY = 'ESSAY',
+  PRESENTATION = 'PRESENTATION',
+  QUIZ = 'QUIZ',
+  OTHER = 'OTHER',
+}
+
+export enum AssignmentStatus {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  ARCHIVED = 'ARCHIVED',
+}
+
 export interface Assignment {
   id: string;
-  courseId: string;
+  courseId: string | null;
+  groupId: string;
+  teacherId: string;
   title: string;
-  description: string;
-  dueDate: string; // YYYY-MM-DD
+  description: string | null;
+  dueDate: string | null; // YYYY-MM-DD
+  type: AssignmentType;
+  status: AssignmentStatus;
+  weight: number;
+  maxPoints: number;
+  attachmentUrls: string[];
+  
+  course?: { name: string; code: string };
+  group?: { name: string };
+  teacher?: { firstName: string; lastName: string };
+  _count?: { submissions: number };
 }
 
 export enum SubmissionStatus {
-  PENDING = 'Pending',
-  SUBMITTED = 'Submitted',
-  LATE = 'Late',
-  GRADED = 'Graded',
+  PENDING = 'PENDING',
+  SUBMITTED = 'SUBMITTED',
+  LATE = 'LATE',
+  GRADED = 'GRADED',
 }
 
 export interface Submission {
@@ -119,6 +147,50 @@ export interface Submission {
   assignmentId: string;
   studentId: string;
   submissionDate: string | null; // YYYY-MM-DD or null if not submitted
+  submittedAt?: string | null;
   status: SubmissionStatus;
   grade: number | null; // e.g., 85
+  feedback: string | null;
+  fileUrls: string[];
+  isLate: boolean;
+  student?: { id: string; firstName: string; lastName: string };
+}
+
+export enum ExamType {
+  WRITTEN = 'WRITTEN',
+  ORAL = 'ORAL',
+  PRACTICAL = 'PRACTICAL',
+  ONLINE_QUIZ = 'ONLINE_QUIZ',
+  MIDTERM = 'MIDTERM',
+  FINAL = 'FINAL',
+}
+
+export enum ExamStatus {
+  SCHEDULED = 'SCHEDULED',
+  ONGOING = 'ONGOING',
+  COMPLETED = 'COMPLETED',
+  GRADED = 'GRADED',
+  CANCELLED = 'CANCELLED',
+}
+
+export interface Exam {
+  id: string;
+  title: string;
+  description: string | null;
+  date: string | null;
+  startTime: string | null;
+  endTime: string | null;
+  location: string | null;
+  type: ExamType;
+  status: ExamStatus;
+  maxScore: number;
+  
+  courseId: string | null;
+  groupId: string;
+  teacherId: string;
+
+  course?: { name: string; code: string };
+  group?: { name: string };
+  teacher?: { firstName: string; lastName: string };
+  _count?: { submissions: number };
 }

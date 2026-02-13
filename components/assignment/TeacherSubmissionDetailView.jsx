@@ -74,17 +74,26 @@ const TeacherSubmissionDetailView = ({ submission: initialSubmission }) => {
           <p className="text-slate-600 whitespace-pre-wrap">
             {submission.content || "No content submitted."}
           </p>
-          {submission.fileUrl && (
-            <p className="mt-2">
-              <a
-                href={submission.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
-              >
-                View Submitted File
-              </a>
-            </p>
+          {submission.fileUrls && submission.fileUrls.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <h3 className="text-sm font-semibold text-slate-700">Submitted Files:</h3>
+              <div className="flex flex-wrap gap-3">
+                {submission.fileUrls.map((url, idx) => (
+                  <a
+                    key={idx}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors border border-blue-100 text-sm font-medium"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    File {idx + 1}
+                  </a>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 

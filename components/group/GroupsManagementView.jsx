@@ -191,6 +191,7 @@ export default function GroupManagementView({ role }) {
           onSave={handleSave}
           groupToEdit={editingGroup}
           courses={courses}
+          allStudents={allStudents}
           isLoading={isLoading}
         />
       )}

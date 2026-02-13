@@ -144,9 +144,10 @@ export default function CoursesTable({
                   <SortIndicator direction={sortConfig.key === "name" ? sortConfig.direction : null} />
                 </div>
               </th>
-              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest hidden lg:table-cell">Department</th>
-              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Academic Lead</th>
-              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Groups</th>
+              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest hidden lg:table-cell">Dept. Link</th>
+              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Academic Faculty</th>
+              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Credits</th>
+              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Sectors</th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
             </tr>
           </thead>
@@ -180,12 +181,19 @@ export default function CoursesTable({
                 >
                   <td className="px-5 py-3 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-indigo-600 flex items-center justify-center font-black text-[10px] shrink-0 border border-blue-100">
-                        {course.name.charAt(0)}
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-[10px] shrink-0 border border-indigo-100 uppercase">
+                        {course.code ? course.code.substring(0, 2) : course.name.charAt(0)}
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="text-[13px] font-black text-slate-800 tracking-tight truncate max-w-[150px]">{course.name}</span>
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Academic Course</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[13px] font-black text-slate-800 tracking-tight truncate max-w-[150px]">{course.name}</span>
+                          {course.code && (
+                             <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[8px] font-black rounded uppercase tracking-tighter border border-slate-200">
+                               {course.code}
+                             </span>
+                          )}
+                        </div>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Academic Curriculum</span>
                       </div>
                     </div>
                   </td>
@@ -198,14 +206,28 @@ export default function CoursesTable({
                   </td>
                   <td className="px-5 py-3 whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                       <div className="h-1.5 w-1.5 rounded-full bg-blue-400" />
-                       <span className="text-[13px] font-semibold text-slate-700">
-                         {course.leadBy ? `${course.leadBy.firstName} ${course.leadBy.lastName}` : "Pending Assign"}
-                       </span>
+                       {course.leadBy ? (
+                         <>
+                           <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[8px] font-black border border-slate-200">
+                             {course.leadBy.firstName[0]}{course.leadBy.lastName[0]}
+                           </div>
+                           <div className="flex flex-col">
+                             <span className="text-[11px] font-bold text-slate-700 leading-tight">{course.leadBy.firstName} {course.leadBy.lastName}</span>
+                             <span className="text-[8px] font-medium text-slate-400 uppercase tracking-tighter">Lead Instructor</span>
+                           </div>
+                         </>
+                       ) : (
+                         <span className="text-[10px] font-bold text-slate-300 italic">No Faculty Lead</span>
+                       )}
                     </div>
                   </td>
                   <td className="px-5 py-3 whitespace-nowrap text-center">
-                    <span className="px-2 py-0.5 text-[10px] font-black text-blue-800 bg-blue-50 rounded bg-blue-50/50 border border-blue-100 uppercase tracking-widest">
+                    <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-700 text-[11px] font-black border border-blue-100 shadow-sm">
+                      {course.credits || 3}
+                    </div>
+                  </td>
+                  <td className="px-5 py-3 whitespace-nowrap text-center hidden md:table-cell">
+                    <span className="px-2 py-0.5 text-[9px] font-black text-indigo-700 bg-indigo-50 border border-indigo-100 rounded uppercase tracking-widest">
                        {course._count?.groups ?? 0} Sectors
                     </span>
                   </td>

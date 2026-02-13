@@ -49,9 +49,10 @@ export default function DepartmentsTable({
         <table className="w-full border-collapse">
           <thead className="bg-slate-50/10 border-b border-slate-100">
             <tr>
-              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Department Unit</th>
-              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Associated Faculty</th>
-              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Courses</th>
+              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Department Unit</th>
+              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Faculty Affiliate</th>
+              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Department Leadership</th>
+              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Academic Scope</th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Management</th>
             </tr>
           </thead>
@@ -96,12 +97,27 @@ export default function DepartmentsTable({
                   </td>
                   <td className="px-5 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                       <GraduationCap size={14} className="text-slate-400" />
-                       <span className="text-[13px] font-semibold text-slate-600">{dept.faculty?.name || 'Unassigned'}</span>
-                    </div>
+                        <GraduationCap size={14} className="text-indigo-400" />
+                        <span className="text-[12px] font-bold text-slate-600">{dept.faculty?.name || 'Unassigned'}</span>
+                     </div>
+                  </td>
+                  <td className="px-5 py-4 whitespace-nowrap">
+                    {dept.head ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-[8px] font-black border border-indigo-100 uppercase">
+                           {dept.head.firstName[0]}{dept.head.lastName[0]}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[11px] font-bold text-slate-700 leading-tight">{dept.head.firstName} {dept.head.lastName}</span>
+                          <span className="text-[8px] font-medium text-slate-400 uppercase tracking-tighter">Unit Head</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-[10px] font-bold text-slate-300 italic">No HoD Assigned</span>
+                    )}
                   </td>
                   <td className="px-5 py-4 whitespace-nowrap text-center">
-                    <span className="px-2 py-0.5 text-[10px] font-black text-blue-800 bg-blue-50 rounded border border-blue-100 uppercase tracking-widest">
+                    <span className="px-2 py-0.5 text-[9px] font-black text-indigo-700 bg-indigo-50 border border-indigo-100 rounded uppercase tracking-widest">
                       {dept._count?.departmentCourses ?? 0} modules
                     </span>
                   </td>

@@ -11,9 +11,15 @@ export default function GroupModal({
   onSave,
   groupToEdit,
   courses,
+  allStudents = [],
   isLoading,
 }) {
-  const [formData, setFormData] = useState({ name: "", courseIds: [] });
+  const [formData, setFormData] = useState({ 
+    name: "", 
+    academicYear: "",
+    monitorId: "",
+    courseIds: [] 
+  });
   const [errors, setErrors] = useState({});
   const [mounted, setMounted] = useState(false);
 
@@ -28,6 +34,8 @@ export default function GroupModal({
       if (groupToEdit) {
         setFormData({
           name: groupToEdit.name || "",
+          academicYear: groupToEdit.academicYear || "",
+          monitorId: groupToEdit.monitorId || "",
           courseIds: groupToEdit.courseIds || [],
         });
       } else {
@@ -135,6 +143,40 @@ export default function GroupModal({
                       {errors.name}
                     </motion.p>
                   )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">
+                      Academic Year
+                    </label>
+                    <input
+                      type="text"
+                      name="academicYear"
+                      value={formData.academicYear}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white"
+                      placeholder="e.g., 2023-2024"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">
+                      Group Monitor (Lead)
+                    </label>
+                    <select
+                      name="monitorId"
+                      value={formData.monitorId}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 appearance-none hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white"
+                    >
+                      <option value="">Select a Monitor</option>
+                      {(groupToEdit?.students || allStudents).map((student) => (
+                        <option key={student.id} value={student.id}>
+                          {student.firstName} {student.lastName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">

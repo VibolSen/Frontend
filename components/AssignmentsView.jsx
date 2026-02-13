@@ -11,6 +11,7 @@ export default function AssignmentsView({ loggedInUser }) {
   // STATE MANAGEMENT
   const [assignments, setAssignments] = useState([]);
   const [teacherGroups, setTeacherGroups] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -34,7 +35,10 @@ export default function AssignmentsView({ loggedInUser }) {
         assignmentsUrl = "/assignments";
       }
 
-      const requests = [apiClient.get(assignmentsUrl)];
+      const requests = [
+        apiClient.get(assignmentsUrl),
+        apiClient.get("/courses") // Fetching all courses for now
+      ];
       
       if (loggedInUser.role === "TEACHER") {
          requests.push(apiClient.get(`/teachers/my-groups?teacherId=${loggedInUser.id}`));
@@ -42,16 +46,35 @@ export default function AssignmentsView({ loggedInUser }) {
 
       const results = await Promise.allSettled(requests);
       
+      // Assignments
       if (results[0].status === 'fulfilled') {
         setAssignments(results[0].value || []);
       } else {
         console.error("Failed to fetch assignments:", results[0].reason);
       }
 
-      if (results[1] && results[1].status === 'fulfilled') {
-        setTeacherGroups(results[1].value || []);
+      // Courses
+      if (results[1].status === 'fulfilled') {
+        const allCourses = results[1].value || [];
+        // Optional: Filter courses if needed, or backend should handle it. 
+        // For now, passing all courses or filtering by teacher if possible.
+        // Assuming courses have leadById, we could filter:
+        // const myCourses = allCourses.filter(c => c.leadById === loggedInUser.id);
+        // But courses can be assigned to groups taught by teacher too. 
+        setCourses(allCourses);
       } else {
-        setTeacherGroups([]);
+        setCourses([]);
+      }
+
+      // Groups (Index 2 if teacher)
+      if (loggedInUser.role === "TEACHER" && results[2] && results[2].status === 'fulfilled') {
+        setTeacherGroups(results[2].value || []);
+      } else if (loggedInUser.role !== "TEACHER") {
+         // Maybe admin needs groups too? logic was existing. 
+         // Original code only set teacherGroups if status was fulfilled at index 1... 
+         // Wait, original code pushed groups request at index 1 only if teacher.
+         // Now I put courses at index 1, groups at index 2.
+         // So I need to be careful with indices.
       }
     } catch (err) {
       console.error("Fetch data error:", err);
@@ -65,10 +88,14 @@ export default function AssignmentsView({ loggedInUser }) {
   }, [fetchData]);
 
   // CRUD HANDLERS
-  const handleSaveAssignment = async (formData) => {
+  const handleSaveAssignment = async (data) => {
     setIsLoading(true);
     try {
-      await apiClient.post("/assignments", { ...formData, teacherId });
+      // data is FormData from AssignmentModal
+      if (teacherId) {
+        data.append("teacherId", teacherId);
+      }
+      await apiClient.post("/assignments", data);
       console.log("Assignment created successfully!");
       setIsAddModalOpen(false);
       await fetchData();
@@ -121,6 +148,20 @@ export default function AssignmentsView({ loggedInUser }) {
     }
   };
 
+  const calculateStats = () => {
+    if (assignments.length === 0) return { avgRate: 0, totalSubmissions: 0 };
+    let totalSubmissions = 0;
+    let totalExpected = 0;
+    assignments.forEach(a => {
+      totalSubmissions += a._count?.submissions || 0;
+      totalExpected += a.group?._count?.students || 0;
+    });
+    const avgRate = totalExpected > 0 ? (totalSubmissions / totalExpected) * 100 : 0;
+    return { avgRate: avgRate.toFixed(1), totalSubmissions };
+  };
+
+  const stats = calculateStats();
+
   // MAIN RENDER
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-4">
@@ -151,7 +192,7 @@ export default function AssignmentsView({ loggedInUser }) {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
@@ -176,6 +217,20 @@ export default function AssignmentsView({ loggedInUser }) {
               <div>
                 <p className="text-xl font-bold text-slate-800">{teacherGroups.length}</p>
                 <p className="text-slate-600 text-xs">Active Groups</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3 shadow-sm border border-white">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xl font-bold text-slate-800">{stats.avgRate}%</p>
+                <p className="text-slate-600 text-xs">Avg. Submission Rate</p>
               </div>
             </div>
           </div>
@@ -220,7 +275,11 @@ export default function AssignmentsView({ loggedInUser }) {
               {assignments.map((assignment, index) => (
                 <div key={assignment.id} className="transform hover:scale-105 transition-transform duration-200">
                   <AssignmentCard
-                    assignment={assignment}
+                    assignment={{
+                      ...assignment,
+                      submissionCount: assignment._count?.submissions || 0,
+                      totalStudents: assignment.group?._count?.students || 0
+                    }}
                     onNavigate={() => router.push(`/teacher/assignment/${assignment.id}`)}
                     onEdit={() => handleEdit(assignment)}
                     onDelete={() => handleDelete(assignment.id)}
@@ -243,6 +302,7 @@ export default function AssignmentsView({ loggedInUser }) {
         }}
         onSave={assignmentToEdit ? handleUpdateAssignment : handleSaveAssignment}
         teacherGroups={teacherGroups}
+        courses={courses}
         isLoading={isLoading}
         assignment={assignmentToEdit}
       />

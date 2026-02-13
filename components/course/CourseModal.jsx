@@ -16,6 +16,9 @@ export default function CourseModal({
 }) {
   const [formData, setFormData] = useState({
     name: "",
+    code: "",
+    credits: 3,
+    description: "",
     departmentIds: [],
     teacherId: "",
   });
@@ -33,6 +36,9 @@ export default function CourseModal({
       if (courseToEdit) {
         setFormData({
           name: courseToEdit.name || "",
+          code: courseToEdit.code || "",
+          credits: courseToEdit.credits || 3,
+          description: courseToEdit.description || "",
           departmentIds:
             courseToEdit.courseDepartments?.map((cd) => cd.departmentId) || [],
           teacherId: courseToEdit.teacherId || "",
@@ -146,6 +152,49 @@ export default function CourseModal({
                       {errors.name}
                     </motion.p>
                   )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">
+                      Course Code
+                    </label>
+                    <input
+                      type="text"
+                      name="code"
+                      value={formData.code}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white"
+                      placeholder="e.g., CS101"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">
+                      Credits
+                    </label>
+                    <input
+                      type="number"
+                      name="credits"
+                      value={formData.credits}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white"
+                      placeholder="e.g., 3"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 ml-1">
+                    Course Description
+                  </label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    rows={3}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white resize-none"
+                    placeholder="Brief overview of the course curriculum..."
+                  />
                 </div>
 
                 <div className="space-y-1.5">

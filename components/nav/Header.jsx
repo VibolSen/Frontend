@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { useUser } from "@/context/UserContext";
 import { signOut } from "next-auth/react";
+import NotificationDropdown from "./NotificationDropdown";
 
 export default function Header({ toggleSidebar }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -106,6 +107,7 @@ export default function Header({ toggleSidebar }) {
           {currentDate}
         </div>
 
+        <NotificationDropdown />
 
         <div 
           className="relative"

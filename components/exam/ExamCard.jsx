@@ -55,13 +55,22 @@ const ExamCard = ({
       
       <div className="p-4 flex-1 flex flex-col">
         {/* Header: Badges */}
-        <div className="flex justify-between items-start mb-3">
-          <div className="flex items-center gap-1.5 px-2 py-1 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 text-[9px] font-black uppercase tracking-wider">
-            <Users size={10} />
-            {exam.group?.name || "Open Group"}
+        <div className="flex justify-between items-start mb-3 gap-2">
+          <div className="flex flex-col gap-1">
+             <div className="flex items-center gap-1.5 px-2 py-1 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 text-[9px] font-black uppercase tracking-wider w-fit">
+              <Users size={10} />
+              {exam.group?.name || "Open Group"}
+            </div>
+            {exam.course && (
+               <div className="flex items-center gap-1.5 px-2 py-1 bg-violet-50 text-violet-700 rounded-lg border border-violet-100 text-[9px] font-black uppercase tracking-wider w-fit">
+                <Layers size={10} />
+                {exam.course.name}
+              </div>
+            )}
           </div>
+
           {status && (
-            <div className={`flex items-center gap-1 px-2 py-1 ${theme.bg} ${theme.text} ${theme.border} rounded-lg border text-[9px] font-black uppercase tracking-wider`}>
+            <div className={`flex items-center gap-1 px-2 py-1 ${theme.bg} ${theme.text} ${theme.border} rounded-lg border text-[9px] font-black uppercase tracking-wider ml-auto`}>
               {theme.icon}
               {theme.label}
             </div>
@@ -74,17 +83,34 @@ const ExamCard = ({
             onClick={onNavigate}
             className="text-sm font-black text-slate-800 tracking-tight leading-snug cursor-pointer group-hover:text-indigo-600 transition-colors line-clamp-2"
           >
-            {exam.title || "Standard Assessment"}
+            {exam.title || "Examination"}
           </h3>
+           {exam.location && (
+            <div className="text-[10px] text-slate-500 font-medium mt-1 flex items-center gap-1">
+               <span>📍 {exam.location}</span>
+            </div>
+           )}
         </div>
 
         {/* Info & Footer */}
         <div className="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-[10px]">
-            <Calendar size={12} className="text-slate-400" />
-            <span className="font-black uppercase tracking-tight text-slate-600">
-              {exam.examDate ? new Date(exam.examDate).toLocaleDateString() : "TBD"}
-            </span>
+          <div className="flex flex-col gap-0.5">
+             <div className="flex items-center gap-1.5 text-[10px]">
+              <Calendar size={12} className="text-slate-400" />
+              <span className="font-black uppercase tracking-tight text-slate-600">
+                {exam.date ? new Date(exam.date).toLocaleDateString() : (exam.examDate ? new Date(exam.examDate).toLocaleDateString() : "TBD")}
+              </span>
+            </div>
+            {(exam.startTime || exam.endTime) && (
+                 <div className="flex items-center gap-1.5 text-[10px] pl-4.5">
+                   <Clock size={10} className="text-slate-300" />
+                   <span className="text-slate-400 font-medium">
+                     {exam.startTime ? new Date(exam.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
+                     {exam.startTime && exam.endTime ? ' - ' : ''}
+                     {exam.endTime ? new Date(exam.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
+                   </span>
+                 </div>
+            )}
           </div>
 
           <div className="flex items-center gap-1">
