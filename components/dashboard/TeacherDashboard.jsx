@@ -27,8 +27,11 @@ import {
   ChevronRight,
   Activity,
 } from "lucide-react";
+import UpcomingSchedule from "./UpcomingSchedule";
+import { useTheme } from "@/context/ThemeContext";
 
 const TeacherDashboard = ({ loggedInUser }) => {
+  const { theme } = useTheme();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -56,10 +59,10 @@ const TeacherDashboard = ({ loggedInUser }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50/50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50/50 dark:bg-slate-900/50">
         <div className="text-center space-y-4">
           <LoadingSpinner size="lg" color="blue" className="mx-auto" />
-          <p className="text-slate-500 font-bold tracking-tight animate-pulse">Gathering Classroom Insights...</p>
+          <p className="text-slate-500 dark:text-slate-400 font-bold tracking-tight animate-pulse">Gathering Classroom Insights...</p>
         </div>
       </div>
     );
@@ -67,13 +70,13 @@ const TeacherDashboard = ({ loggedInUser }) => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center">
-        <div className="h-16 w-16 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-6 border border-rose-100">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900 p-6 text-center">
+        <div className="h-16 w-16 bg-rose-50 dark:bg-rose-900/20 text-rose-500 rounded-2xl flex items-center justify-center mb-6 border border-rose-100 dark:border-rose-900/30">
           <Activity size={32} />
         </div>
-        <h2 className="text-xl font-black text-slate-900 mb-2">Sync Failed</h2>
-        <p className="text-slate-500 max-w-sm mb-8 text-sm font-medium">{error}</p>
-        <button onClick={() => window.location.reload()} className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-200">Retry Connection</button>
+        <h2 className="text-xl font-black text-slate-900 dark:text-white mb-2">Sync Failed</h2>
+        <p className="text-slate-500 dark:text-slate-400 max-w-sm mb-8 text-sm font-medium">{error}</p>
+        <button onClick={() => window.location.reload()} className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-200 dark:shadow-none">Retry Connection</button>
       </div>
     );
   }
@@ -105,7 +108,7 @@ const TeacherDashboard = ({ loggedInUser }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/20 pb-10">
+    <div className="min-h-screen bg-slate-50/20 dark:bg-slate-950 pb-10">
       <motion.div 
         variants={containerVariants}
         initial="hidden"
@@ -115,33 +118,33 @@ const TeacherDashboard = ({ loggedInUser }) => {
         {/* Header */}
         <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-0.5">
-            <h1 className="text-2xl md:text-3xl font-black text-blue-600 tracking-tight">
-              {getGreeting()}, <span className="text-indigo-600">Prof. {welcomeName}</span>!
+            <h1 className="text-2xl md:text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">
+              {getGreeting()}, <span className="text-indigo-600 dark:text-indigo-400">Prof. {welcomeName}</span>!
             </h1>
-            <p className="text-slate-500 font-medium text-sm">
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">
               Empower your students and manage your curriculum with ease.
             </p>
           </div>
-          <div className="flex items-center gap-2.5 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm border-l-4 border-l-indigo-500">
+          <div className="flex items-center gap-2.5 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm border-l-4 border-l-indigo-500">
             <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
-            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Teaching Mode Active</span>
+            <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Teaching Mode Active</span>
           </div>
         </motion.header>
 
         {/* Stats Grid */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {[
-            { title: "My Students", val: dashboardData.totalStudents, icon: Users, color: "blue" },
-            { title: "My Courses", val: dashboardData.totalCourses, icon: Library, color: "indigo" },
-            { title: "Avg Grade", val: `${dashboardData.averageGrade}%`, icon: Award, color: "violet" },
+            { title: "My Students", val: dashboardData.totalStudents, icon: Users, color: "blue", darkBg: "dark:bg-blue-900/20", darkText: "dark:text-blue-400" },
+            { title: "My Courses", val: dashboardData.totalCourses, icon: Library, color: "indigo", darkBg: "dark:bg-indigo-900/20", darkText: "dark:text-indigo-400" },
+            { title: "Avg Grade", val: `${dashboardData.averageGrade}%`, icon: Award, color: "violet", darkBg: "dark:bg-violet-900/20", darkText: "dark:text-violet-400" },
           ].map((stat) => (
             <motion.div variants={itemVariants} key={stat.title} whileHover={{ y: -3 }}>
-              <div className="flex items-center justify-between p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:border-blue-100 hover:shadow-md transition-all">
+              <div className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-blue-100 dark:hover:border-blue-900/50 hover:shadow-md transition-all">
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.title}</p>
-                  <p className="text-2xl font-black text-slate-900 leading-none">{stat.val}</p>
+                  <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{stat.title}</p>
+                  <p className="text-2xl font-black text-slate-900 dark:text-white leading-none">{stat.val}</p>
                 </div>
-                <div className={`h-11 w-11 rounded-xl bg-${stat.color}-50 text-${stat.color}-600 flex items-center justify-center shrink-0`}>
+                <div className={`h-11 w-11 rounded-xl bg-${stat.color}-50 ${stat.darkBg} text-${stat.color}-600 ${stat.darkText} flex items-center justify-center shrink-0`}>
                   <stat.icon size={22} />
                 </div>
               </div>
@@ -152,10 +155,10 @@ const TeacherDashboard = ({ loggedInUser }) => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             {/* Quick Actions */}
-            <motion.section variants={itemVariants} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+            <motion.section variants={itemVariants} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
               <div className="flex items-center justify-between mb-5 px-1">
-                <h3 className="text-lg font-black text-slate-800 tracking-tight">Academic Tools</h3>
-                <TrendingUp size={16} className="text-slate-300" />
+                <h3 className="text-lg font-black text-slate-800 dark:text-slate-100 tracking-tight">Academic Tools</h3>
+                <TrendingUp size={16} className="text-slate-300 dark:text-slate-600" />
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                 {[
@@ -170,12 +173,12 @@ const TeacherDashboard = ({ loggedInUser }) => {
                   <Link
                     href={action.href}
                     key={action.label}
-                    className="group flex flex-col items-center gap-2 p-3 rounded-xl border border-slate-50 hover:border-blue-100 hover:bg-slate-50/50 transition-all active:scale-95"
+                    className="group flex flex-col items-center gap-2 p-3 rounded-xl border border-slate-50 dark:border-slate-800/50 hover:border-blue-100 dark:hover:border-blue-900/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-all active:scale-95"
                   >
-                    <div className={`p-3.5 ${action.bg} ${action.text} rounded-xl group-hover:bg-white transition-all shadow-sm`}>
+                    <div className={`p-3.5 ${action.bg} dark:bg-slate-800 ${action.text} rounded-xl group-hover:bg-white dark:group-hover:bg-slate-700 transition-all shadow-sm`}>
                       <action.icon size={20} />
                     </div>
-                    <span className="text-[11px] font-bold text-slate-700 text-center tracking-tight leading-none px-1">
+                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 text-center tracking-tight leading-none px-1">
                       {action.label}
                     </span>
                   </Link>
@@ -185,30 +188,30 @@ const TeacherDashboard = ({ loggedInUser }) => {
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <motion.div variants={itemVariants} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Students per Course</h3>
+              <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Students per Course</h3>
                 <div className="h-[250px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={dashboardData.studentsPerCourse}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={9} fontWeight={700} tick={{ fill: '#94a3b8' }} />
-                      <YAxis axisLine={false} tickLine={false} fontSize={9} fontWeight={700} tick={{ fill: '#94a3b8' }} />
-                      <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme === 'dark' ? '#1e293b' : '#f1f5f9'} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={9} fontWeight={700} tick={{ fill: theme === 'dark' ? '#64748b' : '#94a3b8' }} />
+                      <YAxis axisLine={false} tickLine={false} fontSize={9} fontWeight={700} tick={{ fill: theme === 'dark' ? '#64748b' : '#94a3b8' }} />
+                      <Tooltip cursor={{ fill: theme === 'dark' ? '#0f172a' : '#f8fafc' }} contentStyle={{ backgroundColor: theme === 'dark' ? '#0f172a' : '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
                       <Bar dataKey="studentCount" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={20} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </motion.div>
 
-              <motion.div variants={itemVariants} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Grade Distribution</h3>
+              <motion.div variants={itemVariants} className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">Grade Distribution</h3>
                 <div className="h-[250px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={dashboardData.gradeDistribution}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={9} fontWeight={700} tick={{ fill: '#94a3b8' }} />
-                      <YAxis axisLine={false} tickLine={false} fontSize={9} fontWeight={700} tick={{ fill: '#94a3b8' }} />
-                      <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme === 'dark' ? '#1e293b' : '#f1f5f9'} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={9} fontWeight={700} tick={{ fill: theme === 'dark' ? '#64748b' : '#94a3b8' }} />
+                      <YAxis axisLine={false} tickLine={false} fontSize={9} fontWeight={700} tick={{ fill: theme === 'dark' ? '#64748b' : '#94a3b8' }} />
+                      <Tooltip cursor={{ fill: theme === 'dark' ? '#0f172a' : '#f8fafc' }} contentStyle={{ backgroundColor: theme === 'dark' ? '#0f172a' : '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
                       <Bar dataKey="count" fill="#10b981" radius={[4, 4, 0, 0]} barSize={20} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -249,20 +252,22 @@ const TeacherDashboard = ({ loggedInUser }) => {
                <div className="absolute -right-6 -bottom-6 h-32 w-32 bg-white/10 rounded-full blur-2xl" />
             </motion.section>
 
-            <motion.section variants={itemVariants} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-center">
-               <div className="h-14 w-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-white shadow-sm">
+            <UpcomingSchedule teacherId={loggedInUser.id} />
+
+            <motion.section variants={itemVariants} className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+               <div className="h-14 w-14 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-white dark:border-slate-800 shadow-sm">
                  <Users size={28} />
                </div>
-               <h4 className="text-sm font-black text-slate-900 leading-none mb-1">{welcomeName}</h4>
+               <h4 className="text-sm font-black text-slate-900 dark:text-white leading-none mb-1">{welcomeName}</h4>
                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Certified Instructor</p>
-               <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-center gap-6">
+               <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-800 flex items-center justify-center gap-6">
                   <div className="text-center">
-                    <p className="text-[11px] font-black text-slate-900 leading-none">{dashboardData.totalCourses}</p>
+                    <p className="text-[11px] font-black text-slate-900 dark:text-white leading-none">{dashboardData.totalCourses}</p>
                     <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Courses</p>
                   </div>
-                  <div className="h-4 w-px bg-slate-100" />
+                  <div className="h-4 w-px bg-slate-100 dark:bg-slate-800" />
                   <div className="text-center">
-                    <p className="text-[11px] font-black text-slate-900 leading-none">{dashboardData.totalStudents}</p>
+                    <p className="text-[11px] font-black text-slate-900 dark:text-white leading-none">{dashboardData.totalStudents}</p>
                     <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Students</p>
                   </div>
                </div>

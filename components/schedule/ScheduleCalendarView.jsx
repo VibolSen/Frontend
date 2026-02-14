@@ -63,14 +63,39 @@ const CustomToolbar = ({ label, onNavigate, onView, view }) => {
 -------------------------- */
 const CustomAgendaEvent = ({ event }) => {
   return (
-    <div style={{ display: 'flex', width: '100%' }}>
-      <span style={{ flex: '1 1 50%' }}>{event.title}</span>
-      <span style={{ flex: '1 1 50%' }}>
-        {event.resource?.assignedToGroup?.name || ''}
-      </span>
+    <div className="flex items-center gap-2 text-sm w-full">
+      <span className="font-semibold text-indigo-700 dark:text-indigo-400">{event.title}</span>
+      <span className="text-gray-500 dark:text-gray-600">|</span>
+      <span className="text-gray-600 dark:text-gray-400">{event.resource?.assignedToGroup?.name || ''}</span>
+      {event.resource?.location && (
+        <span className="ml-auto bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] font-medium text-gray-600 dark:text-gray-400">
+            📍 {event.resource.location}
+        </span>
+      )}
     </div>
   );
 };
+
+/* -------------------------
+   Custom Calendar Event
+-------------------------- */
+const CustomEvent = ({ event }) => {
+    return (
+      <div className="flex flex-col text-[10px] leading-tight p-0.5">
+        <div className="font-bold truncate">{event.title}</div>
+        {event.resource?.location && (
+          <div className="truncate opacity-90 flex items-center gap-0.5">
+            📍 {event.resource.location}
+          </div>
+        )}
+        {event.resource?.course && (
+          <div className="truncate opacity-80 italic italic">
+            {event.resource.course.name}
+          </div>
+        )}
+      </div>
+    );
+  };
 
 /* -------------------------
    Calendar View
@@ -170,15 +195,30 @@ export default function ScheduleCalendarView({
     setView(newView);
   }, []);
 
+  const eventPropGetter = useCallback((event) => {
+    const isTeacher = !!event.resource?.assignedToTeacherId;
+    return {
+      style: {
+        backgroundColor: isTeacher ? "#4f46e5" : "#0891b2", // Indigo for teacher, Cyan for group
+        borderRadius: "6px",
+        fontSize: "11px",
+        border: "none",
+        color: "white",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+      },
+    };
+  }, []);
+
   const components = {
     toolbar: CustomToolbar,
+    event: CustomEvent,
     agenda: {
       event: CustomAgendaEvent,
     },
   };
 
   return (
-    <div className="h-[700px]">
+    <div className="h-[750px] bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
       <Calendar
         localizer={localizer}
         events={events}
@@ -191,6 +231,7 @@ export default function ScheduleCalendarView({
         view={view}
         onNavigate={handleNavigate}
         onView={handleView}
+        eventPropGetter={eventPropGetter}
       />
     </div>
   );

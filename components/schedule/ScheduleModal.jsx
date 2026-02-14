@@ -25,8 +25,11 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
   const [daysOfWeek, setDaysOfWeek] = useState([]);
   const [assignedToTeacherId, setAssignedToTeacherId] = useState('');
   const [assignedToGroupId, setAssignedToGroupId] = useState('');
+  const [courseId, setCourseId] = useState('');
+  const [location, setLocation] = useState('');
   const [teachers, setTeachers] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [courses, setCourses] = useState([]);
 
   useEffect(() => {
     if (schedule) {
@@ -37,6 +40,8 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
       setDaysOfWeek(schedule.daysOfWeek || []);
       setAssignedToTeacherId(schedule.assignedToTeacherId || '');
       setAssignedToGroupId(schedule.assignedToGroupId || '');
+      setCourseId(schedule.courseId || '');
+      setLocation(schedule.location || '');
       if (Array.isArray(schedule.sessions) && schedule.sessions.length > 0) {
         setSessions(schedule.sessions.map(s => ({
           startTime: new Date(s.startTime).toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false }),
@@ -54,6 +59,8 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
       setIsRecurring(false);
       setAssignedToTeacherId('');
       setAssignedToGroupId('');
+      setCourseId('');
+      setLocation('');
     }
   }, [schedule]);
 
@@ -61,12 +68,14 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
     const fetchData = async () => {
       if (isOpen && !isReadOnly) {
         try {
-          const [teachersData, groupsData] = await Promise.all([
+          const [teachersData, groupsData, coursesData] = await Promise.all([
             apiClient.get('/users?role=TEACHER'),
             apiClient.get('/groups'),
+            apiClient.get('/courses'),
           ]);
           setTeachers(teachersData || []);
           setGroups(groupsData || []);
+          setCourses(coursesData || []);
         } catch (error) {
           console.error('Error fetching data:', error);
         }
@@ -108,6 +117,8 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
       daysOfWeek: isRecurring ? daysOfWeek : [],
       assignedToTeacherId: assignedToTeacherId || null,
       assignedToGroupId: assignedToGroupId || null,
+      courseId: courseId || null,
+      location: location || '',
       sessions: sessions.map(session => ({
         startTime: session.startTime,
         endTime: session.endTime,
@@ -155,8 +166,24 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
                 <div className="flex-grow overflow-y-auto p-4">
                   <form id="schedule-form" onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                      <label htmlFor="title" className="block text-xs font-semibold text-gray-800">Title</label>
+                      <label htmlFor="title" className="block text-xs font-semibold text-gray-800">Title / Subject</label>
                       <input type="text" name="title" id="title" value={title} onChange={(e) => setTitle(e.target.value)} className={inputStyle} required disabled={isReadOnly} placeholder="e.g., Math Class" />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label htmlFor="course" className="block text-xs font-semibold text-gray-800">Link to Course</label>
+                            <select id="course" value={courseId} onChange={(e) => setCourseId(e.target.value)} className={inputStyle} disabled={isReadOnly}>
+                                <option value="">Select Course (Optional)</option>
+                                {courses.map(course => (
+                                    <option key={course.id} value={course.id}>{course.name} ({course.code})</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label htmlFor="location" className="block text-xs font-semibold text-gray-800">Location / Room</label>
+                            <input type="text" id="location" value={location} onChange={(e) => setLocation(e.target.value)} className={inputStyle} disabled={isReadOnly} placeholder="e.g., Room 304" />
+                        </div>
                     </div>
 
                     <div className="flex items-center p-2 bg-white border border-gray-200 rounded-lg">
