@@ -270,21 +270,44 @@ const InvoiceDetailPage = () => {
         <div className="px-12 py-10 bg-slate-50/30">
           <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6 pb-2 border-b border-slate-100">Official Payment History</h3>
           {invoice.payments.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               {invoice.payments.map((payment) => (
-                <div key={payment.id} className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-lg shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-slate-50 rounded-lg">
-                      <CreditCard className="w-4 h-4 text-blue-600" />
+                <div key={payment.id} className="p-5 bg-white border border-slate-100 rounded-xl shadow-sm hover:border-blue-200 transition-colors">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 bg-blue-50 rounded-xl">
+                        <CreditCard className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                           <p className="text-[12px] font-black text-slate-900 uppercase tracking-tight leading-none">{payment.paymentMethod.replace('_', ' ')}</p>
+                           <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-bold uppercase tracking-widest border border-emerald-100">Verified</span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(payment.paymentDate).toLocaleString()}</p>
+                        
+                        {/* Audit Trail Details */}
+                        <div className="pt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
+                          <div className="space-y-1">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Sender / Payer</p>
+                            <p className="text-[11px] font-bold text-slate-800 tracking-tight leading-none">{payment.senderName || 'Anonymous User'}</p>
+                            <p className="text-[10px] text-slate-500 font-mono tracking-tighter">{payment.senderAccount || 'Bank Wallet'}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Destination / Receiver</p>
+                            <p className="text-[11px] font-bold text-slate-800 tracking-tight leading-none">Step Academy Finance</p>
+                            <p className="text-[10px] text-slate-500 font-mono tracking-tighter">{payment.receiverAccount || 'N/A'}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="pt-3 border-t border-slate-50">
+                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Audit Transaction Hash</p>
+                           <p className="text-[10px] text-blue-600 font-mono break-all bg-slate-50 p-2 rounded-lg border border-slate-100">{payment.transactionId || 'RECONCILIATION_NOT_AVAILABLE'}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight leading-none">{payment.paymentMethod}</p>
-                      <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase leading-none">{new Date(payment.paymentDate).toLocaleDateString()}</p>
+                    <div className="text-right">
+                      <p className="text-lg font-black text-blue-600 leading-none">+${payment.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-black text-blue-600 leading-none">+${payment.amount.toLocaleString()}</p>
-                    <p className="text-[8px] text-slate-300 font-medium uppercase tracking-tighter mt-1">ID: {payment.transactionId?.substring(0,8) || 'RCV_BANK'}</p>
                   </div>
                 </div>
               ))}
