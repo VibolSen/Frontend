@@ -173,7 +173,7 @@ export default function ExamManagement({ loggedInUser }) {
     if (!examToDelete) return;
     setIsLoading(true);
     try {
-      await apiClient.del(`/exams/${examToDelete}`);
+      await apiClient.delete(`/exams/${examToDelete}`);
       showMessage("Exam deleted successfully!", "success");
       await fetchData();
     } catch (err) {

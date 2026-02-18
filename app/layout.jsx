@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
 
 import { NextAuthProvider } from "@/components/providers/NextAuthProvider";
+import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,7 +26,41 @@ export default function RootLayout({ children }) {
         <NextAuthProvider>
           <AccessibilityProvider>
             <ThemeProvider>
-              <UserProvider>{children}</UserProvider>
+              <UserProvider>
+                {children}
+                <Toaster 
+                  position="top-center"
+                  reverseOrder={false}
+                  gutter={8}
+                  containerClassName=""
+                  containerStyle={{}}
+                  toastOptions={{
+                    // Define default options
+                    className: '',
+                    duration: 5000,
+                    style: {
+                      background: '#363636',
+                      color: '#fff',
+                    },
+
+                    // Default options for specific types
+                    success: {
+                      duration: 3000,
+                      theme: {
+                        primary: 'green',
+                        secondary: 'black',
+                      },
+                    },
+                    error: {
+                        duration: 4000,
+                        style: {
+                            background: '#ef4444',
+                            color: '#fff',
+                        }
+                    }
+                  }}
+                />
+              </UserProvider>
             </ThemeProvider>
           </AccessibilityProvider>
         </NextAuthProvider>

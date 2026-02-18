@@ -29,12 +29,8 @@ export function ThemeProvider({ children }) {
     document.documentElement.classList.toggle("dark", mode === "dark");
   };
 
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setThemeMode }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setThemeMode, mounted }}>
       {children}
     </ThemeContext.Provider>
   );

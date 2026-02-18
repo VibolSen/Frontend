@@ -53,7 +53,7 @@ export default function StudentAssignmentView() {
     if (!itemToDelete) return;
 
     try {
-      await apiClient.del(`/assignments/${itemToDelete}`);
+      await apiClient.delete(`/assignments/${itemToDelete}`);
       console.log("Assignment deleted for all students successfully!");
       fetchAssignments(); // Refresh the list
       setItemToDelete(null);

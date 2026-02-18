@@ -1,4 +1,4 @@
-import { fetchAPI } from "@/lib/api";
+import { fetchAPI } from "@/lib/api-server";
 import GroupDetailPage from "@/components/group/GroupDetailPage"; // Adjust path as needed
 import Link from "next/link";
 

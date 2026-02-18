@@ -86,7 +86,7 @@ export default function DepartmentManagementView() {
     if (!itemToDelete) return;
     setIsLoading(true);
     try {
-      await apiClient.del(`/departments/${itemToDelete.id}`);
+      await apiClient.delete(`/departments/${itemToDelete.id}`);
       showMessage("Department deleted successfully!");
       setDepartments((prevDepts) =>
         prevDepts.filter((d) => d.id !== itemToDelete.id)

@@ -169,6 +169,16 @@ const ADMIN_NAV_ITEMS = [
     href: "/admin/job-postings",
   },
   {
+    label: "Leave Management",
+    icon: <ClipboardList />,
+    href: "/admin/leave-management",
+  },
+  {
+    label: "Recruitment",
+    icon: <Users />,
+    href: "/admin/recruitment",
+  },
+  {
     label: "Settings",
     icon: <Settings />,
     href: "/admin/settings",

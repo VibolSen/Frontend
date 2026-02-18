@@ -12,7 +12,7 @@ import { Plus, UserPlus, Users, ShieldAlert, History, Activity, ShieldCheck } fr
 import { useUser } from "@/context/UserContext";
 import { apiClient } from "@/lib/api";
 
-const ROLES = ["ADMIN", "HR", "TEACHER", "STUDENT", "STUDY_OFFICE"];
+const ROLES = ["ADMIN", "HR", "TEACHER", "STUDENT", "STUDY_OFFICE", "FINANCE"];
 
 export default function UserManagementView() {
   const { user: currentUser } = useUser();

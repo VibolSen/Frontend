@@ -13,6 +13,9 @@ import {
   ChevronRight,
   Users,
   ClipboardList,
+  UserPlus,
+  FileText,
+  CheckSquare,
 } from "lucide-react";
 
 const NavLink = ({
@@ -68,9 +71,24 @@ const HR_NAV_ITEMS = [
     href: "/hr/attendance",
   },
   {
+    label: "Leave Management",
+    icon: <FileText size={20} />,
+    href: "/hr/leave-management",
+  },
+  {
+    label: "Recruitment",
+    icon: <UserPlus size={20} />,
+    href: "/hr/recruitment",
+  },
+  {
     label: "Manage Attendance",
-    icon: <Users size={20} />,
+    icon: <CheckSquare size={20} />,
     href: "/hr/manage-attendance",
+  },
+  {
+    label: "My Absence",
+    icon: <Calendar size={20} />,
+    href: "/hr/my-absence",
   },
   {
     label: "Reports & Analytics",

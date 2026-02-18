@@ -1,4 +1,4 @@
-import { fetchAPI } from "@/lib/api";
+import { fetchAPI } from "@/lib/api-server";
 import GradingView from "./GradingView";
 import Link from "next/link";
 

@@ -14,7 +14,7 @@ export default function UpcomingSchedule({ teacherId, groupId }) {
     const fetchSchedule = async () => {
       try {
         const query = teacherId ? `?teacherId=${teacherId}` : `?groupId=${groupId}`;
-        const data = await apiClient.get(`/schedules${query}`);
+        const data = await apiClient.get(`/schedule${query}`);
         
         // Flatten sessions and find upcoming ones
         const allSessions = (data || []).flatMap(schedule => 

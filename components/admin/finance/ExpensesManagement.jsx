@@ -77,7 +77,7 @@ export default function ExpensesManagement() {
   const confirmDelete = async () => {
     if (!deleteId) return;
     try {
-      await apiClient.del(`/financial/expenses/${deleteId}`);
+      await apiClient.delete(`/financial/expenses/${deleteId}`);
       showMessage("Expense deleted successfully!", "success");
       fetchExpenses();
     } catch (error) {

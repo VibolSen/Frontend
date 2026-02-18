@@ -76,7 +76,7 @@ export default function FacultyManagement() {
     if (!itemToDelete) return;
     setIsLoading(true);
     try {
-      await apiClient.del(`/faculties/${itemToDelete.id}`);
+      await apiClient.delete(`/faculties/${itemToDelete.id}`);
       showMessage('Faculty deleted successfully!');
       setFaculties((prevFaculties) =>
         prevFaculties.filter((f) => f.id !== itemToDelete.id)

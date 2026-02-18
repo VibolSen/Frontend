@@ -63,6 +63,7 @@ export default function LoginPage() {
 
       if (roleName === "admin") window.location.href = "/admin/dashboard";
       else if (roleName === "hr") window.location.href = "/hr/dashboard";
+      else if (roleName === "finance") window.location.href = "/finance/dashboard";
       else if (roleName === "study-office" || roleName === "study_office")
         window.location.href = "/study-office/dashboard";
       else if (roleName === "faculty")

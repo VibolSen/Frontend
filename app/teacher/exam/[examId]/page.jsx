@@ -1,4 +1,4 @@
-import { fetchAPI } from "@/lib/api";
+import { fetchAPI } from "@/lib/api-server";
 import ExamDetailView from "@/components/exam/ExamDetailView";
 import Link from "next/link";
 

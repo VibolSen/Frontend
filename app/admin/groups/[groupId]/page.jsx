@@ -1,6 +1,6 @@
 import GroupDetailPage from "@/components/group/GroupDetailPage"; 
 import Link from "next/link";
-import { fetchAPI } from "@/lib/api";
+import { fetchAPI } from "@/lib/api-server";
 
 async function getGroupData(groupId) {
   try {

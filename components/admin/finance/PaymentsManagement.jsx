@@ -78,7 +78,7 @@ export default function PaymentsManagement() {
   const confirmDelete = async () => {
     if (!deleteId) return;
     try {
-      await apiClient.del(`/financial/payments/${deleteId}`);
+      await apiClient.delete(`/financial/payments/${deleteId}`);
       showMessage("Payment deleted successfully!", "success");
       fetchPayments();
     } catch (error) {

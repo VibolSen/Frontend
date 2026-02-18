@@ -93,10 +93,6 @@ export function AccessibilityProvider({ children }) {
     applyScreenReaderOptimized(newValue);
   };
 
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
   return (
     <AccessibilityContext.Provider
       value={{
@@ -108,6 +104,7 @@ export function AccessibilityProvider({ children }) {
         toggleHighContrast,
         screenReaderOptimized,
         toggleScreenReaderOptimized,
+        mounted,
       }}
     >
       {children}

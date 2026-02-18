@@ -98,7 +98,7 @@ export default function GroupManagementView({ role }) {
     if (!itemToDelete) return;
     setIsLoading(true);
     try {
-      await apiClient.del(`/groups/${itemToDelete.id}`);
+      await apiClient.delete(`/groups/${itemToDelete.id}`);
       showMessage("Group deleted successfully!");
       setGroups((prev) => prev.filter((g) => g.id !== itemToDelete.id));
     } catch (err) {

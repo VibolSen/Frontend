@@ -119,7 +119,7 @@ export default function AssignmentManagement() {
     if (!assignmentToDelete) return;
     setIsLoading(true);
     try {
-      await apiClient.del(`/assignments/${assignmentToDelete}`);
+      await apiClient.delete(`/assignments/${assignmentToDelete}`);
       showMessage("Assignment deleted successfully!", "success");
       await fetchData();
     } catch (err) {

@@ -82,7 +82,7 @@ export default function CourseManagementView() {
     if (!itemToDelete) return;
     setIsLoading(true);
     try {
-      await apiClient.del(`/courses/${itemToDelete.id}`);
+      await apiClient.delete(`/courses/${itemToDelete.id}`);
       showMessage("Course deleted successfully!");
       setCourses((prev) => prev.filter((c) => c.id !== itemToDelete.id));
     } catch (err) {

@@ -88,7 +88,7 @@ export default function JobPostingsManagementView() {
     if (!jobToDelete) return;
 
     try {
-      await apiClient.del(`/career/job-postings/${jobToDelete.id}`);
+      await apiClient.delete(`/career/job-postings/${jobToDelete.id}`);
       showMessage("Job posting deleted successfully!");
       fetchJobPostings(); 
     } catch (err) {

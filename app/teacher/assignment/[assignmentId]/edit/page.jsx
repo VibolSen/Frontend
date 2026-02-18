@@ -1,4 +1,4 @@
-import { fetchAPI } from "@/lib/api";
+import { fetchAPI } from "@/lib/api-server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import EditAssignmentView from "./EditAssignmentView";

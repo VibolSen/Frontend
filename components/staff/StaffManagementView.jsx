@@ -9,7 +9,7 @@ import { Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiClient } from "@/lib/api";
 
-const ALL_ROLES = ["ADMIN", "HR", "TEACHER", "STUDY_OFFICE"];
+const ALL_ROLES = ["ADMIN", "HR", "TEACHER", "STUDY_OFFICE", "FINANCE"];
 
 export default function StaffManagementView() {
   const { user, loading: userLoading } = useUser();

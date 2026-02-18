@@ -70,7 +70,7 @@ export default function ScheduleView() {
 
   const handleDeleteSchedule = async (id) => {
     try {
-      await apiClient.del(`/schedule/${id}`);
+      await apiClient.delete(`/schedule/${id}`);
       fetchSchedules();
     } catch (error) {
       console.error('Error deleting schedule:', error);
@@ -87,7 +87,7 @@ export default function ScheduleView() {
     try {
       // Bulk delete not implemented in backend yet.
       // I will implement iteration for now.
-      await Promise.all(selectedSchedules.map(id => apiClient.del(`/schedule/${id}`)));
+      await Promise.all(selectedSchedules.map(id => apiClient.delete(`/schedule/${id}`)));
       fetchSchedules();
       setSelectedSchedules([]);
     } catch (error) {

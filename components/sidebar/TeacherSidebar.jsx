@@ -101,6 +101,11 @@ const TEACHER_NAV_ITEMS = [
     href: "/teacher/e-library",
   },
   {
+    label: "My Leaves",
+    icon: <FileText />,
+    href: "/teacher/my-absence",
+  },
+  {
     label: "Settings",
     icon: <Settings />,
     href: "/teacher/settings",

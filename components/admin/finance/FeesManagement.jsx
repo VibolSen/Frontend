@@ -77,7 +77,7 @@ export default function FeesManagement() {
   const confirmDelete = async () => {
     if (!deleteId) return;
     try {
-      await apiClient.del(`/financial/fees/${deleteId}`);
+      await apiClient.delete(`/financial/fees/${deleteId}`);
       showMessage("Fee deleted successfully!", "success");
       fetchFees();
     } catch (error) {
