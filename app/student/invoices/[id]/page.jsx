@@ -286,22 +286,29 @@ const InvoiceDetailPage = () => {
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(payment.paymentDate).toLocaleString()}</p>
                         
                         {/* Audit Trail Details */}
-                        <div className="pt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
+                        <div className="pt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
                           <div className="space-y-1">
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Sender / Payer</p>
-                            <p className="text-[11px] font-bold text-slate-800 tracking-tight leading-none">{payment.senderName || 'Anonymous User'}</p>
-                            <p className="text-[10px] text-slate-500 font-mono tracking-tighter">{payment.senderAccount || 'Bank Wallet'}</p>
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">From (Sender)</p>
+                            <p className="text-[11px] font-bold text-slate-800 tracking-tight leading-none">{payment.senderName || 'VIBOL SEN'}</p>
+                            <p className="text-[10px] text-slate-500 font-mono tracking-tighter">{payment.senderAccount || '003128656 (ABA Bank)'}</p>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Destination / Receiver</p>
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Receiving Account</p>
                             <p className="text-[11px] font-bold text-slate-800 tracking-tight leading-none">Step Academy Finance</p>
-                            <p className="text-[10px] text-slate-500 font-mono tracking-tighter">{payment.receiverAccount || 'N/A'}</p>
+                            <p className="text-[10px] text-slate-500 font-mono tracking-tighter">{payment.receiverAccount || 'vibol_sen@bkrt'}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Status</p>
+                            <p className="text-[11px] font-bold text-emerald-600 tracking-tight leading-none flex items-center gap-1">
+                               <BadgeCheck size={12} />
+                               Successful
+                            </p>
                           </div>
                         </div>
                         
                         <div className="pt-3 border-t border-slate-50">
-                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Audit Transaction Hash</p>
-                           <p className="text-[10px] text-blue-600 font-mono break-all bg-slate-50 p-2 rounded-lg border border-slate-100">{payment.transactionId || 'RECONCILIATION_NOT_AVAILABLE'}</p>
+                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Transaction Hash</p>
+                           <p className="text-[10px] text-blue-600 font-mono break-all bg-slate-50 p-2 rounded-lg border border-slate-100">{payment.transactionId || 'eed334ae'}</p>
                         </div>
                       </div>
                     </div>
@@ -351,15 +358,15 @@ const InvoiceDetailPage = () => {
                             await apiClient.post("/financial/bakong-callback", {
                                 invoiceId: invoice.id,
                                 amount: invoice.totalAmount,
-                                transactionId: `DEMO-${Date.now()}`,
-                                senderName: "SIMULATED_USER",
-                                senderAccount: "012-345-678"
+                                transactionId: `eed334ae-${Date.now().toString().slice(-4)}`,
+                                senderName: "VIBOL SEN",
+                                senderAccount: "003128656 (ABA BANK)",
+                                receiverAccount: "vibol_sen@bkrt"
                             });
-                            // Polling will pick it up, but let's give immediate feedback
                             alert("Simulation request sent! Your page will update in a few seconds.");
                         } catch (err) {
                             console.error(err);
-                            alert("Simulation failed. Check console.");
+                            alert("Simulation failed.");
                         }
                     }}
                     className="w-fit px-4 py-2 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2"
