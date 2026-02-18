@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Wallet,
   BarChart3,
+  User,
 } from "lucide-react";
 
 // -------------------------
@@ -86,8 +87,18 @@ const FINANCE_NAV_ITEMS = [
     href: "/finance/expenses",
   },
   {
-    label: "Financial Reports",
+    label: "Payroll",
+    icon: <User />,
+    href: "/finance/payroll",
+  },
+  {
+    label: "Budgets",
     icon: <BarChart3 />,
+    href: "/finance/budgets",
+  },
+  {
+    label: "Financial Reports",
+    icon: <TrendingUp />,
     href: "/finance/reports",
   },
 ];

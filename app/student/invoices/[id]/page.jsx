@@ -6,8 +6,9 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowLeft, Printer, Download, MapPin, Mail, Hash, Calendar, Clock, User, CreditCard, AlertCircle } from "lucide-react";
+import { ArrowLeft, Printer, Download, MapPin, Mail, Hash, Calendar, Clock, User, CreditCard, AlertCircle, QrCode, ShieldCheck } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { QRCodeCanvas } from "qrcode.react";
 
 // Helper Component for Status Stamp
 const StatusStamp = ({ status }) => {
@@ -32,6 +33,8 @@ const InvoiceDetailPage = () => {
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [qrString, setQrString] = useState("");
+  const [qrLoading, setQrLoading] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -40,20 +43,59 @@ const InvoiceDetailPage = () => {
       return;
     }
 
-    const fetchInvoiceDetails = async () => {
+    const fetchInvoiceDetails = async (isSilent = false) => {
+      if (!isSilent) setLoading(true);
       try {
         const data = await apiClient.get(`/financial/invoices/${id}`);
         setInvoice(data);
+        
+        // If not paid, generate QR
+        if (data.status !== 'PAID' && !qrString && !isSilent) {
+           fetchQR(data);
+        }
+
+        // If it just became PAID, stop any further loading
+        if (data.status === 'PAID') {
+           setLoading(false);
+        }
       } catch (e) {
         console.error("Failed to fetch invoice details:", e);
-        setError("Failed to secure invoice information.");
+        if (!isSilent) setError("Failed to secure invoice information.");
       } finally {
-        setLoading(false);
+        if (!isSilent) setLoading(false);
       }
     };
 
+    const fetchQR = async (invoiceData) => {
+        setQrLoading(true);
+        try {
+            const response = await apiClient.post("/financial/bakong-qr", {
+                amount: invoiceData.totalAmount,
+                currency: "USD",
+                invoiceId: invoiceData.id
+            });
+            setQrString(response.qrString);
+        } catch (err) {
+            console.error("Failed to fetch QR:", err);
+        } finally {
+            setQrLoading(false);
+        }
+    };
+
     fetchInvoiceDetails();
-  }, [id]);
+
+    // Start Polling for Payment Status if not paid
+    let pollingInterval;
+    if (invoice?.status !== 'PAID') {
+        pollingInterval = setInterval(() => {
+            fetchInvoiceDetails(true); // Silent update
+        }, 3000);
+    }
+
+    return () => {
+        if (pollingInterval) clearInterval(pollingInterval);
+    };
+  }, [id, invoice?.status]);
 
   if (loading) {
     return (
@@ -256,6 +298,45 @@ const InvoiceDetailPage = () => {
             </div>
           )}
         </div>
+
+        {/* QR Code Section - Pay with Bakong */}
+        {invoice.status !== 'PAID' && (
+          <div className="px-12 py-10 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex-1 space-y-4">
+               <div>
+                  <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase flex items-center gap-2">
+                    <QrCode className="w-4 h-4 text-red-600" />
+                    Scan to Pay with KHQR
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium leading-relaxed mt-2 uppercase tracking-wide italic leading-relaxed">
+                    Open your mobile banking app (Bakong, ABA, ACLEDA, etc.) to scan this QR code for an instant, secure payment.
+                  </p>
+               </div>
+               <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  <span className="flex items-center gap-1.5"><ShieldCheck className="w-3 h-3 text-emerald-500" /> Secure</span>
+                  <span className="flex items-center gap-1.5 text-blue-600 underline">Fee-Free Transfer</span>
+               </div>
+            </div>
+            
+            <div className="w-[160px] h-[160px] bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-center relative overflow-hidden">
+               {qrLoading ? (
+                  <div className="flex flex-col items-center gap-2">
+                     <div className="w-6 h-6 border-2 border-red-600/20 border-t-red-600 rounded-full animate-spin"></div>
+                     <span className="text-[8px] font-black text-slate-400 uppercase">Generating...</span>
+                  </div>
+               ) : qrString ? (
+                  <QRCodeCanvas 
+                     value={qrString} 
+                     size={144}
+                     level="H"
+                     includeMargin={false}
+                  />
+               ) : (
+                  <span className="text-[8px] font-black text-slate-400 uppercase text-center p-4">QR Unavailable</span>
+               )}
+            </div>
+          </div>
+        )}
 
         {/* Footer Note */}
         <div className="bg-blue-950 p-8 text-center">
