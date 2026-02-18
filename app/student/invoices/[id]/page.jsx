@@ -312,9 +312,38 @@ const InvoiceDetailPage = () => {
                     Open your mobile banking app (Bakong, ABA, ACLEDA, etc.) to scan this QR code for an instant, secure payment.
                   </p>
                </div>
-               <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  <span className="flex items-center gap-1.5"><ShieldCheck className="w-3 h-3 text-emerald-500" /> Secure</span>
-                  <span className="flex items-center gap-1.5 text-blue-600 underline">Fee-Free Transfer</span>
+               <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                     <span className="flex items-center gap-1.5"><ShieldCheck className="w-3 h-3 text-emerald-500" /> Secure</span>
+                     <span className="flex items-center gap-1.5 text-blue-600 underline">Fee-Free Transfer</span>
+                  </div>
+                  
+                  {/* Demo Simulation Button - Very useful for hosting demo */}
+                  <button 
+                    onClick={async () => {
+                        try {
+                            const confirmSim = window.confirm("SIMULATION: Do you want to simulate a successful KHQR payment for this invoice?");
+                            if (!confirmSim) return;
+                            
+                            await apiClient.post("/financial/bakong-callback", {
+                                invoiceId: invoice.id,
+                                amount: invoice.totalAmount,
+                                transactionId: `DEMO-${Date.now()}`,
+                                senderName: "SIMULATED_USER",
+                                senderAccount: "012-345-678"
+                            });
+                            // Polling will pick it up, but let's give immediate feedback
+                            alert("Simulation request sent! Your page will update in a few seconds.");
+                        } catch (err) {
+                            console.error(err);
+                            alert("Simulation failed. Check console.");
+                        }
+                    }}
+                    className="w-fit px-4 py-2 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2"
+                  >
+                     <CreditCard size={12} />
+                     Pro-Demo: Simulate Payment
+                  </button>
                </div>
             </div>
             
