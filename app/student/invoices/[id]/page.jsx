@@ -48,6 +48,15 @@ const InvoiceDetailPage = () => {
       if (!isSilent) setLoading(true);
       try {
         const data = await apiClient.get(`/financial/invoices/${id}`);
+        
+        // Check if status changed from unpaid to PAID
+        if (invoice?.status !== 'PAID' && data.status === 'PAID') {
+           console.log("🚀 Status changed to PAID! Updating UI...");
+           setInvoice(data);
+           setLoading(false);
+           return;
+        }
+
         setInvoice(data);
         
         // If not paid, generate QR
@@ -55,17 +64,12 @@ const InvoiceDetailPage = () => {
            fetchQR(data);
         } else if (data.status !== 'PAID' && isSilent && md5Hash) {
             // Check real Bakong status using MD5 during silent polling
-            console.log(`[Auto-Sync] Polling Bank for MD5: ${md5Hash}...`);
             const statusData = await apiClient.get(`/financial/bakong-status/${id}?md5=${md5Hash}`);
             if (statusData.isPaid) {
-               console.log(" ✅ Payment Confirmed by Bank!");
-               window.location.reload(); 
+               console.log(" ✅ Payment Confirmed by Bank API! Refreshing data...");
+               const freshData = await apiClient.get(`/financial/invoices/${id}`);
+               setInvoice(freshData);
             }
-        }
-        
-        // If it just became PAID, stop any further loading
-        if (data.status === 'PAID') {
-          setLoading(false);
         }
       } catch (e) {
         console.error("Failed to fetch invoice details:", e);
