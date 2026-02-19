@@ -34,6 +34,7 @@ const InvoiceDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [qrString, setQrString] = useState("");
+  const [md5Hash, setMd5Hash] = useState("");
   const [qrLoading, setQrLoading] = useState(false);
 
   useEffect(() => {
@@ -52,11 +53,17 @@ const InvoiceDetailPage = () => {
         // If not paid, generate QR
         if (data.status !== 'PAID' && !qrString && !isSilent) {
            fetchQR(data);
+        } else if (data.status !== 'PAID' && isSilent && md5Hash) {
+            // Check real Bakong status using MD5 during silent polling
+            const statusData = await apiClient.get(`/financial/bakong-status/${id}?md5=${md5Hash}`);
+            if (statusData.isPaid) {
+               window.location.reload(); 
+            }
         }
-
+        
         // If it just became PAID, stop any further loading
         if (data.status === 'PAID') {
-           setLoading(false);
+          setLoading(false);
         }
       } catch (e) {
         console.error("Failed to fetch invoice details:", e);
@@ -75,6 +82,7 @@ const InvoiceDetailPage = () => {
                 invoiceId: invoiceData.id
             });
             setQrString(response.qrString);
+            setMd5Hash(response.md5);
         } catch (err) {
             console.error("Failed to fetch QR:", err);
         } finally {
