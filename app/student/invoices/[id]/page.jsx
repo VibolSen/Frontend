@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowLeft, Printer, Download, MapPin, Mail, Hash, Calendar, Clock, User, CreditCard, AlertCircle, QrCode, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Printer, Download, MapPin, Mail, Hash, Calendar, Clock, User, CreditCard, AlertCircle, QrCode, ShieldCheck, BadgeCheck } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { QRCodeCanvas } from "qrcode.react";
 
@@ -289,13 +289,18 @@ const InvoiceDetailPage = () => {
                         <div className="pt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
                           <div className="space-y-1">
                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">From (Sender)</p>
-                            <p className="text-[11px] font-bold text-slate-800 tracking-tight leading-none">{payment.senderName || 'VIBOL SEN'}</p>
-                            <p className="text-[10px] text-slate-500 font-mono tracking-tighter">{payment.senderAccount || '003128656 (ABA Bank)'}</p>
+                            <p className="text-[11px] font-bold text-slate-800 tracking-tight leading-none">{payment.senderName || 'N/A'}</p>
+                            <p className="text-[10px] text-slate-500 font-mono tracking-tighter">{payment.senderAccount || 'N/A'}</p>
                           </div>
                           <div className="space-y-1">
                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Receiving Account</p>
                             <p className="text-[11px] font-bold text-slate-800 tracking-tight leading-none">Step Academy Finance</p>
-                            <p className="text-[10px] text-slate-500 font-mono tracking-tighter">{payment.receiverAccount || 'vibol_sen@bkrt'}</p>
+                            <p className="text-[10px] text-slate-500 font-mono tracking-tighter">{payment.receiverAccount || 'SCHOOL_ACCOUNT'}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Currency & Amount</p>
+                            <p className="text-[11px] font-bold text-slate-800 tracking-tight leading-none uppercase">{payment.currency || 'USD'} ${payment.amount.toFixed(2)}</p>
+                            <p className="text-[10px] text-slate-500 font-medium">Conversion: Verified</p>
                           </div>
                           <div className="space-y-1">
                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Status</p>
@@ -305,10 +310,16 @@ const InvoiceDetailPage = () => {
                             </p>
                           </div>
                         </div>
-                        
-                        <div className="pt-3 border-t border-slate-50">
-                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Transaction Hash</p>
-                           <p className="text-[10px] text-blue-600 font-mono break-all bg-slate-50 p-2 rounded-lg border border-slate-100">{payment.transactionId || 'eed334ae'}</p>
+
+                        <div className="pt-3 border-t border-slate-50 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                           <div className="space-y-1">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Transaction Hash</p>
+                              <p className="text-[10px] text-blue-600 font-mono break-all bg-slate-50 p-2 rounded-lg border border-slate-100">{payment.transactionId || 'N/A'}</p>
+                           </div>
+                           <div className="space-y-1">
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Security MD5 Signature</p>
+                              <p className="text-[10px] text-slate-400 font-mono break-all bg-slate-50 p-2 rounded-lg border border-slate-100 italic">{payment.md5 || 'N/A'}</p>
+                           </div>
                         </div>
                       </div>
                     </div>
@@ -352,15 +363,22 @@ const InvoiceDetailPage = () => {
                   <button 
                     onClick={async () => {
                         try {
-                            const confirmSim = window.confirm("SIMULATION: Do you want to simulate a successful KHQR payment for this invoice?");
+                            const customName = window.prompt("SIMULATION: Enter Payer Name (e.g. VIBOL SEN, Parent Name, etc.)", `${invoice.student.firstName} ${invoice.student.lastName}`.toUpperCase());
+                            
+                            if (customName === null) return; // User cancelled
+                            
+                            const confirmSim = window.confirm(`Simulate successful $${invoice.totalAmount} payment from "${customName}"?`);
                             if (!confirmSim) return;
                             
                             await apiClient.post("/financial/bakong-callback", {
                                 invoiceId: invoice.id,
+                                billNumber: invoice.id.substring(invoice.id.length - 12),
                                 amount: invoice.totalAmount,
-                                transactionId: `eed334ae-${Date.now().toString().slice(-4)}`,
-                                senderName: "VIBOL SEN",
-                                senderAccount: "003128656 (ABA BANK)",
+                                currency: "USD",
+                                md5: `sim_hash_${Date.now()}`,
+                                transactionId: `SIM-${Date.now()}`,
+                                senderName: (customName || "ANONYMOUS PAYER").toUpperCase(),
+                                senderAccount: "003 128 656 (ABA BANK)",
                                 receiverAccount: "vibol_sen@bkrt"
                             });
                             alert("Simulation request sent! Your page will update in a few seconds.");
