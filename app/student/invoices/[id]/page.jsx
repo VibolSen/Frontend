@@ -55,8 +55,10 @@ const InvoiceDetailPage = () => {
            fetchQR(data);
         } else if (data.status !== 'PAID' && isSilent && md5Hash) {
             // Check real Bakong status using MD5 during silent polling
+            console.log(`[Auto-Sync] Polling Bank for MD5: ${md5Hash}...`);
             const statusData = await apiClient.get(`/financial/bakong-status/${id}?md5=${md5Hash}`);
             if (statusData.isPaid) {
+               console.log(" ✅ Payment Confirmed by Bank!");
                window.location.reload(); 
             }
         }
@@ -103,7 +105,7 @@ const InvoiceDetailPage = () => {
     return () => {
         if (pollingInterval) clearInterval(pollingInterval);
     };
-  }, [id, invoice?.status]);
+  }, [id, invoice?.status, md5Hash]);
 
   if (loading) {
     return (
@@ -371,25 +373,20 @@ const InvoiceDetailPage = () => {
                   <button 
                     onClick={async () => {
                         try {
-                            const customName = window.prompt("SIMULATION: Enter Payer Name (e.g. VIBOL SEN, Parent Name, etc.)", `${invoice.student.firstName} ${invoice.student.lastName}`.toUpperCase());
-                            
-                            if (customName === null) return; // User cancelled
-                            
-                            const confirmSim = window.confirm(`Simulate successful $${invoice.totalAmount} payment from "${customName}"?`);
-                            if (!confirmSim) return;
+                            const customName = window.prompt("SIMULATION: Enter Payer Name", "VIBOL SEN");
+                            if (customName === null) return;
                             
                             await apiClient.post("/financial/bakong-callback", {
                                 invoiceId: invoice.id,
-                                billNumber: invoice.id.substring(invoice.id.length - 12),
                                 amount: invoice.totalAmount,
                                 currency: "USD",
-                                md5: `sim_hash_${Date.now()}`,
+                                md5: `sim_${Date.now()}`,
                                 transactionId: `SIM-${Date.now()}`,
-                                senderName: (customName || "ANONYMOUS PAYER").toUpperCase(),
-                                senderAccount: "003 128 656 (ABA BANK)",
+                                senderName: customName.toUpperCase(),
+                                senderAccount: "003 128 656",
                                 receiverAccount: "vibol_sen@bkrt"
                             });
-                            alert("Simulation request sent! Your page will update in a few seconds.");
+                            alert("Success: Simulated payment received by server!");
                         } catch (err) {
                             console.error(err);
                             alert("Simulation failed.");
