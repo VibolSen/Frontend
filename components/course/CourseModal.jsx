@@ -46,6 +46,9 @@ export default function CourseModal({
       } else {
         setFormData({
           name: "",
+          code: "",
+          credits: 3,
+          description: "",
           departmentIds: [],
           teacherId: "",
         });

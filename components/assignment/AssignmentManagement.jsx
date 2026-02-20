@@ -142,7 +142,7 @@ export default function AssignmentManagement() {
             Coordinate student tasks, monitor submission progress, and manage academic activity timelines.
           </p>
         </div>
-        {(user?.role === "ADMIN" || user?.role === "TEACHER") && (
+        {(user?.role?.toUpperCase() === "ADMIN" || user?.role?.toUpperCase() === "TEACHER") && (
           <button
             onClick={() => setIsAddModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-200 transition-all active:scale-95 whitespace-nowrap"
@@ -234,7 +234,7 @@ export default function AssignmentManagement() {
                     }
                     onEdit={() => handleEdit(assignment)}
                     onDelete={() => handleDelete(assignment.id)}
-                    userRole={user?.role}
+                    userRole={user?.role?.toUpperCase()}
                   />
                 </motion.div>
               ))}

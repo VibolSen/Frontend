@@ -32,18 +32,33 @@ export default function InvoiceDetailView() {
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [logsLoading, setLogsLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
-       const fetchInvoiceDetails = async () => {
+      const fetchInvoiceDetails = async () => {
         try {
           const data = await apiClient.get(`/financial/invoices/${id}`);
           setInvoice(data);
+          fetchAuditLogs(id);
         } catch (e) {
           console.error("Failed to fetch invoice details:", e);
           setError("Failed to secure invoice information.");
         } finally {
           setLoading(false);
+        }
+      };
+
+      const fetchAuditLogs = async (invoiceId) => {
+        setLogsLoading(true);
+        try {
+            const data = await apiClient.get(`/financial/invoices/${invoiceId}/logs`);
+            setAuditLogs(data || []);
+        } catch (err) {
+            console.error("Failed to fetch logs:", err);
+        } finally {
+            setLogsLoading(false);
         }
       };
   
@@ -258,6 +273,56 @@ export default function InvoiceDetailView() {
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">No recorded payments</p>
             </div>
           )}
+        </div>
+        
+        {/* Official Audit Trail Section */}
+        <div className="px-12 py-10 border-t border-slate-100 bg-white">
+          <div className="flex items-center gap-3 mb-8">
+            <Clock className="w-5 h-5 text-blue-900 opacity-20" />
+            <div>
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Administrative Audit Trail</h3>
+              <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest mt-0.5">Verified Institutional History</p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {logsLoading ? (
+                <div className="py-10 text-center flex flex-col items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-blue-900 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">Accessing Registry...</span>
+                </div>
+            ) : auditLogs.length === 0 ? (
+                <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest text-center py-10 italic">No historical revisions recorded</p>
+            ) : (
+                auditLogs.map((log, i) => (
+                    <div key={log.id} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-px before:bg-slate-100">
+                        <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-slate-200 border-2 border-white" />
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-[9px] font-black text-slate-900 uppercase bg-slate-100 px-2 py-0.5 rounded">
+                                        {log.action.replace('_', ' ')}
+                                    </span>
+                                    <span className="text-[9px] font-bold text-slate-400 tabular-nums">
+                                        {new Date(log.timestamp).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                                    </span>
+                                </div>
+                                <p className="text-[11px] font-bold text-slate-400 italic">"{log.details}"</p>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                                <div className="w-6 h-6 bg-blue-900 text-white flex items-center justify-center rounded-lg text-[8px] font-black">
+                                    {log.actor?.firstName.charAt(0)}{log.actor?.lastName.charAt(0)}
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] font-black text-slate-800 leading-none">{log.actor?.firstName} {log.actor?.lastName}</span>
+                                    <span className="text-[7px] font-black text-slate-400 uppercase tracking-tighter mt-0.5">{log.actor?.role}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ))
+            )}
+          </div>
         </div>
 
         {/* Footer Note */}

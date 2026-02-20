@@ -26,10 +26,11 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
   const [assignedToTeacherId, setAssignedToTeacherId] = useState('');
   const [assignedToGroupId, setAssignedToGroupId] = useState('');
   const [courseId, setCourseId] = useState('');
-  const [location, setLocation] = useState('');
+  const [roomId, setRoomId] = useState('');
   const [teachers, setTeachers] = useState([]);
   const [groups, setGroups] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [rooms, setRooms] = useState([]);
 
   useEffect(() => {
     if (schedule) {
@@ -41,7 +42,7 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
       setAssignedToTeacherId(schedule.assignedToTeacherId || '');
       setAssignedToGroupId(schedule.assignedToGroupId || '');
       setCourseId(schedule.courseId || '');
-      setLocation(schedule.location || '');
+      setRoomId(schedule.roomId || '');
       if (Array.isArray(schedule.sessions) && schedule.sessions.length > 0) {
         setSessions(schedule.sessions.map(s => ({
           startTime: new Date(s.startTime).toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false }),
@@ -60,7 +61,7 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
       setAssignedToTeacherId('');
       setAssignedToGroupId('');
       setCourseId('');
-      setLocation('');
+      setRoomId('');
     }
   }, [schedule]);
 
@@ -68,14 +69,16 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
     const fetchData = async () => {
       if (isOpen && !isReadOnly) {
         try {
-          const [teachersData, groupsData, coursesData] = await Promise.all([
+          const [teachersData, groupsData, coursesData, roomsData] = await Promise.all([
             apiClient.get('/users?role=TEACHER'),
             apiClient.get('/groups'),
             apiClient.get('/courses'),
+            apiClient.get('/rooms'),
           ]);
           setTeachers(teachersData || []);
           setGroups(groupsData || []);
           setCourses(coursesData || []);
+          setRooms(roomsData || []);
         } catch (error) {
           console.error('Error fetching data:', error);
         }
@@ -118,7 +121,7 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
       assignedToTeacherId: assignedToTeacherId || null,
       assignedToGroupId: assignedToGroupId || null,
       courseId: courseId || null,
-      location: location || '',
+      roomId: roomId || null,
       sessions: sessions.map(session => ({
         startTime: session.startTime,
         endTime: session.endTime,
@@ -181,8 +184,13 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
                             </select>
                         </div>
                         <div>
-                            <label htmlFor="location" className="block text-xs font-semibold text-gray-800">Location / Room</label>
-                            <input type="text" id="location" value={location} onChange={(e) => setLocation(e.target.value)} className={inputStyle} disabled={isReadOnly} placeholder="e.g., Room 304" />
+                            <label htmlFor="roomId" className="block text-xs font-semibold text-gray-800">Room</label>
+                            <select id="roomId" name="roomId" value={roomId} onChange={(e) => setRoomId(e.target.value)} className={inputStyle} disabled={isReadOnly}>
+                                <option value="">Select Room</option>
+                                {rooms.map((room) => (
+                                    <option key={room.id} value={room.id}>{room.name} ({room.type} - Cap: {room.capacity})</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 

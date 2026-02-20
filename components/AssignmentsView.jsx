@@ -26,21 +26,21 @@ export default function AssignmentsView({ loggedInUser }) {
     if (!loggedInUser) return;
     setIsLoading(true);
     try {
+      const userRole = loggedInUser.role?.toUpperCase();
       let assignmentsUrl = `/assignments?teacherId=${loggedInUser.id}`;
       if (
-        loggedInUser.role === "ADMIN" ||
-        loggedInUser.role === "STUDY_OFFICE" ||
-        loggedInUser.role === "study_office"
+        userRole === "ADMIN" ||
+        userRole === "STUDY_OFFICE"
       ) {
         assignmentsUrl = "/assignments";
       }
 
       const requests = [
         apiClient.get(assignmentsUrl),
-        apiClient.get("/courses") // Fetching all courses for now
+        apiClient.get("/courses") 
       ];
       
-      if (loggedInUser.role === "TEACHER") {
+      if (userRole === "TEACHER") {
          requests.push(apiClient.get(`/teachers/my-groups?teacherId=${loggedInUser.id}`));
       }
 
@@ -49,32 +49,20 @@ export default function AssignmentsView({ loggedInUser }) {
       // Assignments
       if (results[0].status === 'fulfilled') {
         setAssignments(results[0].value || []);
-      } else {
-        console.error("Failed to fetch assignments:", results[0].reason);
       }
 
       // Courses
       if (results[1].status === 'fulfilled') {
-        const allCourses = results[1].value || [];
-        // Optional: Filter courses if needed, or backend should handle it. 
-        // For now, passing all courses or filtering by teacher if possible.
-        // Assuming courses have leadById, we could filter:
-        // const myCourses = allCourses.filter(c => c.leadById === loggedInUser.id);
-        // But courses can be assigned to groups taught by teacher too. 
-        setCourses(allCourses);
-      } else {
-        setCourses([]);
+        setCourses(results[1].value || []);
       }
 
-      // Groups (Index 2 if teacher)
-      if (loggedInUser.role === "TEACHER" && results[2] && results[2].status === 'fulfilled') {
+      // Groups
+      if (userRole === "TEACHER" && results[2] && results[2].status === 'fulfilled') {
         setTeacherGroups(results[2].value || []);
-      } else if (loggedInUser.role !== "TEACHER") {
-         // Maybe admin needs groups too? logic was existing. 
-         // Original code only set teacherGroups if status was fulfilled at index 1... 
-         // Wait, original code pushed groups request at index 1 only if teacher.
-         // Now I put courses at index 1, groups at index 2.
-         // So I need to be careful with indices.
+      } else if (userRole === "ADMIN" || userRole === "STUDY_OFFICE") {
+        // Admins should probably see all groups if they want to create assignments
+        const groupsRes = await apiClient.get("/groups");
+        setTeacherGroups(groupsRes || []);
       }
     } catch (err) {
       console.error("Fetch data error:", err);
@@ -179,8 +167,7 @@ export default function AssignmentsView({ loggedInUser }) {
           </div>
           <button
             onClick={() => setIsAddModalOpen(true)}
-            disabled={teacherGroups.length === 0}
-            className="group relative bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="group relative bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
           >
             <span className="flex items-center gap-1">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

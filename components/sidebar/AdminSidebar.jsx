@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -12,17 +12,21 @@ import {
   ChevronLeft,
   ChevronRight,
   Briefcase,
-  User,
+  User as UserIcon,
   LayoutGrid,
   Hash,
   TrendingUp,
   Calendar,
   Award,
   DollarSign,
-  FileText, // For Exam Management
-  Library, // For E-Library
-  ClipboardList // For Assignment Management
+  FileText,
+  Library,
+  ClipboardList,
+  LogOut,
+  Bell
 } from "lucide-react";
+import { useUser } from "@/context/UserContext";
+import { motion } from "framer-motion";
 
 // -------------------------
 // Single Nav Item Component
@@ -31,35 +35,46 @@ const NavLink = ({ icon, label, href, isCollapsed, isActive }) => (
   <li>
     <Link
       href={href}
-      className={`group flex items-center gap-3 my-1 p-3 rounded-xl transition-all duration-300 relative overflow-hidden
+      className={`group flex items-center gap-3 my-1 px-3 py-2.5 rounded-xl transition-all duration-300 relative
         ${
           isActive
-            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20 scale-[1.02]"
+            ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
             : "text-slate-500 hover:text-blue-700 hover:bg-white"
         }
       `}
       title={isCollapsed ? label : ""}
     >
-      <span
-        className={`transition-all duration-300 relative z-10 ${
-          isActive
-            ? "text-white"
-            : "group-hover:text-blue-300"
+      <div
+        className={`flex items-center justify-center shrink-0 transition-transform duration-300 ${
+          isActive ? "scale-110" : "group-hover:scale-110"
         }`}
       >
-        {React.cloneElement(icon, { size: 20 })}
-      </span>
+        {React.cloneElement(icon, { size: 18, strokeWidth: isActive ? 2.5 : 2 })}
+      </div>
 
       <span
-        className={`ml-1 font-medium transition-all duration-300 ease-in-out
+        className={`font-semibold text-xs tracking-tight transition-all duration-300 whitespace-nowrap
           ${
             isCollapsed
-              ? "opacity-0 absolute left-full ml-2 bg-slate-800 text-white px-2 py-1 rounded text-sm invisible group-hover:visible group-hover:opacity-100 z-50 shadow-md"
-              : "opacity-100"
+              ? "opacity-0 translate-x-4 pointer-events-none"
+              : "opacity-100 translate-x-0"
           }`}
       >
         {label}
       </span>
+
+      {isActive && !isCollapsed && (
+        <motion.div
+           layoutId="activeIndicator"
+           className="absolute right-2 w-1.5 h-1.5 rounded-full bg-white/50"
+        />
+      )}
+      
+      {isCollapsed && (
+        <div className="absolute left-full ml-4 px-3 py-1.5 bg-slate-800 text-white text-[10px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all pointer-events-none z-50 whitespace-nowrap shadow-xl">
+             {label}
+        </div>
+      )}
     </Link>
   </li>
 );
@@ -90,7 +105,7 @@ const ADMIN_NAV_ITEMS = [
   },
   {
     label: "Students",
-    icon: <User />,
+    icon: <UserIcon />,
     href: "/admin/students",
   },
   {
@@ -159,6 +174,11 @@ const ADMIN_NAV_ITEMS = [
     href: "/admin/schedule",
   },
   {
+    label: "Campus Facilities",
+    icon: <LayoutGrid />,
+    href: "/admin/rooms",
+  },
+  {
     label: "Certificates",
     icon: <Award />,
     href: "/admin/certificate-management",
@@ -188,84 +208,71 @@ const ADMIN_NAV_ITEMS = [
 // -------------------------
 // Main Sidebar Component
 // -------------------------
-export default function AdminSidebar({ initialOpen = true }) {
-  const [isOpen, setIsOpen] = useState(initialOpen);
+export default function AdminSidebar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
+  const { user } = useUser();
 
-  useEffect(() => {
-    const savedState = localStorage.getItem("sidebarState");
-    if (savedState !== null) setIsOpen(JSON.parse(savedState));
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("sidebarState", JSON.stringify(isOpen));
-  }, [isOpen]);
-
-  const toggleSidebar = () => setIsOpen(!isOpen);
   const isCollapsed = !isOpen;
 
   return (
     <>
-      {/* Mobile overlay */}
       <div
-        className={`fixed inset-0 bg-black bg-opacity-50 z-30 transition-opacity md:hidden ${
+        className={`fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 transition-opacity md:hidden ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setIsOpen(false)}
       />
 
-      {/* Sidebar */}
       <aside
-        className={`bg-[#EBF4F6] border-r border-slate-200 text-slate-800 flex flex-col fixed md:relative transition-all duration-500 ease-in-out z-40 h-full shadow-2xl
-          ${isOpen ? "min-w-max" : "w-20"} overflow-hidden`}
+        className={`bg-[#EBF4F6] border-r border-slate-200 text-slate-800 flex flex-col fixed md:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-40 h-full
+          ${isOpen ? "w-72" : "w-20"} overflow-hidden shadow-xl`}
       >
+        {/* Decorative Background Elements */}
+        <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-blue-600/5 to-transparent pointer-events-none" />
+        
         {/* Header */}
         <div
-          className={`flex items-center p-5 border-b border-slate-200 h-20 transition-all duration-300 ${
+          className={`flex items-center px-6 border-b border-slate-200 h-24 transition-all duration-300 relative z-10 ${
             isCollapsed ? "justify-center" : "justify-between"
           }`}
         >
           {!isCollapsed && (
-            <div className="flex items-center space-x-3 animate-fadeIn">
-              <div className="h-10 w-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <svg
-                  className="h-6 w-6 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2.5}
-                    d="M12 6.253v11.494m-5.22-8.242l10.44 4.99m-10.44-4.99l10.44 4.99M3 10.519l9-4.266 9 4.266"
-                  />
-                </svg>
+            <motion.div 
+               initial={{ opacity: 0, x: -20 }}
+               animate={{ opacity: 1, x: 0 }}
+               className="flex items-center gap-3"
+            >
+              <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 rotate-3">
+                <LayoutGrid className="h-5 w-5 text-white" />
               </div>
               <div className="flex flex-col">
-                <h1 className="text-lg font-black text-slate-800 tracking-tight leading-none">
-                  Admin<span className="text-blue-600">Portal</span>
+                <h1 className="text-base font-black text-slate-800 tracking-widest leading-none uppercase italic">
+                  Step Acad.
                 </h1>
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Workspace</span>
+                <span className="text-[8px] text-slate-500 font-black uppercase tracking-[0.3em] mt-1">Super Admin</span>
               </div>
-            </div>
+            </motion.div>
           )}
 
           <button
-            onClick={toggleSidebar}
-            className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-500 hover:text-blue-600 transition-all border border-slate-200 hover:border-slate-300"
-            aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+            onClick={() => setIsOpen(!isOpen)}
+            className={`p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-blue-600 transition-all hover:bg-white group shadow-sm ${isCollapsed ? "" : "ml-4"}`}
           >
             {isOpen ? (
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft size={16} />
             ) : (
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight size={16} />
             )}
           </button>
         </div>
 
         {/* Nav Links */}
-        <nav className="flex-1 px-3 py-6 overflow-y-auto custom-scrollbar">
+        <nav className="flex-1 px-4 py-8 overflow-y-auto custom-scrollbar relative z-10">
+          {!isCollapsed && (
+             <div className="mb-4 px-2">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Management Suite</span>
+             </div>
+          )}
           <ul className="space-y-1.5">
             {ADMIN_NAV_ITEMS.map((item) => (
               <NavLink
@@ -280,8 +287,35 @@ export default function AdminSidebar({ initialOpen = true }) {
           </ul>
         </nav>
 
+        {/* User Profile Summary */}
+        <div className="p-4 border-t border-slate-200 relative z-10 bg-white/50 backdrop-blur-md">
+           <div className={`flex items-center gap-3 p-2 rounded-2xl transition-all ${isCollapsed ? "justify-center" : "bg-white border border-slate-100 shadow-sm"}`}>
+             <div className="relative shrink-0">
+               <img 
+                 src={user?.profile?.avatar || "/default-cover.jpg"} 
+                 className="w-9 h-9 rounded-xl object-cover ring-2 ring-slate-100"
+                 alt="Profile"
+               />
+               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
+             </div>
+             
+             {!isCollapsed && (
+               <div className="flex-1 min-w-0">
+                 <p className="text-[11px] font-black text-slate-800 truncate">{user?.firstName} {user?.lastName}</p>
+                 <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">System Authority</p>
+               </div>
+             )}
+             
+             {!isCollapsed && (
+               <button className="p-2 text-slate-400 hover:text-rose-500 transition-colors">
+                 <LogOut size={14} />
+               </button>
+             )}
+           </div>
+        </div>
+
         {/* Bottom Accent Line */}
-        <div className="h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 animate-gradient-x" />
+        <div className="h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600" />
       </aside>
     </>
   );

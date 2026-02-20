@@ -24,6 +24,13 @@ export default function InvoicesManagement() {
   const [successMessage, setSuccessMessage] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
+  const [stats, setStats] = useState({
+    totalValuation: 0,
+    settledVolume: 0,
+    outstandingExposure: 0,
+    overdueCount: 0
+  });
 
   const showMessage = (message, type = "success") => {
     if (type === "error") {
@@ -53,12 +60,32 @@ export default function InvoicesManagement() {
     setIsLoading(true);
     try {
       const data = await apiClient.get("/financial/invoices");
-      setInvoices(data || []);
+      const invoiceData = data || [];
+      setInvoices(invoiceData);
+      
+      // Calculate Stats
+      const statsObj = invoiceData.reduce((acc, inv) => {
+        acc.totalValuation += inv.totalAmount;
+        if (inv.status === "PAID") acc.settledVolume += inv.totalAmount;
+        else acc.outstandingExposure += inv.totalAmount;
+        if (inv.status === "OVERDUE") acc.overdueCount++;
+        return acc;
+      }, { totalValuation: 0, settledVolume: 0, outstandingExposure: 0, overdueCount: 0 });
+      
+      setStats(statsObj);
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
   };
 
   const handleAddInvoice = () => {
@@ -90,8 +117,29 @@ export default function InvoicesManagement() {
     }
   };
 
-  const filteredInvoices = invoices.filter(inv => {
-    const matchesSearch = (inv.student?.firstName + " " + inv.student?.lastName).toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const sortedInvoices = [...invoices].sort((a, b) => {
+    if (sortConfig.key === 'student') {
+      const nameA = `${a.student?.firstName} ${a.student?.lastName}`.toLowerCase();
+      const nameB = `${b.student?.firstName} ${b.student?.lastName}`.toLowerCase();
+      return sortConfig.direction === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+    }
+    
+    let valA = a[sortConfig.key];
+    let valB = b[sortConfig.key];
+
+    if (sortConfig.key === 'dueDate') {
+        valA = new Date(valA).getTime();
+        valB = new Date(valB).getTime();
+    }
+
+    if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+    if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const filteredInvoices = sortedInvoices.filter(inv => {
+    const fullName = `${inv.student?.firstName} ${inv.student?.lastName}`.toLowerCase();
+    const matchesSearch = fullName.includes(searchTerm.toLowerCase()) || 
                          inv.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "ALL" || inv.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -120,11 +168,42 @@ export default function InvoicesManagement() {
         </div>
         <button
           onClick={handleAddInvoice}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-200 transition-all active:scale-95 whitespace-nowrap"
+          className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-blue-600 shadow-2xl shadow-slate-200 transition-all active:scale-95 whitespace-nowrap"
         >
           <Plus size={14} />
           Create Invoice
         </button>
+      </div>
+
+      {/* Financial Intelligence Dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {[
+          { label: "Total Valuation", value: stats.totalValuation, icon: FileText, color: "blue" },
+          { label: "Settled Volume", value: stats.settledVolume, icon: RefreshCcw, color: "emerald" },
+          { label: "Outstanding Exposure", value: stats.outstandingExposure, icon: Eye, color: "amber" },
+          { label: "Overdue Registry", value: stats.overdueCount, variant: "count", icon: Trash2, color: "rose" }
+        ].map((stat, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="p-5 bg-white border border-slate-100 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all group"
+          >
+            <div className="flex justify-between items-start">
+              <div className={`p-3 bg-${stat.color}-50 text-${stat.color}-600 rounded-2xl group-hover:scale-110 transition-transform`}>
+                <stat.icon size={18} />
+              </div>
+              <span className={`text-[8px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded-md bg-${stat.color}-50 text-${stat.color}-600`}>Real-time</span>
+            </div>
+            <div className="mt-4">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{stat.label}</p>
+              <h3 className="text-2xl font-black text-slate-900 tracking-tighter mt-1.5 tabular-nums">
+                {stat.variant === "count" ? stat.value : `$${stat.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+              </h3>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all">
@@ -172,11 +251,51 @@ export default function InvoicesManagement() {
           <table className="w-full border-collapse">
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr>
-                <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Doc ID</th>
-                <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Payee Details</th>
-                <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Valuation</th>
-                <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Maturity Date</th>
+                <th 
+                  onClick={() => handleSort('id')}
+                  className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-900 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    Doc ID
+                    {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? "↑" : "↓")}
+                  </div>
+                </th>
+                <th 
+                  onClick={() => handleSort('student')}
+                  className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-900 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    Payee Details
+                    {sortConfig.key === 'student' && (sortConfig.direction === 'asc' ? "↑" : "↓")}
+                  </div>
+                </th>
+                <th 
+                  onClick={() => handleSort('totalAmount')}
+                  className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-900 transition-colors"
+                >
+                  <div className="flex items-center gap-2 justify-center">
+                    Total Valuation
+                    {sortConfig.key === 'totalAmount' && (sortConfig.direction === 'asc' ? "↑" : "↓")}
+                  </div>
+                </th>
+                <th 
+                  onClick={() => handleSort('status')}
+                  className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-900 transition-colors"
+                >
+                  <div className="flex items-center gap-2 justify-center">
+                    Status
+                    {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? "↑" : "↓")}
+                  </div>
+                </th>
+                <th 
+                  onClick={() => handleSort('dueDate')}
+                  className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-900 transition-colors"
+                >
+                  <div className="flex items-center gap-2 justify-center">
+                    Maturity Date
+                    {sortConfig.key === 'dueDate' && (sortConfig.direction === 'asc' ? "↑" : "↓")}
+                  </div>
+                </th>
                 <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Management</th>
               </tr>
             </thead>

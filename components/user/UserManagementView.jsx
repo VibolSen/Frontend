@@ -5,6 +5,7 @@ import UserTable from "./UserTable";
 import UserModal from "./UserModal";
 import BulkUserImportModal from "./BulkUserImportModal";
 import RoleMigrationModal from "./RoleMigrationModal";
+import ResetPasswordModal from "./ResetPasswordModal";
 import AuditLogView from "./AuditLogView";
 import ConfirmationDialog from "../ConfirmationDialog";
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,6 +31,8 @@ export default function UserManagementView() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [isMigrationModalOpen, setIsMigrationModalOpen] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [userForReset, setUserForReset] = useState(null);
   const [migratingUser, setMigratingUser] = useState(null);
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -158,14 +161,17 @@ export default function UserManagementView() {
     }
   };
 
-  const handleResetPassword = async (user) => {
-    const newPassword = prompt(`Enter new password for ${user.firstName}:`, "123456");
-    if (!newPassword) return;
+  const handleResetPassword = (user) => {
+    setUserForReset(user);
+    setIsResetModalOpen(true);
+  };
 
+  const executeResetPassword = async (user, newPassword) => {
     setIsLoading(true);
     try {
       await apiClient.post(`/users/reset-password/${user.id}`, { newPassword });
-      showMessage("Password reset successfully!");
+      showMessage("Password updated successfully!");
+      setIsResetModalOpen(false);
     } catch (err) {
       showMessage(err.response?.data?.error || err.message, "error");
     } finally {
@@ -399,6 +405,14 @@ export default function UserManagementView() {
         isOpen={isBulkModalOpen}
         onClose={() => setIsBulkModalOpen(false)}
         onImport={handleBulkImport}
+        isLoading={isLoading}
+      />
+
+      <ResetPasswordModal
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        onReset={executeResetPassword}
+        user={userForReset}
         isLoading={isLoading}
       />
 

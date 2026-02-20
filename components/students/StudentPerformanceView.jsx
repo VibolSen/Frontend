@@ -13,8 +13,10 @@ import {
 } from "recharts";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { apiClient } from "@/lib/api";
+import { useUser } from "@/context/UserContext";
 
 const StudentPerformanceView = () => {
+  const { user } = useUser();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -25,6 +27,8 @@ const StudentPerformanceView = () => {
   const [selectedCourse, setSelectedCourse] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "ascending" });
 
+  const isStudent = user?.role === "STUDENT";
+
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -32,15 +36,22 @@ const StudentPerformanceView = () => {
         setError("");
         
         // Fetch performance data and supporting lists
-        const [performanceData, departmentsData, coursesData] = await Promise.all([
-          apiClient.get("/dashboards/student-performance"),
-          apiClient.get("/departments"),
-          apiClient.get("/courses"),
-        ]);
+        const requests = [
+          apiClient.get("/dashboards/student-performance")
+        ];
 
-        setStudents(performanceData || []);
-        setDepartments(departmentsData || []);
-        setCourses(coursesData || []);
+        if (!isStudent) {
+          requests.push(apiClient.get("/departments"));
+          requests.push(apiClient.get("/courses"));
+        }
+
+        const results = await Promise.all(requests);
+
+        setStudents(results[0] || []);
+        if (!isStudent) {
+          setDepartments(results[1] || []);
+          setCourses(results[2] || []);
+        }
       } catch (err) {
         console.error("Error fetching performance data:", err);
         setError(err.message || "Failed to fetch student performance.");
@@ -50,9 +61,11 @@ const StudentPerformanceView = () => {
     };
 
     fetchInitialData();
-  }, []);
+  }, [isStudent]);
 
   const sortedAndFilteredStudents = useMemo(() => {
+    if (isStudent) return students;
+
     let filtered = students.filter(student =>
       `${student.firstName} ${student.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -62,7 +75,6 @@ const StudentPerformanceView = () => {
     }
 
     if (selectedCourse) {
-      // Note: backend might need to return courseId per student if we want to filter by course here
       filtered = filtered.filter(student => student.courseId === selectedCourse);
     }
 
@@ -79,7 +91,7 @@ const StudentPerformanceView = () => {
     }
 
     return filtered;
-  }, [students, searchQuery, selectedDepartment, selectedCourse, sortConfig]);
+  }, [students, searchQuery, selectedDepartment, selectedCourse, sortConfig, isStudent]);
 
   const requestSort = (key) => {
     let direction = "ascending";
@@ -97,7 +109,7 @@ const StudentPerformanceView = () => {
           <LoadingSpinner size="xl" color="blue" />
         </div>
         <p className="text-slate-600 font-bold text-lg animate-pulse tracking-tight">
-          Analyzing Student Performance Data...
+          {isStudent ? "Retrieving Your Academic Profile..." : "Analyzing Student Performance Data..."}
         </p>
       </div>
     );
@@ -117,53 +129,57 @@ const StudentPerformanceView = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-0.5">
           <h1 className="text-2xl md:text-3xl font-black text-blue-600 tracking-tight">
-            Performance Analytics
+            {isStudent ? "My Academic Performance" : "Performance Analytics"}
           </h1>
           <p className="text-slate-500 font-medium text-sm">
-            Monitor academic progress, attendance trends, and engagement metrics across the student body.
+            {isStudent 
+              ? "Comprehensive overview of your grades, attendance, and engagement metrics." 
+              : "Monitor academic progress, attendance trends, and engagement metrics across the student body."}
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input
-          type="text"
-          placeholder="Search students..."
-          className="w-full bg-white border border-slate-200 px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <select
-          className="w-full bg-white border border-slate-200 px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
-          value={selectedDepartment}
-          onChange={(e) => setSelectedDepartment(e.target.value)}
-        >
-          <option value="">All Departments</option>
-          {departments.map((dept) => (
-            <option key={dept.id} value={dept.id}>
-              {dept.name}
-            </option>
-          ))}
-        </select>
-        <select
-          className="w-full bg-white border border-slate-200 px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
-          value={selectedCourse}
-          onChange={(e) => setSelectedCourse(e.target.value)}
-        >
-          <option value="">All Courses</option>
-          {courses.map((course) => (
-            <option key={course.id} value={course.id}>
-              {course.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      {!isStudent && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input
+            type="text"
+            placeholder="Search students..."
+            className="w-full bg-white border border-slate-200 px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <select
+            className="w-full bg-white border border-slate-200 px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
+            value={selectedDepartment}
+            onChange={(e) => setSelectedDepartment(e.target.value)}
+          >
+            <option value="">All Departments</option>
+            {departments.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.name}
+              </option>
+            ))}
+          </select>
+          <select
+            className="w-full bg-white border border-slate-200 px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
+            value={selectedCourse}
+            onChange={(e) => setSelectedCourse(e.target.value)}
+          >
+            <option value="">All Courses</option>
+            {courses.map((course) => (
+              <option key={course.id} value={course.id}>
+                {course.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-96">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={sortedAndFilteredStudents}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-            <XAxis dataKey="lastName" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+            <XAxis dataKey={isStudent ? "firstName" : "lastName"} axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
             <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
             <Tooltip 
               contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
@@ -180,17 +196,21 @@ const StudentPerformanceView = () => {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="px-6 py-4 font-bold text-slate-700 cursor-pointer" onClick={() => requestSort('lastName')}>Student</th>
-                <th className="px-6 py-4 font-bold text-slate-700 cursor-pointer" onClick={() => requestSort('averageGrade')}>Avg Grade</th>
-                <th className="px-6 py-4 font-bold text-slate-700 cursor-pointer" onClick={() => requestSort('attendanceRate')}>Attendance</th>
-                <th className="px-6 py-4 font-bold text-slate-700 cursor-pointer" onClick={() => requestSort('completedAssignments')}>Assignments</th>
-                <th className="px-6 py-4 font-bold text-slate-700 cursor-pointer" onClick={() => requestSort('averageExamGrade')}>Exam Avg</th>
+                <th className="px-6 py-4 font-bold text-slate-700 cursor-pointer" onClick={() => !isStudent && requestSort('lastName')}>
+                  {isStudent ? "Category" : "Student"}
+                </th>
+                <th className="px-6 py-4 font-bold text-slate-700 cursor-pointer" onClick={() => !isStudent && requestSort('averageGrade')}>Avg Grade</th>
+                <th className="px-6 py-4 font-bold text-slate-700 cursor-pointer" onClick={() => !isStudent && requestSort('attendanceRate')}>Attendance</th>
+                <th className="px-6 py-4 font-bold text-slate-700 cursor-pointer" onClick={() => !isStudent && requestSort('completedAssignments')}>Assignments</th>
+                <th className="px-6 py-4 font-bold text-slate-700 cursor-pointer" onClick={() => !isStudent && requestSort('averageExamGrade')}>Exam Avg</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {sortedAndFilteredStudents.map((student) => (
                 <tr key={student.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-slate-900">{`${student.firstName} ${student.lastName}`}</td>
+                  <td className="px-6 py-4 font-medium text-slate-900">
+                    {isStudent ? "My Overall Status" : `${student.firstName} ${student.lastName}`}
+                  </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-lg text-xs font-bold ${student.averageGrade >= 80 ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
                       {student.averageGrade}%

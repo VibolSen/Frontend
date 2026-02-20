@@ -1,5 +1,5 @@
-import ReportsView from "@/components/ReportsView";
+import StudyOfficeAnalyticsView from "@/components/study-office/StudyOfficeAnalyticsView";
 
 export default function StudyOfficeReportsPage() {
-  return <ReportsView />;
+  return <StudyOfficeAnalyticsView />;
 }

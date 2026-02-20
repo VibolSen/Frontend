@@ -123,7 +123,7 @@ const AssignmentCard = ({
              )}
           </div>
 
-          {(userRole === "ADMIN" || userRole === "TEACHER") && (
+          {(userRole?.toUpperCase() === "ADMIN" || userRole?.toUpperCase() === "TEACHER") && (
             <div className="flex items-center gap-1">
               <button 
                 onClick={onEdit}

@@ -39,7 +39,12 @@ export default function GroupModal({
           courseIds: groupToEdit.courseIds || [],
         });
       } else {
-        setFormData({ name: "", courseIds: [] });
+        setFormData({ 
+          name: "", 
+          academicYear: "",
+          monitorId: "",
+          courseIds: [] 
+        });
       }
       setErrors({});
     }

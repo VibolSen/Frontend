@@ -36,6 +36,10 @@ const InvoiceDetailPage = () => {
   const [qrString, setQrString] = useState("");
   const [md5Hash, setMd5Hash] = useState("");
   const [qrLoading, setQrLoading] = useState(false);
+  const [showSimModal, setShowSimModal] = useState(false);
+  const [simName, setSimName] = useState("");
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [simSuccess, setSimSuccess] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -356,70 +360,86 @@ const InvoiceDetailPage = () => {
 
         {/* QR Code Section - Pay with Bakong */}
         {invoice.status !== 'PAID' && (
-          <div className="px-12 py-10 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="flex-1 space-y-4">
-               <div>
-                  <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase flex items-center gap-2">
-                    <QrCode className="w-4 h-4 text-red-600" />
-                    Scan to Pay with KHQR
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium leading-relaxed mt-2 uppercase tracking-wide italic leading-relaxed">
-                    Open your mobile banking app (Bakong, ABA, ACLEDA, etc.) to scan this QR code for an instant, secure payment.
+          <div className="px-12 py-10 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row items-center justify-between gap-12">
+            <div className="flex-1 space-y-5">
+               <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center shadow-lg shadow-red-600/20">
+                      <QrCode className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900 tracking-tight uppercase leading-none">Instant KHQR Payment</h3>
+                      <p className="text-[9px] font-black text-red-600 uppercase tracking-widest mt-1">Verified via Bakong Network</p>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-medium leading-relaxed uppercase tracking-wide italic">
+                    Open any mobile banking app (Bakong, ABA, ACLEDA, wing, etc.) to scan this official QR code for an instant, secure tuition payment.
                   </p>
                </div>
-               <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                     <span className="flex items-center gap-1.5"><ShieldCheck className="w-3 h-3 text-emerald-500" /> Secure</span>
-                     <span className="flex items-center gap-1.5 text-blue-600 underline">Fee-Free Transfer</span>
+               
+               <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-6 text-[9px] font-black uppercase tracking-widest text-slate-400">
+                     <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> End-to-End Secure</span>
+                     <span className="flex items-center gap-1.5"><BadgeCheck className="w-3.5 h-3.5 text-blue-600" /> Bank Integrated</span>
+                     <span className="text-red-700 underline decoration-red-200">No Transaction Fees</span>
                   </div>
                   
-                  {/* Demo Simulation Button - Very useful for hosting demo */}
                   <button 
-                    onClick={async () => {
-                        try {
-                            const customName = window.prompt("SIMULATION: Enter Payer Name", "VIBOL SEN");
-                            if (customName === null) return;
-                            
-                            await apiClient.post("/financial/bakong-callback", {
-                                invoiceId: invoice.id,
-                                amount: invoice.totalAmount,
-                                currency: "USD",
-                                md5: `sim_${Date.now()}`,
-                                transactionId: `SIM-${Date.now()}`,
-                                senderName: customName.toUpperCase(),
-                                senderAccount: "003 128 656",
-                                receiverAccount: "vibol_sen@bkrt"
-                            });
-                            alert("Success: Simulated payment received by server!");
-                        } catch (err) {
-                            console.error(err);
-                            alert("Simulation failed.");
-                        }
+                    onClick={() => {
+                      setSimName(`${invoice.student.firstName} ${invoice.student.lastName}`.toUpperCase());
+                      setShowSimModal(true);
+                      setSimSuccess(false);
                     }}
-                    className="w-fit px-4 py-2 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2"
+                    className="w-fit px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-[0.15em] hover:bg-slate-800 transition-all flex items-center gap-2 shadow-lg shadow-slate-900/10 group"
                   >
-                     <CreditCard size={12} />
-                     Pro-Demo: Simulate Payment
+                     <CreditCard size={12} className="group-hover:rotate-12 transition-transform" />
+                     Pro-Demo Sandbox
                   </button>
                </div>
             </div>
             
-            <div className="w-[160px] h-[160px] bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-center relative overflow-hidden">
-               {qrLoading ? (
-                  <div className="flex flex-col items-center gap-2">
-                     <div className="w-6 h-6 border-2 border-red-600/20 border-t-red-600 rounded-full animate-spin"></div>
-                     <span className="text-[8px] font-black text-slate-400 uppercase">Generating...</span>
-                  </div>
-               ) : qrString ? (
-                  <QRCodeCanvas 
-                     value={qrString} 
-                     size={144}
-                     level="H"
-                     includeMargin={false}
-                  />
-               ) : (
-                  <span className="text-[8px] font-black text-slate-400 uppercase text-center p-4">QR Unavailable</span>
-               )}
+            <div className="relative group">
+              {/* Subtle animated ring around QR */}
+              <div className="absolute -inset-4 bg-gradient-to-tr from-red-600/10 to-blue-600/10 rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              <div className="w-[180px] h-[180px] bg-white p-3 rounded-[2rem] border-2 border-slate-100 shadow-xl flex items-center justify-center relative z-10 overflow-hidden transform group-hover:scale-[1.02] transition-transform duration-300">
+                {qrLoading ? (
+                    <div className="flex flex-col items-center gap-3">
+                        <div className="w-8 h-8 border-3 border-red-600/10 border-t-red-600 rounded-full animate-spin"></div>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Protocol Sync...</span>
+                    </div>
+                ) : qrString ? (
+                    <div className="relative">
+                      <QRCodeCanvas 
+                        value={qrString} 
+                        size={156}
+                        level="H"
+                        includeMargin={false}
+                        imageSettings={{
+                          src: "/Bakong/icon.png",
+                          x: undefined,
+                          y: undefined,
+                          height: 35,
+                          width: 35,
+                          excavate: true,
+                        }}
+                      />
+                    </div>
+                ) : (
+                    <div className="text-center space-y-2 p-4">
+                      <AlertCircle className="w-6 h-6 text-slate-300 mx-auto" />
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-tight block">Connection Timeout</span>
+                    </div>
+                )}
+              </div>
+              
+              {/* NBC/Bakong Compliance Badge */}
+              <div className="absolute -bottom-3 -right-3 bg-white px-2 py-1 rounded-lg shadow-lg border border-slate-100 flex items-center gap-1.5 z-20">
+                 <div className="w-4 h-4 rounded-full bg-red-600 flex items-center justify-center">
+                    <ShieldCheck className="text-white w-2.5 h-2.5" />
+                 </div>
+                 <span className="text-[8px] font-black uppercase tracking-tighter text-slate-600">Bakong Certified</span>
+              </div>
             </div>
           </div>
         )}
@@ -436,6 +456,104 @@ const InvoiceDetailPage = () => {
       <div className="max-w-4xl mx-auto mt-8 flex justify-center text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">
         &copy; {new Date().getFullYear()} Step Academy Finance &bull; Internal Records
       </div>
+
+      {/* Premium Simulation Modal */}
+      {showSimModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm"
+            onClick={() => !isSimulating && setShowSimModal(false)}
+          />
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100"
+          >
+            <div className="bg-slate-950 p-6 text-center relative">
+               <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 rotate-3 shadow-lg shadow-blue-500/30">
+                  <CreditCard className="text-white w-6 h-6" />
+               </div>
+               <h3 className="text-white text-sm font-black uppercase tracking-widest">Demo Sandbox</h3>
+               <p className="text-blue-400 text-[9px] font-bold uppercase tracking-widest mt-1 opacity-60">Payment Simulation Engine</p>
+            </div>
+
+            <div className="p-8 space-y-6">
+               {!simSuccess ? (
+                 <>
+                   <div className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Payer Identity (Simulation)</label>
+                        <input 
+                          type="text" 
+                          value={simName}
+                          onChange={(e) => setSimName(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                          placeholder="e.g. VIBOL SEN"
+                        />
+                      </div>
+                      <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                         <div className="flex justify-between items-center mb-1">
+                            <span className="text-[9px] font-black text-blue-400 uppercase">Amount</span>
+                            <span className="text-xs font-black text-blue-700">${invoice.totalAmount.toFixed(2)}</span>
+                         </div>
+                         <div className="flex justify-between items-center">
+                            <span className="text-[9px] font-black text-blue-400 uppercase">Status</span>
+                            <span className="text-[9px] font-black text-amber-600 uppercase flex items-center gap-1 animate-pulse"><Clock size={10} /> Pending Confirmation</span>
+                         </div>
+                      </div>
+                   </div>
+
+                   <div className="flex gap-2 pt-2">
+                     <button 
+                        onClick={() => setShowSimModal(false)}
+                        disabled={isSimulating}
+                        className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 transition-all font-mono"
+                     >
+                        Cancel
+                     </button>
+                     <button 
+                        onClick={async () => {
+                          setIsSimulating(true);
+                          try {
+                            await apiClient.post("/financial/bakong-callback", {
+                              invoiceId: invoice.id,
+                              amount: invoice.totalAmount,
+                              currency: "USD",
+                              md5: `sim_${Date.now()}`,
+                              transactionId: `SIM-${Date.now()}`,
+                              senderName: simName.toUpperCase() || "DEMO_USER",
+                              senderAccount: "003 128 656",
+                              receiverAccount: "vibol_sen@bkrt"
+                            });
+                            setSimSuccess(true);
+                            setTimeout(() => setShowSimModal(false), 2000);
+                          } catch (e) { console.error(e); }
+                          finally { setIsSimulating(false); }
+                        }}
+                        disabled={isSimulating}
+                        className="flex-[2] bg-blue-600 text-white rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+                     >
+                        {isSimulating ? <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <ShieldCheck size={14} />}
+                        Confirm Simulation
+                     </button>
+                   </div>
+                 </>
+               ) : (
+                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="py-8 text-center space-y-4">
+                    <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
+                       <BadgeCheck className="text-white w-8 h-8" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-slate-900 font-black uppercase text-sm tracking-tight">Signal Verified</h4>
+                      <p className="text-slate-400 text-[9px] font-bold tracking-widest uppercase">Invoice UI will update instantly</p>
+                    </div>
+                 </motion.div>
+               )}
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

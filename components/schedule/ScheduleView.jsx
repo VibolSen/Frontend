@@ -53,13 +53,12 @@ export default function ScheduleView() {
 
   const handleSaveSchedule = async (scheduleData) => {
     try {
+      const payload = { ...scheduleData, creatorId: user?.id };
+      
       if (currentSchedule) {
-        await apiClient.put(`/schedule/${currentSchedule.id}`, scheduleData);
-        // My scheduledRoutes.ts doesn't have PUT yet? Checking previous `scheduleRoutes.ts`.
-        // I only added GET, POST, DELETE in `scheduleRoutes.ts`. I missed PUT.
-        // I will need to add PUT to schedule controller/routes.
+        await apiClient.put(`/schedule/${currentSchedule.id}`, payload);
       } else {
-        await apiClient.post('/schedule', scheduleData);
+        await apiClient.post('/schedule', payload);
       }
       fetchSchedules();
       setIsModalOpen(false);

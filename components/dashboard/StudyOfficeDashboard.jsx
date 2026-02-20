@@ -19,6 +19,10 @@ import {
   UserCheck,
   Users as Group,
   ChevronRight,
+  Award,
+  Clock,
+  MessageSquare,
+  AlertCircle,
 } from "lucide-react";
 import AnalyticsChart from "./AnalyticsChart";
 
@@ -31,7 +35,7 @@ export default function StudyOfficeDashboard() {
   useEffect(() => {
     const fetchStudyOfficeDashboardData = async () => {
       try {
-        const data = await apiClient.get("/dashboards/admin"); // Use admin stats as they are equivalent
+        const data = await apiClient.get("/dashboards/study-office");
         if (data) setDashboardData(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An unknown error occurred");
@@ -192,6 +196,30 @@ export default function StudyOfficeDashboard() {
               </div>
             </motion.section>
 
+            {/* Pending Tasks Section */}
+            {dashboardData.pendingEnrollments > 0 && (
+              <motion.section variants={itemVariants} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                <div className="flex items-center justify-between mb-4 px-1">
+                  <h3 className="text-lg font-black text-slate-800 tracking-tight">Pending Academic Tasks</h3>
+                  <div className="px-2 py-0.5 bg-amber-50 text-amber-600 text-[10px] font-black rounded-full border border-amber-100">
+                    ACTION REQUIRED
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <Link href="/study-office/enrollment" className="flex items-center gap-4 p-4 rounded-xl border border-slate-50 hover:bg-slate-50 transition-all group">
+                    <div className="h-10 w-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                      <AlertCircle size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-slate-800 tracking-tight">Pending Enrollments</p>
+                      <p className="text-xs text-slate-500 font-medium truncate">You have {dashboardData.pendingEnrollments} students waiting for course enrollment.</p>
+                    </div>
+                    <ChevronRight size={16} className="text-slate-300 group-hover:text-blue-500 transition-colors" />
+                  </Link>
+                </div>
+              </motion.section>
+            )}
+
             {/* Analytics Chart */}
             <motion.section variants={itemVariants} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
               <h3 className="text-lg font-black text-slate-800 tracking-tight mb-5">Academic Growth</h3>
@@ -231,6 +259,54 @@ export default function StudyOfficeDashboard() {
                  </div>
                </div>
                <div className="absolute -right-6 -bottom-6 h-32 w-32 bg-white/10 rounded-full blur-2xl" />
+            </motion.section>
+
+            <motion.section variants={itemVariants} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+               <div className="flex items-center justify-between mb-4 px-1">
+                 <h3 className="text-sm font-black text-slate-800 tracking-tight uppercase">Academic Activity</h3>
+                 <Clock size={14} className="text-slate-300" />
+               </div>
+               <div className="space-y-4">
+                 {/* Announcements */}
+                 {dashboardData.recentAnnouncements?.length > 0 ? (
+                   <div className="space-y-3">
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Latest Announcements</p>
+                     {dashboardData.recentAnnouncements.map((ann, idx) => (
+                       <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-50">
+                         <div className="flex items-start gap-2 mb-1">
+                            <MessageSquare size={12} className="text-blue-500 mt-0.5 shrink-0" />
+                            <p className="text-xs font-bold text-slate-800 line-clamp-1">{ann.title}</p>
+                         </div>
+                         <p className="text-[10px] text-slate-500 font-medium ml-5">by {ann.author?.firstName} {ann.author?.lastName}</p>
+                       </div>
+                     ))}
+                   </div>
+                 ) : null}
+
+                 {/* New Courses */}
+                 {dashboardData.recentCourses?.length > 0 ? (
+                   <div className="space-y-3 pt-2">
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Newly Added Courses</p>
+                     {dashboardData.recentCourses.map((course, idx) => (
+                       <div key={idx} className="flex items-center gap-3 p-2 group">
+                         <div className="h-8 w-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                           <Library size={14} />
+                         </div>
+                         <div className="min-w-0">
+                           <p className="text-[11px] font-bold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">{course.name}</p>
+                           <p className="text-[9px] text-slate-500 font-medium uppercase tracking-tighter">Code: {course.code || "N/A"}</p>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 ) : null}
+
+                 {!(dashboardData.recentAnnouncements?.length > 0) && !(dashboardData.recentCourses?.length > 0) && (
+                    <div className="py-8 text-center">
+                       <p className="text-xs font-medium text-slate-400">No recent academic activity.</p>
+                    </div>
+                 )}
+               </div>
             </motion.section>
 
             <motion.section variants={itemVariants} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-center">

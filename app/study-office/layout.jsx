@@ -11,7 +11,7 @@ export default function StudyOfficeLayout({ children }) {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <StudyOfficeSidebar isOpen={sidebarOpen} />
+      <StudyOfficeSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
       {/* Main content */}
       <div className="flex-1 flex flex-col">

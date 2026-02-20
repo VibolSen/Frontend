@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, FileText, Calendar, List, Info, Trash2, Plus } from "lucide-react";
+import { X, FileText, Calendar, List, Info, Trash2, Plus, User, Clock, ShieldCheck } from "lucide-react";
 import Select from "react-select";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { apiClient } from "@/lib/api";
@@ -24,6 +24,9 @@ export default function InvoiceModal({ isOpen, invoice, onClose, onInvoiceSaved,
     description: "",
     amount: "",
   });
+  const [activeTab, setActiveTab] = useState("ledger"); // ledger or history
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [isLogsLoading, setIsLogsLoading] = useState(false);
 
   useEffect(() => {
     fetchStudents();
@@ -46,6 +49,7 @@ export default function InvoiceModal({ isOpen, invoice, onClose, onInvoiceSaved,
         value: invoice.studentId,
         label: `${invoice.student.firstName} ${invoice.student.lastName} (${invoice.student.email})`,
       });
+      fetchAuditLogs(invoice.id);
     } else {
       setFormData({
         studentId: "",
@@ -54,8 +58,21 @@ export default function InvoiceModal({ isOpen, invoice, onClose, onInvoiceSaved,
         items: [],
       });
       setSelectedStudent(null);
+      setAuditLogs([]);
     }
   }, [invoice]);
+
+  const fetchAuditLogs = async (id) => {
+    setIsLogsLoading(true);
+    try {
+        const data = await apiClient.get(`/financial/invoices/${id}/logs`);
+        setAuditLogs(data || []);
+    } catch (err) {
+        console.error("Failed to fetch logs:", err);
+    } finally {
+        setIsLogsLoading(false);
+    }
+  };
 
   const fetchStudents = async () => {
     try {
@@ -154,13 +171,13 @@ export default function InvoiceModal({ isOpen, invoice, onClose, onInvoiceSaved,
     control: (base, state) => ({
       ...base,
       backgroundColor: 'rgb(248, 250, 252)',
-      borderColor: state.isFocused ? '#6366f1' : 'rgb(226, 232, 240)',
+      borderColor: state.isFocused ? '#10b981' : 'rgb(226, 232, 240)',
       borderRadius: '0.75rem',
-      padding: '1px',
-      fontSize: '0.875rem',
-      boxShadow: state.isFocused ? '0 0 0 4px rgba(99, 102, 241, 0.1)' : 'none',
+      padding: '0px',
+      fontSize: '0.75rem',
+      boxShadow: state.isFocused ? '0 0 0 4px rgba(16, 185, 129, 0.1)' : 'none',
       '&:hover': {
-        borderColor: state.isFocused ? '#6366f1' : '#c7d2fe',
+        borderColor: state.isFocused ? '#10b981' : '#a7f3d0',
       }
     }),
     placeholder: (base) => ({ ...base, color: '#94a3b8' }),
@@ -175,10 +192,10 @@ export default function InvoiceModal({ isOpen, invoice, onClose, onInvoiceSaved,
     }),
     option: (base, state) => ({
       ...base,
-      backgroundColor: state.isFocused ? '#eef2ff' : 'transparent',
-      color: state.isFocused ? '#4f46e5' : '#475569',
+      backgroundColor: state.isFocused ? '#ecfdf5' : 'transparent',
+      color: state.isFocused ? '#059669' : '#475569',
       cursor: 'pointer',
-      fontSize: '0.875rem'
+      fontSize: '0.75rem'
     })
   };
 
@@ -198,199 +215,340 @@ export default function InvoiceModal({ isOpen, invoice, onClose, onInvoiceSaved,
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-white/20"
+          className="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-white/20"
         >
-          {/* Header */}
-          <div className="p-6 border-b bg-gradient-to-r from-indigo-50 via-white to-slate-50">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200">
-                  <FileText className="w-6 h-6 text-white" />
+          {/* Header Area */}
+          <div className="p-8 border-b border-slate-100 bg-gradient-to-br from-emerald-50/50 via-white to-white relative">
+            <div className="absolute top-0 right-0 p-8">
+              <div className="w-24 h-24 bg-emerald-600/5 rounded-full blur-3xl" />
+            </div>
+            
+            <div className="flex justify-between items-start relative z-10">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-xl shadow-emerald-500/20 rotate-3 transition-transform hover:rotate-0 duration-300">
+                  <FileText className="w-7 h-7 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900">{invoice ? "Edit Invoice" : "Create New Invoice"}</h2>
-                  <p className="text-xs text-slate-500 font-medium tracking-wide">Financial billing system</p>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none">
+                    {invoice ? "Revise Document" : "Draft New Invoice"}
+                  </h2>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] bg-emerald-50 px-2 py-0.5 rounded-md">Financial Ledger</span>
+                    <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">STEP Academy ERP System</span>
+                  </div>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all duration-200"
+                className="p-3 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-2xl transition-all duration-200 border border-transparent hover:border-rose-100"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {/* Premium Tab Bar */}
+            {invoice && (
+                <div className="flex items-center gap-1 mt-6 p-1 bg-slate-100/50 w-fit rounded-xl border border-slate-100">
+                    <button
+                        type="button"
+                        onClick={() => setActiveTab("ledger")}
+                        className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${activeTab === 'ledger' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                        Composition
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setActiveTab("history")}
+                        className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${activeTab === 'history' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                        Audit Trail
+                    </button>
+                </div>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} noValidate className="flex flex-col overflow-hidden">
-            <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar">
-              {/* Basic Info Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest ml-1">Student</label>
+            <div className="p-10 space-y-8 overflow-y-auto custom-scrollbar bg-white min-h-[400px]">
+              
+              {activeTab === "ledger" ? (
+                <>
+              {/* Recipient Information Profile */}
+              <div className="p-8 bg-slate-50/50 rounded-[2rem] border border-slate-100 space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                    <User className="w-4 h-4 text-slate-400" />
+                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Recipient Selection</h3>
+                </div>
+                
+                <div className="space-y-1.5 px-1">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Search Database (Students Only)</label>
                   <Select
                     options={students.map((s) => ({
                       value: s.id,
-                      label: `${s.firstName} ${s.lastName} (${s.email})`,
+                      label: `${s.firstName.toUpperCase()} ${s.lastName.toUpperCase()} (ID: ${s.id.substring(0,8).toUpperCase()})`,
                     }))}
                     value={selectedStudent}
                     onChange={handleStudentSelectChange}
                     styles={selectStyles}
-                    placeholder="Search for a student..."
+                    placeholder="ENTER NAME OR ACCOUNT ID..."
                     required
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest ml-1">Issue Date</label>
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-                      <Calendar className="w-4 h-4" />
+                <div className="grid grid-cols-2 gap-4 px-1">
+                  <div className="space-y-1.5">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Billing Issue Date</label>
+                    <div className="relative group">
+                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-emerald-500" />
+                      <input
+                        type="date"
+                        name="issueDate"
+                        value={formData.issueDate}
+                        onChange={handleInputChange}
+                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-[11px] font-bold text-slate-700 shadow-sm transition-all focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500"
+                        required
+                      />
                     </div>
-                    <input
-                      type="date"
-                      name="issueDate"
-                      value={formData.issueDate}
-                      onChange={handleInputChange}
-                      className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white"
-                      required
-                    />
                   </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest ml-1">Due Date</label>
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-                      <Calendar className="w-4 h-4" />
+                  <div className="space-y-1.5">
+                    <label className="text-[8px] font-black text-rose-400 uppercase tracking-widest ml-1">Settlement Deadline</label>
+                    <div className="relative group">
+                      <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-rose-400" />
+                      <input
+                        type="date"
+                        name="dueDate"
+                        value={formData.dueDate}
+                        onChange={handleInputChange}
+                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-[11px] font-bold text-slate-700 shadow-sm transition-all focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500"
+                        required
+                      />
                     </div>
-                    <input
-                      type="date"
-                      name="dueDate"
-                      value={formData.dueDate}
-                      onChange={handleInputChange}
-                      className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white"
-                      required
-                    />
                   </div>
                 </div>
               </div>
 
-              {/* Items Section */}
-              <div className="pt-4 space-y-4">
-                <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-                  <List className="w-4 h-4 text-indigo-600" />
-                  <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Invoice Items</h3>
+              {/* Ledger Items Table */}
+              <div className="space-y-4 px-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <List className="w-3.5 h-3.5 text-slate-400" />
+                    <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Transaction Ledger</h3>
+                  </div>
+                  <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                    {formData.items.length} ENTRIES
+                  </span>
                 </div>
 
-                {/* Items List */}
-                <div className="space-y-2 max-h-[30vh] overflow-y-auto pr-1">
+                {/* Ledger Body */}
+                <div className="space-y-2.5 min-h-[100px] max-h-[20vh] overflow-y-auto pr-1 custom-scrollbar">
                   <AnimatePresence mode="popLayout">
                     {formData.items.length > 0 ? (
                       formData.items.map((item, index) => (
                         <motion.div
                           key={index}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: 10 }}
-                          className="group flex justify-between items-center bg-slate-50 hover:bg-white border border-slate-100 hover:border-indigo-200 p-3 rounded-2xl transition-all duration-200 hover:shadow-sm"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          className="group flex items-center bg-white border border-slate-100 hover:border-emerald-200 p-3 rounded-xl transition-all hover:shadow-lg hover:shadow-emerald-500/5"
                         >
-                          <div>
-                            <p className="text-sm font-semibold text-slate-800">{item.description}</p>
-                            <p className="text-[10px] text-indigo-500 font-bold tracking-tight">AMOUNT: ${item.amount.toFixed(2)}</p>
+                          <div className="w-8 h-8 bg-slate-50 text-slate-400 flex items-center justify-center rounded-lg font-black text-[10px] group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+                             {index + 1}
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveItem(index)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all duration-200"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex-1 px-3">
+                            <p className="text-[9px] font-black text-slate-900 uppercase tracking-tight">{item.description}</p>
+                            <p className="text-[8px] font-bold text-slate-400 uppercase italic">Entry Category: Verified</p>
+                          </div>
+                          <div className="text-right flex items-center gap-3">
+                            <span className="text-xs font-black text-slate-900 tabular-nums">${item.amount.toFixed(2)}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveItem(index)}
+                              className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </motion.div>
                       ))
                     ) : (
-                      <div className="p-10 border-2 border-dashed border-slate-100 rounded-3xl text-center">
-                        <Info className="w-8 h-8 text-slate-200 mx-auto mb-2" />
-                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">No items added yet</p>
+                      <div className="p-6 border-2 border-dashed border-slate-100 rounded-[1.5rem] text-center bg-slate-50/20">
+                        <Info className="w-4 h-4 text-slate-300 mx-auto mb-2" />
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.25em]">Registry is empty</p>
                       </div>
                     )}
                   </AnimatePresence>
                 </div>
 
-                {/* Add New Item Compact Grid */}
-                <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 space-y-4 shadow-inner">
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-                    <div className="md:col-span-4 space-y-1">
-                      <label className="text-[10px] font-bold text-slate-500 ml-1">FEE TYPE</label>
+                {/* Add Line Entry Form */}
+                <div className="bg-slate-50/80 p-5 rounded-[1.5rem] border border-slate-100 space-y-4">
+                   <div className="flex items-center gap-2 mb-0.5">
+                      <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Manual Line Entry Interface</span>
+                   </div>
+                   
+                   <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                    <div className="md:col-span-4 space-y-1.5">
+                      <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Fee Classification</label>
                       <Select
-                        options={fees.map((f) => ({ value: f.id, label: f.name }))}
-                        value={fees.find(f => f.id === currentInvoiceItem.feeId) ? {value: currentInvoiceItem.feeId, label: fees.find(f => f.id === currentInvoiceItem.feeId).name} : null}
+                        options={fees.map((f) => ({ value: f.id, label: f.name.toUpperCase() }))}
+                        value={fees.find(f => f.id === currentInvoiceItem.feeId) ? {value: currentInvoiceItem.feeId, label: fees.find(f => f.id === currentInvoiceItem.feeId).name.toUpperCase()} : null}
                         onChange={handleItemFeeSelect}
-                        styles={selectStyles}
-                        placeholder="Select Fee"
+                        styles={{
+                            ...selectStyles,
+                            control: (base, state) => ({
+                                ...base,
+                                backgroundColor: 'white',
+                                borderColor: state.isFocused ? '#10b981' : 'rgb(226, 232, 240)',
+                                borderRadius: '0.75rem',
+                                fontSize: '0.7rem',
+                                color: '#0f172a',
+                                boxShadow: 'none',
+                                '&:hover': { borderColor: '#a7f3d0' }
+                            }),
+                            singleValue: (base) => ({ ...base, color: '#0f172a' }),
+                            placeholder: (base) => ({ ...base, color: '#94a3b8' }),
+                            menu: (base) => ({ ...base, backgroundColor: 'white', border: '1px solid #f1f5f9' }),
+                            option: (base, state) => ({ 
+                                ...base, 
+                                backgroundColor: state.isFocused ? '#ecfdf5' : 'transparent', 
+                                color: state.isFocused ? '#059669' : '#475569',
+                                fontSize: '0.7rem' 
+                            }),
+                        }}
+                        placeholder="SELECT FEE..."
                       />
                     </div>
-                    <div className="md:col-span-5 space-y-1">
-                      <label className="text-[10px] font-bold text-slate-500 ml-1">DESCRIPTION</label>
+                    <div className="md:col-span-5 space-y-1.5">
+                      <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Narrative Description</label>
                       <input
                         type="text"
                         name="description"
                         value={currentInvoiceItem.description}
                         onChange={handleItemInputChange}
-                        className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm transition-all duration-200 focus:border-indigo-500"
-                        placeholder="Detail..."
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[11px] font-bold text-slate-800 transition-all focus:border-emerald-500 focus:outline-none placeholder:text-slate-400"
+                        placeholder="ENTER LINE DESCRIPTION..."
                       />
                     </div>
-                    <div className="md:col-span-3 space-y-1">
-                      <label className="text-[10px] font-bold text-slate-500 ml-1">AMOUNT</label>
+                    <div className="md:col-span-3 space-y-1.5">
+                      <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Value (USD)</label>
                       <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                          <span className="text-xs font-bold">$</span>
-                        </div>
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[9px] font-black">$</span>
                         <input
                           type="number"
                           name="amount"
                           value={currentInvoiceItem.amount}
                           onChange={handleItemInputChange}
-                          className="w-full pl-7 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm transition-all duration-200 focus:border-indigo-500 font-semibold"
+                          className="w-full pl-7 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-[11px] font-black text-slate-800 transition-all focus:border-emerald-500 focus:outline-none tabular-nums"
                           placeholder="0.00"
                         />
                       </div>
                     </div>
                   </div>
-                  <div className="flex justify-end">
+                  <div className="flex justify-end pt-0.5">
                     <button
                       type="button"
                       onClick={handleAddItem}
-                      className="flex items-center gap-2 px-4 py-2 bg-white text-indigo-600 border border-indigo-100 rounded-xl text-xs font-bold shadow-sm hover:shadow hover:bg-indigo-600 hover:text-white transition-all duration-200"
+                      className="flex items-center gap-2 px-5 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm hover:bg-emerald-600 hover:text-white transition-all active:scale-95 group"
                     >
-                      <Plus className="w-3.5 h-3.5" />
-                      Add to List
+                      <Plus className="w-3 h-3 group-hover:rotate-90 transition-transform" />
+                      Append to Ledger
                     </button>
                   </div>
                 </div>
               </div>
-            </div>
+              </>
+              ) : (
+                <div className="space-y-6">
+                    <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+                        <Clock className="w-5 h-5 text-emerald-600" />
+                        <div>
+                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Timeline of Revisions</h3>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Chronological audit of document modifications</p>
+                        </div>
+                    </div>
 
-            {/* Footer */}
-            <div className="p-6 bg-slate-900 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
-              <div className="flex items-baseline gap-3">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">Total Amount Due</span>
-                <span className="text-2xl font-black text-white leading-none tracking-tight">${totalAmount.toFixed(2)}</span>
+                    <div className="space-y-4">
+                        {isLogsLoading ? (
+                            <div className="py-20 flex flex-col items-center justify-center gap-3">
+                                <div className="w-6 h-6 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Accessing Logs...</span>
+                            </div>
+                        ) : auditLogs.length === 0 ? (
+                            <div className="py-20 text-center border-2 border-dashed border-slate-100 rounded-[2rem]">
+                                <ShieldCheck className="w-8 h-8 text-slate-100 mx-auto mb-3" />
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No history recorded yet</p>
+                            </div>
+                        ) : (
+                            auditLogs.map((log, i) => (
+                                <motion.div 
+                                    key={log.id}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.05 }}
+                                    className="relative pl-8 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-px before:bg-slate-100"
+                                >
+                                    <div className="absolute left-[-4.5px] top-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border-4 border-white shadow-sm" />
+                                    <div className="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 group hover:border-emerald-200 transition-all">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">
+                                                {log.action.replace('_', ' ')}
+                                            </span>
+                                            <span className="text-[8px] font-bold text-slate-400 tabular-nums">
+                                                {new Date(log.timestamp).toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <p className="text-[11px] font-bold text-slate-700 leading-relaxed italic">
+                                            "{log.details}"
+                                        </p>
+                                        <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-5 h-5 bg-white border border-slate-200 rounded flex items-center justify-center text-[8px] font-black text-slate-500 uppercase">
+                                                    {log.actor?.firstName.charAt(0)}{log.actor?.lastName.charAt(0)}
+                                                </div>
+                                                <span className="text-[9px] font-black text-slate-900 uppercase">
+                                                    {log.actor?.firstName} {log.actor?.lastName}
+                                                </span>
+                                            </div>
+                                            <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{log.actor?.role}</span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))
+                        )}
+                    </div>
+                </div>
+              )}
               </div>
+
+            {/* Footer / Settlement Summary */}
+            <div className="p-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="space-y-0.5 text-center sm:text-left">
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Final Invoice Evaluation</span>
+                <div className="flex items-center justify-center sm:justify-start gap-2.5">
+                    <div className="w-1 h-6 bg-emerald-600 rounded-full" />
+                    <span className="text-2xl font-black text-slate-900 tracking-tighter tabular-nums">${totalAmount.toFixed(2)}</span>
+                </div>
+              </div>
+              
               <div className="flex gap-3 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 sm:flex-none px-6 py-2.5 text-xs font-bold text-slate-400 hover:text-white transition-colors"
+                  className="flex-1 sm:flex-none px-6 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 hover:bg-white rounded-lg transition-all"
                 >
-                  CANCEL
+                  Discard
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 sm:flex-none px-8 py-2.5 bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-xl text-xs font-black tracking-widest shadow-xl shadow-indigo-900/40 hover:shadow-indigo-500/20 active:scale-95 transition-all duration-200 disabled:opacity-50"
+                  className="flex-1 sm:flex-none px-8 py-2.5 bg-emerald-600 text-white rounded-xl text-[9px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-emerald-700 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {isLoading ? "PROCESSING..." : invoice ? "UPDATE INVOICE" : "CONFIRM INVOICE"}
+                  {isLoading ? (
+                    <div className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                  )}
+                  {invoice ? "RE-AUTHORIZE" : "FINALIZE"}
                 </button>
               </div>
             </div>

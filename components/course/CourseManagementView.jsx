@@ -72,7 +72,8 @@ export default function CourseManagementView() {
       await fetchData();
       handleCloseModal();
     } catch (err) {
-      showMessage(err.message, "error");
+      const msg = err.response?.data?.error || err.message;
+      showMessage(msg, "error");
     } finally {
       setIsLoading(false);
     }
