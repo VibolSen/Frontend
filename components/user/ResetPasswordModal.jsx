@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { X, KeyRound, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 
 export default function ResetPasswordModal({
   isOpen,
@@ -13,6 +14,13 @@ export default function ResetPasswordModal({
 }) {
   const [newPassword, setNewPassword] = useState("123456");
   const [showPassword, setShowPassword] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -21,9 +29,7 @@ export default function ResetPasswordModal({
     setNewPassword("123456");
   };
 
-  if (!isOpen) return null;
-
-  return (
+  const modalContent = (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex justify-center items-center p-4">
         <motion.div
@@ -124,4 +130,6 @@ export default function ResetPasswordModal({
       </div>
     </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 }

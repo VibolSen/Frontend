@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import UserModal from "../user/UserModal";
 import UserTable from "../user/UserTable";
+import RoleMigrationModal from "../user/RoleMigrationModal";
+import ResetPasswordModal from "../user/ResetPasswordModal";
 import { Plus, Activity, ShieldCheck } from "lucide-react";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { useUser } from "@/context/UserContext";
@@ -25,6 +27,10 @@ export default function TeacherManagementView() {
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [isMigrationModalOpen, setIsMigrationModalOpen] = useState(false);
+  const [migratingUser, setMigratingUser] = useState(null);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [userForReset, setUserForReset] = useState(null);
 
   const showMessage = (message, type = "success") => {
     if (type === "error") {
@@ -72,11 +78,48 @@ export default function TeacherManagementView() {
   const handleToggleStatus = async (user) => {
     setIsLoading(true);
     try {
-      await apiClient.put(`/users?id=${user.id}`, { isActive: !user.isActive });
-      showMessage(`User account ${user.isActive ? "suspended" : "activated"} successfully!`);
+      await apiClient.patch(`/users/toggle-status/${user.id}`, { isActive: !user.isActive });
+      showMessage(`Teacher account ${user.isActive ? "suspended" : "activated"} successfully!`);
       await fetchTeachers();
     } catch (err) {
       showMessage(err.response?.data?.error || err.message, "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMigrateClick = (user) => {
+    setMigratingUser(user);
+    setIsMigrationModalOpen(true);
+  };
+
+  const handleExecuteMigration = async (user, { role, migrationReason }) => {
+    setIsLoading(true);
+    try {
+      await apiClient.put(`/users/${user.id}`, { role, migrationReason });
+      showMessage(`Faculty status successfully migrated to ${role}`);
+      setIsMigrationModalOpen(false);
+      await fetchTeachers();
+    } catch (err) {
+      showMessage(err.response?.data?.error || "Migration failed", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = (user) => {
+    setUserForReset(user);
+    setIsResetModalOpen(true);
+  };
+
+  const executeResetPassword = async (userId, newPassword) => {
+    setIsLoading(true);
+    try {
+      await apiClient.post(`/users/reset-password/${userId}`, { newPassword });
+      showMessage("Credential reset successful. Teacher can now log in with the new password.");
+      setIsResetModalOpen(false);
+    } catch (err) {
+      showMessage(err.response?.data?.error || "Reset failed", "error");
     } finally {
       setIsLoading(false);
     }
@@ -223,8 +266,8 @@ export default function TeacherManagementView() {
           onEditClick={handleEditClick}
           onDeleteClick={handleDeleteRequest}
           onToggleStatus={handleToggleStatus}
-          onResetPassword={() => {}} // Integration point
-          onMigrate={() => {}} // Restricted from here
+          onResetPassword={handleResetPassword}
+          onMigrate={handleMigrateClick}
           isLoading={isLoading}
           currentUserRole={currentUser?.role}
           selectedUserIds={selectedUserIds}
@@ -239,6 +282,25 @@ export default function TeacherManagementView() {
           userToEdit={editingTeacher}
           roles={["TEACHER"]}
           departments={departments}
+          isLoading={isLoading}
+        />
+      )}
+      {isMigrationModalOpen && (
+        <RoleMigrationModal
+          isOpen={isMigrationModalOpen}
+          onClose={() => setIsMigrationModalOpen(false)}
+          onMigrate={handleExecuteMigration}
+          user={migratingUser}
+          roles={["ADMIN", "HR", "TEACHER", "STUDENT", "STUDY_OFFICE", "FINANCE"]}
+          isLoading={isLoading}
+        />
+      )}
+      {isResetModalOpen && (
+        <ResetPasswordModal
+          isOpen={isResetModalOpen}
+          onClose={() => setIsResetModalOpen(false)}
+          onReset={executeResetPassword}
+          user={userForReset}
           isLoading={isLoading}
         />
       )}

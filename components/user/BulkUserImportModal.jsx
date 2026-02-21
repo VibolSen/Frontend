@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { X, Upload, FileType, CheckCircle2, AlertCircle, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 
 export default function BulkUserImportModal({
   isOpen,
@@ -13,6 +14,13 @@ export default function BulkUserImportModal({
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState([]);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -83,9 +91,7 @@ export default function BulkUserImportModal({
     reader.readAsText(file);
   };
 
-  if (!isOpen) return null;
-
-  return (
+  const modalContent = (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex justify-center items-center p-4">
         <motion.div
@@ -214,4 +220,6 @@ export default function BulkUserImportModal({
       </div>
     </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 }

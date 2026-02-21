@@ -122,7 +122,6 @@ export default function UserTable({
             >
               <option value="All">All Roles</option>
               {allRoles
-                .filter((role) => role !== "ADMIN")
                 .map((role) => (
                   <option key={role} value={role} className="normal-case font-medium">{role}</option>
                 ))}
@@ -165,7 +164,7 @@ export default function UserTable({
                 </div>
               </th>
               <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                Status / Workload
+                Status
               </th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Management</th>
             </tr>
@@ -233,34 +232,16 @@ export default function UserTable({
                       </span>
                     </td>
                     <td className="px-5 py-3 whitespace-nowrap">
-                      <div className="flex flex-col gap-1.5 min-w-[120px]">
-                        <div className="flex items-center gap-1.5">
-                          <div className={`w-1.5 h-1.5 rounded-full ${user.isActive ? 'bg-emerald-500' : 'bg-slate-300'}`} />
-                          <span className={`text-[11px] font-bold ${user.isActive ? 'text-emerald-600' : 'text-slate-400'}`}>
-                            {user.isActive ? 'Active' : 'Suspended'}
-                          </span>
-                        </div>
-                        {user.role === 'TEACHER' && (
-                          <div className="space-y-1">
-                            <div className="flex justify-between text-[9px] font-bold text-slate-500">
-                              <span>Load: {courseCount}/{maxLoad}</span>
-                              <span>{Math.round(workloadPercent)}%</span>
-                            </div>
-                            <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full transition-all duration-500 ${
-                                  workloadPercent > 90 ? 'bg-rose-500' : workloadPercent > 60 ? 'bg-amber-500' : 'bg-emerald-500'
-                                }`}
-                                style={{ width: `${workloadPercent}%` }}
-                              />
-                            </div>
-                          </div>
-                        )}
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-1.5 h-1.5 rounded-full ${user.isActive ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                        <span className={`text-[11px] font-bold ${user.isActive ? 'text-emerald-600' : 'text-slate-400'}`}>
+                          {user.isActive ? 'Active' : 'Suspended'}
+                        </span>
                       </div>
                     </td>
                     <td className="px-5 py-3 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-1">
-                        {(currentUserRole === "ADMIN" || currentUserRole === "HR") && (
+                        {(currentUserRole === "ADMIN" || currentUserRole === "HR" || currentUserRole === "STUDY_OFFICE" || currentUserRole === "FINANCE") && (
                           <>
                             <button
                               onClick={() => onEditClick(user)}
@@ -270,14 +251,16 @@ export default function UserTable({
                             >
                               <Edit className="w-3.5 h-3.5" />
                             </button>
-                            <button
-                               onClick={() => onMigrate(user)}
-                               className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
-                               disabled={isLoading}
-                               title="Migrate Role"
-                             >
-                               <ShieldCheck className="w-3.5 h-3.5" />
-                             </button>
+                            {(currentUserRole === "ADMIN" || currentUserRole === "HR") && (
+                              <button
+                                onClick={() => onMigrate(user)}
+                                className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                                disabled={isLoading}
+                                title="Migrate Role"
+                              >
+                                <ShieldCheck className="w-3.5 h-3.5" />
+                              </button>
+                            )}
                             <button
                               onClick={() => onResetPassword(user)}
                               className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
@@ -286,14 +269,17 @@ export default function UserTable({
                             >
                               <Lock className="w-3.5 h-3.5" />
                             </button>
-                            <button
-                              onClick={() => onToggleStatus(user)}
-                              className={`p-1.5 transition-all rounded-lg ${user.isActive ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50' : 'text-emerald-500 hover:bg-emerald-50'}`}
-                              disabled={isLoading}
-                              title={user.isActive ? "Suspend Account" : "Activate Account"}
-                            >
-                              <Power className="w-3.5 h-3.5" />
-                            </button>
+                            {/* STUDY_OFFICE can only suspend STUDENT accounts */}
+                            {(currentUserRole !== "STUDY_OFFICE" || user.role === "STUDENT") && (
+                              <button
+                                onClick={() => onToggleStatus(user)}
+                                className={`p-1.5 transition-all rounded-lg ${user.isActive ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50' : 'text-emerald-500 hover:bg-emerald-50'}`}
+                                disabled={isLoading}
+                                title={user.isActive ? "Suspend Account" : "Activate Account"}
+                              >
+                                <Power className="w-3.5 h-3.5" />
+                              </button>
+                            )}
                           </>
                         )}
                         {currentUserRole && (
@@ -305,7 +291,7 @@ export default function UserTable({
                             <Eye className="w-3.5 h-3.5" />
                           </Link>
                         )}
-                        {(currentUserRole === "ADMIN" || currentUserRole === "HR") && (
+                        {currentUserRole === "ADMIN" && (
                           <button
                             onClick={() => onDeleteClick(user.id)}
                             className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"

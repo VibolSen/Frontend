@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useUser } from "@/context/UserContext";
 import UserTable from "../user/UserTable";
 import UserModal from "../user/UserModal";
+import RoleMigrationModal from "../user/RoleMigrationModal";
+import ResetPasswordModal from "../user/ResetPasswordModal";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,6 +26,10 @@ export default function StaffManagementView() {
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [isMigrationModalOpen, setIsMigrationModalOpen] = useState(false);
+  const [migratingUser, setMigratingUser] = useState(null);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [userForReset, setUserForReset] = useState(null);
 
   const availableStaffRoles = useMemo(() => {
     if (user?.role === "ADMIN") {
@@ -67,7 +73,7 @@ export default function StaffManagementView() {
     setIsLoading(true);
     try {
       await Promise.all(selectedUserIds.map(id => 
-        apiClient.put(`/users?id=${id}`, { isActive })
+        apiClient.put(`/users/${id}`, { isActive })
       ));
       showMessage(`Successfully ${isActive ? 'activated' : 'suspended'} ${selectedUserIds.length} personnel accounts`);
       setSelectedUserIds([]);
@@ -82,7 +88,7 @@ export default function StaffManagementView() {
   const handleToggleStatus = async (user) => {
     setIsLoading(true);
     try {
-      await apiClient.put(`/users?id=${user.id}`, { isActive: !user.isActive });
+      await apiClient.put(`/users/${user.id}`, { isActive: !user.isActive });
       showMessage(`User account ${user.isActive ? "suspended" : "activated"} successfully!`);
       await fetchStaff();
     } catch (err) {
@@ -111,7 +117,7 @@ export default function StaffManagementView() {
     if (!itemToDelete) return;
     setIsLoading(true);
     try {
-      await apiClient.delete(`/users?id=${itemToDelete.id}`);
+      await apiClient.delete(`/users/${itemToDelete.id}`);
       setStaffList((prev) => prev.filter((s) => s.id !== itemToDelete.id));
       showMessage("Staff member deleted successfully!");
     } catch (err) {
@@ -132,7 +138,7 @@ export default function StaffManagementView() {
     const isEditing = !!editingStaff?.id;
     try {
       if (isEditing) {
-        await apiClient.put(`/users?id=${editingStaff.id}`, staffData);
+        await apiClient.put(`/users/${editingStaff.id}`, staffData);
       } else {
         await apiClient.post("/users", staffData);
       }
@@ -143,6 +149,43 @@ export default function StaffManagementView() {
       handleCloseModal();
     } catch (err) {
       showMessage(`Failed to save staff: ${err.response?.data?.error || err.message}`, "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMigrateClick = (user) => {
+    setMigratingUser(user);
+    setIsMigrationModalOpen(true);
+  };
+
+  const handleExecuteMigration = async (user, { role, migrationReason }) => {
+    setIsLoading(true);
+    try {
+      await apiClient.put(`/users/${user.id}`, { role, migrationReason });
+      showMessage(`Personnel authority successfully migrated to ${role}`);
+      setIsMigrationModalOpen(false);
+      await fetchStaff();
+    } catch (err) {
+      showMessage(err.response?.data?.error || "Migration failed", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = (user) => {
+    setUserForReset(user);
+    setIsResetModalOpen(true);
+  };
+
+  const executeResetPassword = async (user, newPassword) => {
+    setIsLoading(true);
+    try {
+      await apiClient.post(`/users/reset-password/${user.id}`, { newPassword });
+      showMessage(`Security credentials updated for ${user.firstName}`);
+      setIsResetModalOpen(false);
+    } catch (err) {
+      showMessage(err.response?.data?.error || "Password reset failed", "error");
     } finally {
       setIsLoading(false);
     }
@@ -233,8 +276,8 @@ export default function StaffManagementView() {
           onEditClick={handleEditClick}
           onDeleteClick={handleDeleteRequest}
           onToggleStatus={handleToggleStatus}
-          onResetPassword={() => {}} // Can add later
-          onMigrate={() => {}} // Restricted from here
+          onResetPassword={handleResetPassword}
+          onMigrate={handleMigrateClick}
           isLoading={isLoading || userLoading}
           currentUserRole={user?.role}
           selectedUserIds={selectedUserIds}
@@ -250,6 +293,27 @@ export default function StaffManagementView() {
           userToEdit={editingStaff}
           roles={availableStaffRoles}
           departments={departments}
+          isLoading={isLoading || userLoading}
+        />
+      )}
+
+      {isResetModalOpen && (
+        <ResetPasswordModal
+          isOpen={isResetModalOpen}
+          onClose={() => setIsResetModalOpen(false)}
+          onReset={executeResetPassword}
+          user={userForReset}
+          isLoading={isLoading}
+        />
+      )}
+
+      {isMigrationModalOpen && (
+        <RoleMigrationModal
+          isOpen={isMigrationModalOpen}
+          onClose={() => setIsMigrationModalOpen(false)}
+          onMigrate={handleExecuteMigration}
+          user={migratingUser}
+          roles={ALL_ROLES.filter(r => r !== 'ADMIN')}
           isLoading={isLoading || userLoading}
         />
       )}

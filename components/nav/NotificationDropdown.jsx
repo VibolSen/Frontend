@@ -43,6 +43,7 @@ export default function NotificationDropdown() {
   }, []);
 
   const fetchNotifications = async () => {
+    if (!user?.id) return;
     try {
       const data = await apiClient.get(`/notifications?userId=${user.id}`);
       if (data) {

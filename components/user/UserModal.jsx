@@ -72,17 +72,32 @@ export default function UserModal({
     }
   }, [isOpen, userToEdit, roles]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
+   const handleChange = (e) => {
+     const { name, value } = e.target;
+     
+     // Prevent numbers in first/last name fields
+     if ((name === "firstName" || name === "lastName") && /\d/.test(value)) {
+       return; 
+     }
+
+     setFormData((prev) => ({ ...prev, [name]: value }));
+     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+   };
 
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
-    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    } else if (/\d/.test(formData.firstName)) {
+      newErrors.firstName = "First name cannot contain numbers";
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    } else if (/\d/.test(formData.lastName)) {
+      newErrors.lastName = "Last name cannot contain numbers";
+    }
     if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email))
       newErrors.email = "A valid email is required";
     if (!formData.role) newErrors.role = "Role is required";
@@ -166,6 +181,7 @@ export default function UserModal({
                       <label className="text-xs font-semibold text-slate-700 ml-1">First Name</label>
                       <input
                         name="firstName"
+                        placeholder="e.g. John"
                         value={formData.firstName}
                         onChange={handleChange}
                         className={`w-full px-3 py-2 bg-white border rounded-xl text-sm transition-all ${errors.firstName ? 'border-red-500' : 'border-slate-200 focus:border-blue-500'}`}
@@ -175,6 +191,7 @@ export default function UserModal({
                       <label className="text-xs font-semibold text-slate-700 ml-1">Last Name</label>
                       <input
                         name="lastName"
+                        placeholder="e.g. Doe"
                         value={formData.lastName}
                         onChange={handleChange}
                         className={`w-full px-3 py-2 bg-white border rounded-xl text-sm transition-all ${errors.lastName ? 'border-red-500' : 'border-slate-200 focus:border-blue-500'}`}
@@ -187,6 +204,7 @@ export default function UserModal({
                       <label className="text-xs font-semibold text-slate-700 ml-1">Email Address</label>
                       <input
                         name="email"
+                        placeholder="e.g. john.doe@school.com"
                         value={formData.email}
                         onChange={handleChange}
                         className={`w-full px-3 py-2 bg-white border rounded-xl text-sm transition-all ${errors.email ? 'border-red-500' : 'border-slate-200 focus:border-blue-500'}`}
@@ -200,25 +218,9 @@ export default function UserModal({
                         onChange={handleChange}
                         className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
                       >
-                        {(roles || []).map(r => <option key={r} value={r}>{r}</option>)}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5 flex-1">
-                      <label className="text-xs font-semibold text-slate-700 ml-1">Department Liaison</label>
-                      <select
-                        name="departmentId"
-                        value={formData.departmentId}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
-                        disabled={isLoading}
-                      >
-                        <option value="">No Department Assigned</option>
-                        {departments.map(dept => (
-                          <option key={dept.id} value={dept.id}>{dept.name}</option>
-                        ))}
+                        {(roles || [])
+                          .filter(r => r !== "ADMIN" || (isEditMode && userToEdit?.role === "ADMIN"))
+                          .map(r => <option key={r} value={r}>{r}</option>)}
                       </select>
                     </div>
                   </div>
@@ -230,6 +232,7 @@ export default function UserModal({
                         <input
                           type={showPassword ? "text" : "password"}
                           name="password"
+                          placeholder="••••••••"
                           value={formData.password}
                           onChange={handleChange}
                           className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
@@ -240,100 +243,6 @@ export default function UserModal({
                       </div>
                     </div>
                   )}
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowDetailed(!showDetailed)}
-                    className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 flex items-center gap-1.5 mb-4"
-                  >
-                    {showDetailed ? "Hide Profile Attributes" : "Configure Extended Profile"}
-                    <svg className={`w-3 h-3 transition-transform ${showDetailed ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  <AnimatePresence>
-                    {showDetailed && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden space-y-4"
-                      >
-                        <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-semibold text-slate-700 ml-1">Gender</label>
-                              <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm">
-                                <option value="">Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                                </select>
-                              </div>
-                             {formData.role === 'STUDENT' && (
-                               <div className="space-y-1.5">
-                                 <label className="text-xs font-semibold text-slate-700 ml-1">Academic Status</label>
-                                 <select name="academicStatus" value={formData.academicStatus} onChange={handleChange} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm">
-                                   <option value="ACTIVE">Active</option>
-                                   <option value="ON_LEAVE">On Leave</option>
-                                   <option value="GRADUATED">Graduated</option>
-                                   <option value="WITHDRAWN">Withdrawn</option>
-                                 </select>
-                               </div>
-                             )}
-                             {formData.role === 'TEACHER' && (
-                                <div className="space-y-1.5">
-                                  <label className="text-xs font-semibold text-slate-700 ml-1">Specializations (tag separated)</label>
-                                  <input 
-                                    name="specialization" 
-                                    placeholder="e.g. Math, Physics"
-                                    value={formData.specialization} 
-                                    onChange={handleChange} 
-                                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm" 
-                                  />
-                                </div>
-                             )}
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {formData.role === 'TEACHER' && (
-                              <div className="space-y-1.5">
-                                <label className="text-xs font-semibold text-slate-700 ml-1">Max Course Load</label>
-                                <input 
-                                  type="number"
-                                  name="maxWorkload" 
-                                  value={formData.maxWorkload} 
-                                  onChange={handleChange} 
-                                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm" 
-                                />
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="space-y-3">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">Emergency Contact Information</h3>
-                            <div className="space-y-1.5">
-                              <label className="text-xs font-semibold text-slate-700 ml-1">Contact Name</label>
-                              <input name="emergencyContactName" value={formData.emergencyContactName} onChange={handleChange} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm" />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="space-y-1.5">
-                                <label className="text-xs font-semibold text-slate-700 ml-1">Phone Number</label>
-                                <input name="emergencyContactPhone" value={formData.emergencyContactPhone} onChange={handleChange} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm" />
-                              </div>
-                              <div className="space-y-1.5">
-                                <label className="text-xs font-semibold text-slate-700 ml-1">Relation</label>
-                                <input name="emergencyContactRelation" value={formData.emergencyContactRelation} onChange={handleChange} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
                 </div>
               </div>
 

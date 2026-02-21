@@ -93,7 +93,7 @@ export default function UserManagementView() {
     const isEditing = !!editingUser?.id;
     try {
       if (isEditing) {
-        await apiClient.put(`/users?id=${editingUser.id}`, userData);
+        await apiClient.put(`/users/${editingUser.id}`, userData);
       } else {
         await apiClient.post("/users", userData);
       }
@@ -121,7 +121,7 @@ export default function UserManagementView() {
     if (!userToDelete) return;
     setIsLoading(true);
     try {
-      await apiClient.delete(`/users?id=${userToDelete.id}`);
+      await apiClient.delete(`/users/${userToDelete.id}`);
       setUsers(users.filter((u) => u.id !== userToDelete.id));
       showMessage("User deleted successfully!");
     } catch (err) {
@@ -201,7 +201,7 @@ export default function UserManagementView() {
   const handleExecuteMigration = async (user, { role, migrationReason }) => {
     setIsLoading(true);
     try {
-      await apiClient.put(`/users?id=${user.id}`, { role, migrationReason });
+      await apiClient.put(`/users/${user.id}`, { role, migrationReason });
       showMessage(`Personnel authority successfully migrated to ${role}`);
       setIsMigrationModalOpen(false);
       await fetchUsers();
@@ -216,7 +216,7 @@ export default function UserManagementView() {
     setIsLoading(true);
     try {
       await Promise.all(selectedUserIds.map(id => 
-        apiClient.put(`/users?id=${id}`, { isActive })
+        apiClient.put(`/users/${id}`, { isActive })
       ));
       showMessage(`Successfully ${isActive ? 'activated' : 'suspended'} ${selectedUserIds.length} personnel accounts`);
       setSelectedUserIds([]);
