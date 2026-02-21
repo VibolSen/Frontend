@@ -23,7 +23,8 @@ import {
   Library,
   ClipboardList,
   LogOut,
-  Bell
+  Bell,
+  Clock
 } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import { motion } from "framer-motion";
@@ -82,126 +83,71 @@ const NavLink = ({ icon, label, href, isCollapsed, isActive }) => (
 // -------------------------
 // Sidebar Item Definitions
 // -------------------------
-const ADMIN_NAV_ITEMS = [
+const ADMIN_NAV_GROUPS = [
   {
-    label: "Dashboard",
-    icon: <Home />,
-    href: "/admin/dashboard",
+    group: "Overview",
+    items: [
+      { label: "Dashboard", icon: <Home />, href: "/admin/dashboard" },
+    ]
   },
   {
-    label: "Users",
-    icon: <Users />,
-    href: "/admin/users",
+    group: "People",
+    items: [
+      { label: "Users", icon: <Users />, href: "/admin/users" },
+      { label: "Staff", icon: <Briefcase />, href: "/admin/staff" },
+      { label: "Teachers", icon: <Users />, href: "/admin/teachers" },
+      { label: "Students", icon: <UserIcon />, href: "/admin/students" },
+    ]
   },
   {
-    label: "Staff",
-    icon: <Briefcase />,
-    href: "/admin/staff",
+    group: "Academy",
+    items: [
+      { label: "Faculty", icon: <Book />, href: "/admin/faculty" },
+      { label: "Departments", icon: <LayoutGrid />, href: "/admin/departments" },
+      { label: "Courses", icon: <Book />, href: "/admin/courses" },
+      { label: "Groups", icon: <Hash />, href: "/admin/groups" },
+      { label: "E-Library", icon: <Library />, href: "/admin/e-library" },
+      { label: "Campus Facilities", icon: <LayoutGrid />, href: "/admin/rooms" },
+    ]
   },
   {
-    label: "Teachers",
-    icon: <Users />,
-    href: "/admin/teachers",
+    group: "Education",
+    items: [
+      { label: "Assignments", icon: <ClipboardList />, href: "/admin/assignment-management" },
+      { label: "Exams", icon: <FileText />, href: "/admin/exam-management" },
+      { label: "Gradebook", icon: <BookOpen />, href: "/admin/gradebook" },
+      { label: "Certificates", icon: <Award />, href: "/admin/certificate-management" },
+    ]
   },
   {
-    label: "Students",
-    icon: <UserIcon />,
-    href: "/admin/students",
+    group: "Insights",
+    items: [
+      { label: "Course Analytics", icon: <BarChart3 />, href: "/admin/course-analytics" },
+      { label: "Student Performance", icon: <TrendingUp />, href: "/admin/student-performance" },
+    ]
   },
   {
-    label: "Faculty",
-    icon: <Book />,
-    href: "/admin/faculty",
+    group: "Operations",
+    items: [
+      { label: "Student Attendance", icon: <Calendar />, href: "/admin/attendance" },
+      { label: "Financial Mgmt.", icon: <DollarSign />, href: "/admin/finance" },
+      { label: "Staff Attendance", icon: <Clock />, href: "/admin/my-attendance" },
+      { label: "Schedule", icon: <Calendar />, href: "/admin/schedule" },
+    ]
   },
   {
-    label: "Departments",
-    icon: <LayoutGrid />,
-    href: "/admin/departments",
+    group: "Human Resources",
+    items: [
+      { label: "Job Postings", icon: <Briefcase />, href: "/admin/job-postings" },
+      { label: "Leave Mgmt.", icon: <ClipboardList />, href: "/admin/leave-management" },
+      { label: "Recruitment", icon: <Users />, href: "/admin/recruitment" },
+    ]
   },
   {
-    label: "Courses",
-    icon: <Book />,
-    href: "/admin/courses",
-  },
-  {
-    label: "Groups",
-    icon: <Hash />,
-    href: "/admin/groups",
-  },
-  {
-    label: "Assignment Management",
-    icon: <ClipboardList />,
-    href: "/admin/assignment-management",
-  },
-  {
-    label: "Exam Management",
-    icon: <FileText />,
-    href: "/admin/exam-management",
-  },
-  {
-    label: "Course Analytics",
-    icon: <BarChart3 />,
-    href: "/admin/course-analytics",
-  },
-  {
-    label: "E-Library",
-    icon: <Library />,
-    href: "/admin/e-library",
-  },
-  {
-    label: "Student Performance",
-    icon: <TrendingUp />,
-    href: "/admin/student-performance",
-  },
-  {
-    label: "Gradebook",
-    icon: <BookOpen />,
-    href: "/admin/gradebook",
-  },
-  {
-    label: "Attendance",
-    icon: <Calendar />,
-    href: "/admin/attendance",
-  },
-  {
-    label: "Financial Management",
-    icon: <DollarSign />,
-    href: "/admin/finance",
-  },
-  {
-    label: "Schedule",
-    icon: <Calendar />,
-    href: "/admin/schedule",
-  },
-  {
-    label: "Campus Facilities",
-    icon: <LayoutGrid />,
-    href: "/admin/rooms",
-  },
-  {
-    label: "Certificates",
-    icon: <Award />,
-    href: "/admin/certificate-management",
-  },
-  {
-    label: "Job Postings",
-    icon: <Briefcase />,
-    href: "/admin/job-postings",
-  },
-  {
-    label: "Leave Management",
-    icon: <ClipboardList />,
-    href: "/admin/leave-management",
-  },
-  {
-    label: "Recruitment",
-    icon: <Users />,
-    href: "/admin/recruitment",
-  },
-  {
-    label: "Settings",
-    icon: <Settings />,
-    href: "/admin/settings",
+    group: "Preferences",
+    items: [
+      { label: "Settings", icon: <Settings />, href: "/admin/settings" },
+    ]
   },
 ];
 
@@ -211,8 +157,16 @@ const ADMIN_NAV_ITEMS = [
 export default function AdminSidebar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
   const { user } = useUser();
+  const [collapsedGroups, setCollapsedGroups] = React.useState({});
 
   const isCollapsed = !isOpen;
+
+  const toggleGroup = (groupName) => {
+    setCollapsedGroups(prev => ({
+      ...prev,
+      [groupName]: !prev[groupName]
+    }));
+  };
 
   return (
     <>
@@ -268,23 +222,52 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
 
         {/* Nav Links */}
         <nav className="flex-1 px-4 py-8 overflow-y-auto custom-scrollbar relative z-10">
-          {!isCollapsed && (
-             <div className="mb-4 px-2">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Management Suite</span>
-             </div>
-          )}
-          <ul className="space-y-1.5">
-            {ADMIN_NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.label}
-                icon={item.icon}
-                label={item.label}
-                href={item.href}
-                isCollapsed={isCollapsed}
-                isActive={pathname === item.href}
-              />
-            ))}
-          </ul>
+          <div className="space-y-6">
+            {ADMIN_NAV_GROUPS.map((group, groupIdx) => {
+              const isGroupCollapsed = collapsedGroups[group.group];
+              return (
+                <div key={groupIdx} className="space-y-2">
+                  {!isCollapsed && (
+                    <button 
+                      onClick={() => toggleGroup(group.group)}
+                      className="w-full flex items-center justify-between px-4 mb-2 group/header"
+                    >
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/header:text-blue-600 transition-colors">
+                        {group.group}
+                      </span>
+                      <motion.div
+                        animate={{ rotate: isGroupCollapsed ? 0 : 90 }}
+                        className="text-slate-300 group-hover/header:text-blue-400"
+                      >
+                         <ChevronRight size={10} />
+                      </motion.div>
+                    </button>
+                  )}
+                  
+                  <motion.ul 
+                    initial={false}
+                    animate={{ 
+                      height: isGroupCollapsed && !isCollapsed ? 0 : "auto",
+                      opacity: isGroupCollapsed && !isCollapsed ? 0 : 1,
+                      marginBottom: isGroupCollapsed && !isCollapsed ? 0 : 8
+                    }}
+                    className="space-y-1 overflow-hidden"
+                  >
+                    {group.items.map((item) => (
+                      <NavLink
+                        key={item.label}
+                        icon={item.icon}
+                        label={item.label}
+                        href={item.href}
+                        isCollapsed={isCollapsed}
+                        isActive={pathname === item.href}
+                      />
+                    ))}
+                  </motion.ul>
+                </div>
+              );
+            })}
+          </div>
         </nav>
 
         {/* User Profile Summary */}

@@ -71,79 +71,66 @@ const NavLink = ({ icon, label, href, isCollapsed, isActive }) => (
   </li>
 );
 
-const TEACHER_NAV_ITEMS = [
+// -------------------------
+// Sidebar Item Definitions
+// -------------------------
+const TEACHER_NAV_GROUPS = [
   {
-    label: "Dashboard",
-    icon: <Home />,
-    href: "/teacher/dashboard",
+    group: "Overview",
+    items: [
+      { label: "Dashboard", icon: <Home />, href: "/teacher/dashboard" },
+      { label: "My Schedules", icon: <Calendar />, href: "/teacher/schedule" },
+    ]
   },
   {
-    label: "My Schedules",
-    icon: <Calendar />,
-    href: "/teacher/schedule",
+    group: "Classroom",
+    items: [
+      { label: "My Students", icon: <Users />, href: "/teacher/students" },
+      { label: "My Courses", icon: <Book />, href: "/teacher/courses" },
+      { label: "E-Library", icon: <BookOpen />, href: "/teacher/e-library" },
+    ]
   },
   {
-    label: "My Students",
-    icon: <Users />,
-    href: "/teacher/students",
+    group: "Academics",
+    items: [
+      { label: "Assignments", icon: <ClipboardList />, href: "/teacher/assignment" },
+      { label: "Exams", icon: <FileText />, href: "/teacher/exam" },
+      { label: "Gradebook", icon: <BookOpen />, href: "/teacher/gradebook" },
+      { label: "Performance", icon: <TrendingUp />, href: "/teacher/student-performance" },
+    ]
   },
   {
-    label: "My Attendance",
-    icon: <CheckSquare />,
-    href: "/teacher/my-attendance",
+    group: "Personnel",
+    items: [
+      { label: "My Attendance", icon: <CheckSquare />, href: "/teacher/my-attendance" },
+      { label: "Student Attendance", icon: <CheckSquare />, href: "/teacher/student-attendance" },
+      { label: "My Leaves", icon: <FileText />, href: "/teacher/my-absence" },
+    ]
   },
   {
-    label: "Student Attendance",
-    icon: <CheckSquare />,
-    href: "/teacher/student-attendance",
-  },
-  {
-    label: "My Courses",
-    icon: <Book />,
-    href: "/teacher/courses",
-  },
-  {
-    label: "Assignments",
-    icon: <ClipboardList />,
-    href: "/teacher/assignment",
-  },
-  {
-    label: "Exams",
-    icon: <FileText />, // Differentiated from Assignments
-    href: "/teacher/exam",
-  },
-  {
-    label: "Gradebook",
-    icon: <BookOpen />,
-    href: "/teacher/gradebook",
-  },
-  {
-    label: "Student Performance",
-    icon: <TrendingUp />,
-    href: "/teacher/student-performance",
-  },
-  {
-    label: "E-Library",
-    icon: <BookOpen />,
-    href: "/teacher/e-library",
-  },
-  {
-    label: "My Leaves",
-    icon: <FileText />,
-    href: "/teacher/my-absence",
-  },
-  {
-    label: "Settings",
-    icon: <Settings />,
-    href: "/teacher/settings",
+    group: "Administration",
+    items: [
+      { label: "Preferences", icon: <Settings />, href: "/teacher/settings" },
+    ]
   },
 ];
 
+// -------------------------
+// Main Sidebar Component
+// -------------------------
 export default function TeacherSidebar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
   const { user } = useUser();
+  const [collapsedGroups, setCollapsedGroups] = React.useState({});
 
   const isCollapsed = !isOpen;
+
+  const toggleGroup = (groupName) => {
+    setCollapsedGroups(prev => ({
+      ...prev,
+      [groupName]: !prev[groupName]
+    }));
+  };
 
   return (
     <>
@@ -199,35 +186,53 @@ export default function TeacherSidebar({ isOpen, setIsOpen }) {
 
         {/* Nav Links */}
         <nav className="flex-1 px-4 py-8 overflow-y-auto custom-scrollbar relative z-10 text-slate-500">
-          {!isCollapsed && (
-             <div className="mb-4 px-2">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Teaching Suite</span>
-             </div>
-          )}
-          <ul className="space-y-1.5">
-            {TEACHER_NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.label}
-                icon={item.icon}
-                label={item.label}
-                href={item.href}
-                isCollapsed={isCollapsed}
-                isActive={pathname === item.href}
-              />
-            ))}
-          </ul>
+          <div className="space-y-6">
+            {TEACHER_NAV_GROUPS.map((group, groupIdx) => {
+              const isGroupCollapsed = collapsedGroups[group.group];
+              return (
+                <div key={groupIdx} className="space-y-2">
+                  {!isCollapsed && (
+                    <button 
+                      onClick={() => toggleGroup(group.group)}
+                      className="w-full flex items-center justify-between px-4 mb-2 group/header"
+                    >
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/header:text-amber-600 transition-colors">
+                        {group.group}
+                      </span>
+                      <motion.div
+                        animate={{ rotate: isGroupCollapsed ? 0 : 90 }}
+                        className="text-slate-300 group-hover/header:text-amber-400"
+                      >
+                         <ChevronRight size={10} />
+                      </motion.div>
+                    </button>
+                  )}
+                  
+                  <motion.ul 
+                    initial={false}
+                    animate={{ 
+                      height: isGroupCollapsed && !isCollapsed ? 0 : "auto",
+                      opacity: isGroupCollapsed && !isCollapsed ? 0 : 1,
+                      marginBottom: isGroupCollapsed && !isCollapsed ? 0 : 8
+                    }}
+                    className="space-y-1 overflow-hidden"
+                  >
+                    {group.items.map((item) => (
+                      <NavLink
+                        key={item.label}
+                        icon={item.icon}
+                        label={item.label}
+                        href={item.href}
+                        isCollapsed={isCollapsed}
+                        isActive={pathname === item.href}
+                      />
+                    ))}
+                  </motion.ul>
+                </div>
+              );
+            })}
+          </div>
         </nav>
-
-        {/* Bottom Navigation */}
-        <div className="px-4 py-4 border-t border-slate-200 relative z-10">
-           <NavLink
-              icon={<Settings />}
-              label="Preferences"
-              href="/teacher/settings"
-              isCollapsed={isCollapsed}
-              isActive={pathname === "/teacher/settings"}
-           />
-        </div>
 
         {/* User Profile Summary */}
         <div className="p-4 border-t border-slate-200 relative z-10 bg-white/50 backdrop-blur-md">

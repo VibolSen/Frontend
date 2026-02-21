@@ -17,7 +17,8 @@ import {
   CheckSquare,
   LogOut,
   Bell,
-  Fingerprint
+  Fingerprint,
+  Clock
 } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import { motion } from "framer-motion";
@@ -70,51 +71,44 @@ const NavLink = ({ icon, label, href, isCollapsed, isActive }) => (
   </li>
 );
 
-const HR_NAV_ITEMS = [
+// -------------------------
+// Sidebar Item Definitions
+// -------------------------
+const HR_NAV_GROUPS = [
   {
-    label: "Dashboard",
-    icon: <Home size={20} />,
-    href: "/hr/dashboard",
+    group: "Overview",
+    items: [
+      { label: "Dashboard", icon: <Home />, href: "/hr/dashboard" },
+    ]
   },
   {
-    label: "Staff",
-    icon: <Briefcase size={20} />,
-    href: "/hr/staff",
+    group: "Staffing",
+    items: [
+      { label: "Staff", icon: <Briefcase />, href: "/hr/staff" },
+      { label: "Recruitment", icon: <UserPlus />, href: "/hr/recruitment" },
+      { label: "Job Postings", icon: <ClipboardList />, href: "/hr/job-postings" },
+    ]
   },
   {
-    label: "Job Postings",
-    icon: <ClipboardList size={20} />,
-    href: "/hr/job-postings",
+    group: "Attendance",
+    items: [
+      { label: "Staff Attendance", icon: <Clock />, href: "/hr/attendance" },
+      { label: "Manage History", icon: <CheckSquare />, href: "/hr/manage-attendance" },
+      { label: "Leave Requests", icon: <FileText />, href: "/hr/leave-management" },
+      { label: "My Absence", icon: <Calendar />, href: "/hr/my-absence" },
+    ]
   },
   {
-    label: "Attendance",
-    icon: <Calendar size={20} />,
-    href: "/hr/attendance",
+    group: "Insights",
+    items: [
+      { label: "Reports & Analytics", icon: <BarChart3 />, href: "/hr/reports" },
+    ]
   },
   {
-    label: "Leave Management",
-    icon: <FileText size={20} />,
-    href: "/hr/leave-management",
-  },
-  {
-    label: "Recruitment",
-    icon: <UserPlus size={20} />,
-    href: "/hr/recruitment",
-  },
-  {
-    label: "Manage Attendance",
-    icon: <CheckSquare size={20} />,
-    href: "/hr/manage-attendance",
-  },
-  {
-    label: "My Absence",
-    icon: <Calendar size={20} />,
-    href: "/hr/my-absence",
-  },
-  {
-    label: "Reports & Analytics",
-    icon: <BarChart3 size={20} />,
-    href: "/hr/reports",
+    group: "Administration",
+    items: [
+      { label: "Preferences", icon: <Settings />, href: "/hr/settings" },
+    ]
   },
 ];
 
@@ -122,6 +116,14 @@ const HRSidebar = ({ isOpen, setIsOpen }) => {
   const isCollapsed = !isOpen;
   const pathname = usePathname();
   const { user } = useUser();
+  const [collapsedGroups, setCollapsedGroups] = React.useState({});
+
+  const toggleGroup = (groupName) => {
+    setCollapsedGroups(prev => ({
+      ...prev,
+      [groupName]: !prev[groupName]
+    }));
+  };
 
   return (
     <>
@@ -177,35 +179,53 @@ const HRSidebar = ({ isOpen, setIsOpen }) => {
 
         {/* Nav Links */}
         <nav className="flex-1 px-4 py-8 overflow-y-auto custom-scrollbar relative z-10 text-slate-500">
-          {!isCollapsed && (
-             <div className="mb-4 px-2">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Human Resources</span>
-             </div>
-          )}
-          <ul className="space-y-1.5">
-            {HR_NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.label}
-                icon={item.icon}
-                label={item.label}
-                href={item.href}
-                isCollapsed={isCollapsed}
-                isActive={pathname === item.href}
-              />
-            ))}
-          </ul>
+          <div className="space-y-6">
+            {HR_NAV_GROUPS.map((group, groupIdx) => {
+              const isGroupCollapsed = collapsedGroups[group.group];
+              return (
+                <div key={groupIdx} className="space-y-2">
+                  {!isCollapsed && (
+                    <button 
+                      onClick={() => toggleGroup(group.group)}
+                      className="w-full flex items-center justify-between px-4 mb-2 group/header"
+                    >
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/header:text-rose-600 transition-colors">
+                        {group.group}
+                      </span>
+                      <motion.div
+                        animate={{ rotate: isGroupCollapsed ? 0 : 90 }}
+                        className="text-slate-300 group-hover/header:text-rose-400"
+                      >
+                         <ChevronRight size={10} />
+                      </motion.div>
+                    </button>
+                  )}
+                  
+                  <motion.ul 
+                    initial={false}
+                    animate={{ 
+                      height: isGroupCollapsed && !isCollapsed ? 0 : "auto",
+                      opacity: isGroupCollapsed && !isCollapsed ? 0 : 1,
+                      marginBottom: isGroupCollapsed && !isCollapsed ? 0 : 8
+                    }}
+                    className="space-y-1 overflow-hidden"
+                  >
+                    {group.items.map((item) => (
+                      <NavLink
+                        key={item.label}
+                        icon={item.icon}
+                        label={item.label}
+                        href={item.href}
+                        isCollapsed={isCollapsed}
+                        isActive={pathname === item.href}
+                      />
+                    ))}
+                  </motion.ul>
+                </div>
+              );
+            })}
+          </div>
         </nav>
-
-        {/* Bottom Navigation */}
-        <div className="px-4 py-4 border-t border-slate-200 relative z-10">
-           <NavLink
-              icon={<Settings />}
-              label="Preferences"
-              href="/hr/settings"
-              isCollapsed={isCollapsed}
-              isActive={pathname === "/hr/settings"}
-           />
-        </div>
 
         {/* User Profile Summary */}
         <div className="p-4 border-t border-slate-200 relative z-10 bg-white/50 backdrop-blur-md">

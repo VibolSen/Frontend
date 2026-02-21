@@ -15,31 +15,42 @@ import {
   Sun,
   Moon,
   Accessibility,
-  Type,
-  Zap,
-  Contrast
+  Type, 
+  Zap, 
+  Contrast,
+  Smartphone,
+  Laptop,
+  Monitor,
+  Key,
+  DollarSign,
+  AlertCircle,
+  Mail,
+  X
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useTheme } from "@/context/ThemeContext";
 import { useAccessibility } from "@/context/AccessibilityContext";
+import { useUser } from "@/context/UserContext";
+import { apiClient } from "@/lib/api";
+import toast from "react-hot-toast";
 
 export default function SettingsView({ user }) {
   const { theme, setThemeMode } = useTheme();
+  const { updateUser } = useUser();
   const { fontSize, updateFontSize, reducedMotion, toggleReducedMotion, highContrast, toggleHighContrast, screenReaderOptimized, toggleScreenReaderOptimized } = useAccessibility();
   const [activeTab, setActiveTab] = useState("profile");
   const [isSaving, setIsSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Profile Settings
   const [profileData, setProfileData] = useState({
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
     email: user?.email || "",
-    phone: user?.phone || "",
-    bio: user?.bio || "",
+    phone: user?.profile?.phone || "",
+    bio: user?.profile?.bio || "",
   });
 
   // Password Settings
@@ -49,13 +60,20 @@ export default function SettingsView({ user }) {
     confirmPassword: "",
   });
 
-  // Notification Settings
+  // Notification Settings Refined
   const [notificationSettings, setNotificationSettings] = useState({
-    emailNotifications: true,
-    assignmentReminders: true,
-    gradeUpdates: true,
-    announcements: true,
-    attendanceAlerts: false,
+    email: {
+      assignmentReminders: true,
+      gradeUpdates: true,
+      announcements: true,
+      attendanceAlerts: false,
+    },
+    inApp: {
+      assignmentReminders: true,
+      gradeUpdates: true,
+      announcements: true,
+      attendanceAlerts: true,
+    }
   });
 
   // Appearance Settings
@@ -63,7 +81,15 @@ export default function SettingsView({ user }) {
     language: "en",
     timezone: "UTC+7",
     dateFormat: "MM/DD/YYYY",
+    currency: user?.role === "FINANCE" ? "USD" : "KHR",
   });
+
+  // Mock Sessions
+  const [sessions, setSessions] = useState([
+    { id: 1, device: "Windows PC", browser: "Chrome", location: "Phnom Penh, KH", status: "active", current: true, icon: Monitor },
+    { id: 2, device: "iPhone 15 Pro", browser: "Safari", location: "Phnom Penh, KH", status: "Recent", current: false, icon: Smartphone },
+    { id: 3, device: "MacBook Air", browser: "Chrome", location: "Kandal, KH", status: "2 days ago", current: false, icon: Laptop },
+  ]);
 
   const handleProfileChange = (e) => {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
@@ -73,8 +99,14 @@ export default function SettingsView({ user }) {
     setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
   };
 
-  const handleNotificationToggle = (key) => {
-    setNotificationSettings({ ...notificationSettings, [key]: !notificationSettings[key] });
+  const handleNotificationToggle = (type, key) => {
+    setNotificationSettings({
+      ...notificationSettings,
+      [type]: {
+        ...notificationSettings[type],
+        [key]: !notificationSettings[type][key]
+      }
+    });
   };
 
   const handleAppearanceChange = (e) => {
@@ -82,16 +114,63 @@ export default function SettingsView({ user }) {
   };
 
   const handleSave = async () => {
-    setIsSaving(true);
-    setSaveSuccess(false);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsSaving(false);
-    setSaveSuccess(true);
-    
-    setTimeout(() => setSaveSuccess(false), 3000);
+    if (activeTab === "profile") {
+      const loadingToast = toast.loading("Updating profile...");
+      setIsSaving(true);
+      try {
+        const formData = new FormData();
+        formData.append("firstName", profileData.firstName);
+        formData.append("lastName", profileData.lastName);
+        formData.append("phone", profileData.phone);
+        formData.append("bio", profileData.bio);
+        // Email is usually not updatable via this endpoint or requires verification
+        
+        const response = await apiClient.put("/profile/update", formData);
+        if (response.user) {
+          updateUser(response.user);
+          toast.success("Profile updated successfully!", { id: loadingToast });
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error(err.response?.data?.error || "Failed to update profile", { id: loadingToast });
+      } finally {
+        setIsSaving(false);
+      }
+    } else if (activeTab === "password") {
+      if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+        toast.error("Please fill in all password fields");
+        return;
+      }
+      if (passwordData.newPassword !== passwordData.confirmPassword) {
+        toast.error("New passwords do not match");
+        return;
+      }
+      
+      const loadingToast = toast.loading("Updating password...");
+      setIsSaving(true);
+      try {
+        // Assuming there is a password change endpoint
+        await apiClient.put("/auth/change-password", {
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        });
+        toast.success("Password updated successfully!", { id: loadingToast });
+        setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      } catch (err) {
+        console.error(err);
+        toast.error(err.response?.data?.error || "Failed to update password", { id: loadingToast });
+      } finally {
+        setIsSaving(false);
+      }
+    } else {
+      // For other tabs (Notifications, Appearance, Accessibility, Privacy)
+      // Usually these might be saved locally or to a separate settings table
+      const loadingToast = toast.loading("Saving preferences...");
+      setIsSaving(true);
+      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate
+      setIsSaving(false);
+      toast.success("Settings saved successfully!", { id: loadingToast });
+    }
   };
 
   const tabs = [
@@ -116,18 +195,6 @@ export default function SettingsView({ user }) {
             Manage your account preferences and configurations
           </p>
         </div>
-
-        {/* Success Message */}
-        {saveSuccess && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3"
-          >
-            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-            <p className="text-[13px] font-bold text-emerald-700">Settings saved successfully!</p>
-          </motion.div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           
@@ -315,36 +382,56 @@ export default function SettingsView({ user }) {
                       <Bell className="w-5 h-5 text-purple-600" />
                     </div>
                     <div>
-                      <h2 className="text-[16px] font-black text-slate-800">Notification Preferences</h2>
-                      <p className="text-[12px] text-slate-500">Choose what updates you want to receive</p>
+                      <h2 className="text-[16px] font-black text-slate-800">Notification Channels</h2>
+                      <p className="text-[12px] text-slate-500">Fine-tune how and where you stay updated</p>
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    {Object.entries(notificationSettings).map(([key, value]) => (
-                      <div key={key} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
-                        <div>
-                          <p className="text-[13px] font-bold text-slate-800 capitalize">
-                            {key.replace(/([A-Z])/g, ' $1').trim()}
-                          </p>
-                          <p className="text-[11px] text-slate-500 mt-0.5">
-                            Receive notifications for this activity
-                          </p>
+                  <div className="space-y-8">
+                    {/* Channel Columns */}
+                    <div className="grid md:grid-cols-2 gap-8">
+                      {/* Email Notifications */}
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 px-1">
+                          <Mail className="w-4 h-4 text-slate-400" />
+                          <h3 className="text-[13px] font-black text-slate-800 uppercase tracking-wider">Email Notifications</h3>
                         </div>
-                        <button
-                          onClick={() => handleNotificationToggle(key)}
-                          className={`relative w-12 h-6 rounded-full transition-all ${
-                            value ? "bg-blue-500" : "bg-slate-300"
-                          }`}
-                        >
-                          <span
-                            className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                              value ? "translate-x-6" : "translate-x-0"
-                            }`}
-                          />
-                        </button>
+                        {Object.entries(notificationSettings.email).map(([key, value]) => (
+                          <div key={`email-${key}`} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                            <span className="text-[12px] font-bold text-slate-700 capitalize">
+                              {key.replace(/([A-Z])/g, ' $1')}
+                            </span>
+                            <button
+                              onClick={() => handleNotificationToggle('email', key)}
+                              className={`relative w-10 h-5 rounded-full transition-all ${value ? "bg-indigo-500" : "bg-slate-300"}`}
+                            >
+                              <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${value ? "translate-x-5" : "translate-x-0"}`} />
+                            </button>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+
+                      {/* In-App Notifications */}
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 px-1">
+                          <Bell className="w-4 h-4 text-slate-400" />
+                          <h3 className="text-[13px] font-black text-slate-800 uppercase tracking-wider">Internal Alerts</h3>
+                        </div>
+                        {Object.entries(notificationSettings.inApp).map(([key, value]) => (
+                          <div key={`inapp-${key}`} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                            <span className="text-[12px] font-bold text-slate-700 capitalize">
+                              {key.replace(/([A-Z])/g, ' $1')}
+                            </span>
+                            <button
+                              onClick={() => handleNotificationToggle('inApp', key)}
+                              className={`relative w-10 h-5 rounded-full transition-all ${value ? "bg-indigo-500" : "bg-slate-300"}`}
+                            >
+                              <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${value ? "translate-x-5" : "translate-x-0"}`} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -437,6 +524,25 @@ export default function SettingsView({ user }) {
                       <option value="YYYY-MM-DD">YYYY-MM-DD</option>
                     </select>
                   </div>
+
+                  {user?.role === "FINANCE" && (
+                    <div className="space-y-2">
+                      <label className="text-[12px] font-bold text-slate-700 flex items-center gap-2">
+                        <DollarSign className="w-4 h-4 text-slate-400" />
+                        Default Currency
+                      </label>
+                      <select
+                        name="currency"
+                        value={appearanceSettings.currency}
+                        onChange={handleAppearanceChange}
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[13px] font-medium outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                      >
+                        <option value="USD">USD - US Dollar</option>
+                        <option value="KHR">KHR - Cambodian Riel</option>
+                        <option value="EUR">EUR - Euro</option>
+                      </select>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -578,7 +684,57 @@ export default function SettingsView({ user }) {
                     </div>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-6">
+                    {/* Active Sessions */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-[14px] font-black text-slate-800 flex items-center gap-2">
+                          <Monitor className="w-4 h-4 text-blue-500" />
+                          Active Sessions
+                        </h3>
+                        <button 
+                          onClick={() => {
+                            setSessions([sessions[0]]);
+                            toast.success("Other sessions ended");
+                          }}
+                          className="text-[11px] font-bold text-rose-500 hover:text-rose-600 tracking-tight"
+                        >
+                          Sign out other devices
+                        </button>
+                      </div>
+
+                      <div className="space-y-3">
+                        {sessions.map((sess) => {
+                          const Icon = sess.icon;
+                          return (
+                            <div key={sess.id} className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl group transition-all hover:bg-white hover:shadow-sm">
+                              <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white rounded-xl border border-slate-100 shadow-sm transition-transform group-hover:scale-110">
+                                   <Icon className="w-5 h-5 text-slate-600" />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-[13px] font-black text-slate-800">{sess.device}</p>
+                                    {sess.current && (
+                                      <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 text-[9px] font-black uppercase rounded border border-blue-100">This Device</span>
+                                    )}
+                                  </div>
+                                  <p className="text-[11px] font-medium text-slate-400">{sess.browser} • {sess.location} • <span className={sess.current ? "text-emerald-500" : ""}>{sess.status}</span></p>
+                                </div>
+                              </div>
+                              {!sess.current && (
+                                <button className="p-2 text-slate-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
+                                  <X className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="h-[1px] bg-slate-100 my-4" />
+
                     <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
                       <h3 className="text-[13px] font-bold text-slate-800 mb-2">Profile Visibility</h3>
                       <p className="text-[12px] text-slate-500 mb-3">Control who can see your profile information</p>

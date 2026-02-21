@@ -20,6 +20,7 @@ import {
   FileText,
   ClipboardList,
   LogOut,
+  Clock,
   GraduationCap,
   Layers,
   Award
@@ -76,109 +77,83 @@ const NavLink = ({ icon, label, href, isCollapsed, isActive }) => (
   </li>
 );
 
-const STUDY_OFFICE_NAV_ITEMS = [
+// -------------------------
+// Sidebar Item Definitions
+// -------------------------
+const STUDY_OFFICE_NAV_GROUPS = [
   {
-    label: "Dashboard",
-    icon: <Home />,
-    href: "/study-office/dashboard",
+    group: "Overview",
+    items: [
+      { label: "Dashboard", icon: <Home />, href: "/study-office/dashboard" },
+    ]
   },
   {
-    label: "Faculty",
-    icon: <Briefcase />,
-    href: "/study-office/faculty",
+    group: "Academic Base",
+    items: [
+      { label: "Faculty", icon: <Briefcase />, href: "/study-office/faculty" },
+      { label: "Departments", icon: <Grid />, href: "/study-office/departments" },
+      { label: "Courses", icon: <Book />, href: "/study-office/courses" },
+      { label: "Groups", icon: <Hash />, href: "/study-office/groups" },
+      { label: "Facilities", icon: <Grid />, href: "/study-office/rooms" },
+      { label: "Enrollment", icon: <GraduationCap />, href: "/study-office/enrollment" },
+    ]
   },
   {
-    label: "Departments",
-    icon: <Grid />,
-    href: "/study-office/departments",
+    group: "Users",
+    items: [
+      { label: "Teachers", icon: <Users />, href: "/study-office/teacher" },
+      { label: "Students", icon: <UserIcon />, href: "/study-office/students" },
+    ]
   },
   {
-    label: "Courses",
-    icon: <Book />,
-    href: "/study-office/courses",
+    group: "Operations",
+    items: [
+      { label: "Schedules", icon: <Calendar />, href: "/study-office/schedule" },
+      { label: "Gradebook", icon: <BookOpen />, href: "/study-office/gradebook" },
+      { label: "Assignments", icon: <ClipboardList />, href: "/study-office/assignments" },
+      { label: "Exams", icon: <FileText />, href: "/study-office/exams" },
+      { label: "Certificates", icon: <Award />, href: "/study-office/certificate-management" },
+      { label: "E-Library", icon: <BookOpen />, href: "/study-office/e-library" },
+    ]
   },
   {
-    label: "Groups",
-    icon: <Hash />,
-    href: "/study-office/groups",
+    group: "Performance",
+    items: [
+      { label: "Student Performance", icon: <TrendingUp />, href: "/study-office/student-performance" },
+      { label: "Reports & Analytics", icon: <BarChart3 />, href: "/study-office/reports" },
+      { label: "Course Analytics", icon: <BarChart2 />, href: "/study-office/course-analytics" },
+    ]
   },
   {
-    label: "Teachers",
-    icon: <Users />,
-    href: "/study-office/teacher",
+    group: "Personal",
+    items: [
+      { label: "My Attendance", icon: <Clock />, href: "/study-office/my-attendance" },
+    ]
   },
   {
-    label: "Students",
-    icon: <UserIcon />,
-    href: "/study-office/students",
-  },
-  {
-    label: "Schedule Management",
-    icon: <Calendar />,
-    href: "/study-office/schedule",
-  },
-  {
-    label: "Campus Facilities",
-    icon: <Grid />,
-    href: "/study-office/rooms",
-  },
-  {
-    label: "Gradebook",
-    icon: <BookOpen />,
-    href: "/study-office/gradebook",
-  },
-  {
-    label: "Assignments",
-    icon: <ClipboardList />,
-    href: "/study-office/assignments",
-  },
-  {
-    label: "Exams",
-    icon: <FileText />,
-    href: "/study-office/exams",
-  },
-  {
-    label: "Enrollment",
-    icon: <GraduationCap />,
-    href: "/study-office/enrollment",
-  },
-  {
-    label: "Certificates",
-    icon: <Award />,
-    href: "/study-office/certificate-management",
-  },
-  {
-    label: "Student Performance",
-    icon: <TrendingUp />,
-    href: "/study-office/student-performance",
-  },
-  {
-    label: "Reports & Analytics",
-    icon: <BarChart3 />,
-    href: "/study-office/reports",
-  },
-  {
-    label: "Course Analytics",
-    icon: <BarChart2 />,
-    href: "/study-office/course-analytics",
-  },
-  {
-    label: "E-Library",
-    icon: <BookOpen />,
-    href: "/study-office/e-library",
-  },
-  {
-    label: "My Attendance",
-    icon: <Calendar />,
-    href: "/study-office/my-attendance",
+    group: "Administration",
+    items: [
+      { label: "Preferences", icon: <Settings />, href: "/study-office/settings" },
+    ]
   },
 ];
 
+// -------------------------
+// Main Sidebar Component
+// -------------------------
 export default function StudyOfficeSidebar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
   const { user } = useUser();
+  const [collapsedGroups, setCollapsedGroups] = React.useState({});
 
   const isCollapsed = !isOpen;
+
+  const toggleGroup = (groupName) => {
+    setCollapsedGroups(prev => ({
+      ...prev,
+      [groupName]: !prev[groupName]
+    }));
+  };
 
   return (
     <>
@@ -234,35 +209,53 @@ export default function StudyOfficeSidebar({ isOpen, setIsOpen }) {
 
         {/* Nav Links */}
         <nav className="flex-1 px-4 py-8 overflow-y-auto custom-scrollbar relative z-10 text-slate-500">
-          {!isCollapsed && (
-             <div className="mb-4 px-2">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Academic Management</span>
-             </div>
-          )}
-          <ul className="space-y-1.5">
-            {STUDY_OFFICE_NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.label}
-                icon={item.icon}
-                label={item.label}
-                href={item.href}
-                isCollapsed={isCollapsed}
-                isActive={pathname === item.href}
-              />
-            ))}
-          </ul>
+          <div className="space-y-6">
+            {STUDY_OFFICE_NAV_GROUPS.map((group, groupIdx) => {
+              const isGroupCollapsed = collapsedGroups[group.group];
+              return (
+                <div key={groupIdx} className="space-y-2">
+                  {!isCollapsed && (
+                    <button 
+                      onClick={() => toggleGroup(group.group)}
+                      className="w-full flex items-center justify-between px-4 mb-2 group/header"
+                    >
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/header:text-cyan-600 transition-colors">
+                        {group.group}
+                      </span>
+                      <motion.div
+                        animate={{ rotate: isGroupCollapsed ? 0 : 90 }}
+                        className="text-slate-300 group-hover/header:text-cyan-400"
+                      >
+                         <ChevronRight size={10} />
+                      </motion.div>
+                    </button>
+                  )}
+                  
+                  <motion.ul 
+                    initial={false}
+                    animate={{ 
+                      height: isGroupCollapsed && !isCollapsed ? 0 : "auto",
+                      opacity: isGroupCollapsed && !isCollapsed ? 0 : 1,
+                      marginBottom: isGroupCollapsed && !isCollapsed ? 0 : 8
+                    }}
+                    className="space-y-1 overflow-hidden"
+                  >
+                    {group.items.map((item) => (
+                      <NavLink
+                        key={item.label}
+                        icon={item.icon}
+                        label={item.label}
+                        href={item.href}
+                        isCollapsed={isCollapsed}
+                        isActive={pathname === item.href}
+                      />
+                    ))}
+                  </motion.ul>
+                </div>
+              );
+            })}
+          </div>
         </nav>
-
-        {/* Bottom Navigation */}
-        <div className="px-4 py-4 border-t border-slate-200 relative z-10">
-           <NavLink
-              icon={<Settings />}
-              label="Preferences"
-              href="/study-office/settings"
-              isCollapsed={isCollapsed}
-              isActive={pathname === "/study-office/settings"}
-           />
-        </div>
 
         {/* User Profile Summary */}
         <div className="p-4 border-t border-slate-200 relative z-10 bg-white/50 backdrop-blur-md">

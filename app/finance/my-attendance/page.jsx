@@ -3,6 +3,6 @@
 import React from "react";
 import StaffAttendanceTerminal from "@/components/attendance/StaffAttendanceTerminal";
 
-export default function AdminAttendancePage() {
+export default function FinanceAttendancePage() {
   return <StaffAttendanceTerminal />;
 }

@@ -15,6 +15,8 @@ import {
   Wallet,
   BarChart3,
   User as UserIcon,
+  AlertCircle,
+  Clock,
   LogOut,
   Bell,
   ShieldCheck
@@ -76,46 +78,46 @@ const NavLink = ({ icon, label, href, isCollapsed, isActive }) => (
 // -------------------------
 // Sidebar Item Definitions
 // -------------------------
-const FINANCE_NAV_ITEMS = [
+const FINANCE_NAV_GROUPS = [
   {
-    label: "Dashboard",
-    icon: <Home />,
-    href: "/finance/dashboard",
+    group: "Overview",
+    items: [
+      { label: "Dashboard", icon: <Home />, href: "/finance/dashboard" },
+    ]
   },
   {
-    label: "Invoices",
-    icon: <FileText />,
-    href: "/finance/invoices",
+    group: "Cash Flow",
+    items: [
+      { label: "Invoices", icon: <FileText />, href: "/finance/invoices" },
+      { label: "Payments", icon: <CreditCard />, href: "/finance/payments" },
+      { label: "Fees Mgmt.", icon: <Receipt />, href: "/finance/fees" },
+    ]
   },
   {
-    label: "Payments",
-    icon: <CreditCard />,
-    href: "/finance/payments",
+    group: "Expenditure",
+    items: [
+      { label: "Expenses", icon: <Wallet />, href: "/finance/expenses" },
+      { label: "Payroll", icon: <UserIcon />, href: "/finance/payroll" },
+      { label: "Budgets", icon: <BarChart3 />, href: "/finance/budgets" },
+    ]
   },
   {
-    label: "Fees Management",
-    icon: <Receipt />,
-    href: "/finance/fees",
+    group: "Personnel",
+    items: [
+      { label: "Staff Attendance", icon: <Clock />, href: "/finance/my-attendance" },
+    ]
   },
   {
-    label: "Expenses",
-    icon: <Wallet />,
-    href: "/finance/expenses",
+    group: "Insights",
+    items: [
+      { label: "Financial Reports", icon: <TrendingUp />, href: "/finance/reports" },
+    ]
   },
   {
-    label: "Payroll",
-    icon: <UserIcon />,
-    href: "/finance/payroll",
-  },
-  {
-    label: "Budgets",
-    icon: <BarChart3 />,
-    href: "/finance/budgets",
-  },
-  {
-    label: "Financial Reports",
-    icon: <TrendingUp />,
-    href: "/finance/reports",
+    group: "Administration",
+    items: [
+      { label: "System Config", icon: <Settings />, href: "/finance/settings" },
+    ]
   },
 ];
 
@@ -125,8 +127,16 @@ const FINANCE_NAV_ITEMS = [
 export default function FinanceSidebar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
   const { user } = useUser();
+  const [collapsedGroups, setCollapsedGroups] = React.useState({});
 
   const isCollapsed = !isOpen;
+
+  const toggleGroup = (groupName) => {
+    setCollapsedGroups(prev => ({
+      ...prev,
+      [groupName]: !prev[groupName]
+    }));
+  };
 
   return (
     <>
@@ -182,43 +192,65 @@ export default function FinanceSidebar({ isOpen, setIsOpen }) {
 
         {/* Nav Links */}
         <nav className="flex-1 px-4 py-8 overflow-y-auto custom-scrollbar relative z-10 text-slate-500">
-          {!isCollapsed && (
-             <div className="mb-4 px-2">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Financial Ledger</span>
-             </div>
-          )}
-          <ul className="space-y-1.5">
-            {FINANCE_NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.label}
-                icon={item.icon}
-                label={item.label}
-                href={item.href}
-                isCollapsed={isCollapsed}
-                isActive={pathname === item.href}
-              />
-            ))}
-          </ul>
+          <div className="space-y-6">
+            {FINANCE_NAV_GROUPS.map((group, groupIdx) => {
+              const isGroupCollapsed = collapsedGroups[group.group];
+              return (
+                <div key={groupIdx} className="space-y-2">
+                  {!isCollapsed && (
+                    <button 
+                      onClick={() => toggleGroup(group.group)}
+                      className="w-full flex items-center justify-between px-4 mb-2 group/header"
+                    >
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/header:text-emerald-600 transition-colors">
+                        {group.group}
+                      </span>
+                      <motion.div
+                        animate={{ rotate: isGroupCollapsed ? 0 : 90 }}
+                        className="text-slate-300 group-hover/header:text-emerald-400"
+                      >
+                         <ChevronRight size={10} />
+                      </motion.div>
+                    </button>
+                  )}
+                  
+                  <motion.ul 
+                    initial={false}
+                    animate={{ 
+                      height: isGroupCollapsed && !isCollapsed ? 0 : "auto",
+                      opacity: isGroupCollapsed && !isCollapsed ? 0 : 1,
+                      marginBottom: isGroupCollapsed && !isCollapsed ? 0 : 8
+                    }}
+                    className="space-y-1 overflow-hidden"
+                  >
+                    {group.items.map((item) => (
+                      <NavLink
+                        key={item.label}
+                        icon={item.icon}
+                        label={item.label}
+                        href={item.href}
+                        isCollapsed={isCollapsed}
+                        isActive={pathname === item.href}
+                      />
+                    ))}
+                  </motion.ul>
+                </div>
+              );
+            })}
+          </div>
         </nav>
 
-        {/* Bottom Navigation */}
-        <div className="px-4 py-4 border-t border-slate-200 relative z-10">
-           <NavLink
-              icon={<Settings />}
-              label="System Config"
-              href="/finance/settings"
-              isCollapsed={isCollapsed}
-              isActive={pathname === "/finance/settings"}
-           />
-        </div>
 
         {/* User Profile Summary */}
         <div className="p-4 border-t border-slate-200 relative z-10 bg-white/50 backdrop-blur-md">
-           <div className={`flex items-center gap-3 p-2 rounded-2xl transition-all ${isCollapsed ? "justify-center" : "bg-white border border-slate-100 shadow-sm"}`}>
+           <Link 
+             href="/finance/profile"
+             className={`flex items-center gap-3 p-2 rounded-2xl transition-all hover:bg-white hover:shadow-md group ${isCollapsed ? "justify-center" : "bg-white border border-slate-100 shadow-sm"}`}
+           >
              <div className="relative shrink-0">
                <img 
                  src={user?.profile?.avatar || "/default-cover.jpg"} 
-                 className="w-9 h-9 rounded-xl object-cover ring-2 ring-slate-100"
+                 className="w-9 h-9 rounded-xl object-cover ring-2 ring-slate-100 group-hover:ring-emerald-200 transition-all"
                  alt="Profile"
                />
                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
@@ -226,17 +258,17 @@ export default function FinanceSidebar({ isOpen, setIsOpen }) {
              
              {!isCollapsed && (
                <div className="flex-1 min-w-0">
-                 <p className="text-[11px] font-black text-slate-800 truncate">{user?.firstName} {user?.lastName}</p>
-                 <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Finance Director</p>
+                 <p className="text-[11px] font-black text-slate-800 truncate group-hover:text-emerald-700 transition-colors uppercase italic">{user?.firstName} {user?.lastName}</p>
+                 <p className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">Finance Director</p>
                </div>
              )}
              
              {!isCollapsed && (
-               <button className="p-2 text-slate-400 hover:text-rose-500 transition-colors">
-                 <LogOut size={14} />
-               </button>
+               <div className="p-2 text-slate-300 group-hover:text-emerald-500 transition-colors">
+                 <ChevronRight size={14} />
+               </div>
              )}
-           </div>
+           </Link>
         </div>
 
         {/* Bottom Accent Line */}

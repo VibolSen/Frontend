@@ -63,10 +63,10 @@ export default function ManageAttendanceView() {
   const handleManualAttendanceChange = async (userId, newStatus) => {
     setIsLoading(true);
     try {
-      await apiClient.post("/attendance/manual", { userId, date: selectedDate, status: newStatus });
+      const updatedRecord = await apiClient.post("/attendance/manual", { userId, date: selectedDate, status: newStatus });
       setAttendanceRecords((prev) => ({
         ...prev,
-        [userId]: { ...prev[userId], status: newStatus, date: new Date().toISOString() },
+        [userId]: updatedRecord,
       }));
     } catch (error) {
       console.error(error.message);
