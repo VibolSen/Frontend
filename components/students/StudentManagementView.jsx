@@ -137,8 +137,7 @@ export default function StudentManagementView() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteRequest = (id) => {
-    const student = students.find((s) => s.id === id);
+  const handleDeleteRequest = (student) => {
     setItemToDelete(student);
   };
 

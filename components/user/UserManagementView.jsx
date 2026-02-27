@@ -109,12 +109,9 @@ export default function UserManagementView() {
     }
   };
 
-  const handleDeleteClick = (userId) => {
-    const user = users.find((u) => u.id === userId);
-    if (user) {
-      setUserToDelete(user);
-      setIsConfirmModalOpen(true);
-    }
+  const handleDeleteClick = (user) => {
+    setUserToDelete(user);
+    setIsConfirmModalOpen(true);
   };
 
   const handleConfirmDelete = async () => {

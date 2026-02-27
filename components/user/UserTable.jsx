@@ -247,7 +247,7 @@ export default function UserTable({
                               onClick={() => onEditClick(user)}
                               className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
                               disabled={isLoading}
-                              title="Quick Edit"
+                              title="Quick edit"
                             >
                               <Edit className="w-3.5 h-3.5" />
                             </button>
@@ -256,7 +256,7 @@ export default function UserTable({
                                 onClick={() => onMigrate(user)}
                                 className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
                                 disabled={isLoading}
-                                title="Migrate Role"
+                                title="Migrate role"
                               >
                                 <ShieldCheck className="w-3.5 h-3.5" />
                               </button>
@@ -265,7 +265,7 @@ export default function UserTable({
                               onClick={() => onResetPassword(user)}
                               className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
                               disabled={isLoading}
-                              title="Reset Password"
+                              title="Resete password"
                             >
                               <Lock className="w-3.5 h-3.5" />
                             </button>
@@ -275,7 +275,7 @@ export default function UserTable({
                                 onClick={() => onToggleStatus(user)}
                                 className={`p-1.5 transition-all rounded-lg ${user.isActive ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50' : 'text-emerald-500 hover:bg-emerald-50'}`}
                                 disabled={isLoading}
-                                title={user.isActive ? "Suspend Account" : "Activate Account"}
+                                title={user.isActive ? "suspende account" : "Activate account"}
                               >
                                 <Power className="w-3.5 h-3.5" />
                               </button>
@@ -286,17 +286,17 @@ export default function UserTable({
                           <Link 
                             href={`/${currentUserRole.toLowerCase()}/users/${user.id}`}
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                            title="Full Profile"
+                            title="Full profile"
                           >
                             <Eye className="w-3.5 h-3.5" />
                           </Link>
                         )}
                         {currentUserRole === "ADMIN" && (
                           <button
-                            onClick={() => onDeleteClick(user.id)}
+                            onClick={() => onDeleteClick(user)}
                             className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
                             disabled={isLoading}
-                            title="Remove Account"
+                            title="Remove account"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>

@@ -108,9 +108,8 @@ export default function StaffManagementView() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteRequest = (id) => {
-    const staffMember = staffList.find((s) => s.id === id);
-    setItemToDelete(staffMember);
+  const handleDeleteRequest = (user) => {
+    setItemToDelete(user);
   };
 
   const handleConfirmDelete = async () => {
