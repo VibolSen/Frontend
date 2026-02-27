@@ -34,8 +34,8 @@ const NavLink = ({ icon, label, href, isCollapsed, isActive }) => (
       className={`group flex items-center gap-3 my-1 px-3 py-2.5 rounded-xl transition-all duration-300 relative
         ${
           isActive
-            ? "bg-emerald-600 text-white shadow-lg shadow-emerald-500/20"
-            : "text-slate-500 hover:text-emerald-700 hover:bg-white"
+            ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+            : "text-slate-500 hover:text-blue-700 hover:bg-white"
         }
       `}
       title={isCollapsed ? label : ""}
@@ -152,7 +152,7 @@ export default function FinanceSidebar({ isOpen, setIsOpen }) {
           ${isOpen ? "w-72" : "w-20"} overflow-hidden shadow-xl`}
       >
         {/* Decorative Background Elements */}
-        <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-emerald-600/5 to-transparent pointer-events-none" />
+        <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-blue-600/5 to-transparent pointer-events-none" />
         
         {/* Header */}
         <div
@@ -166,7 +166,7 @@ export default function FinanceSidebar({ isOpen, setIsOpen }) {
                animate={{ opacity: 1, x: 0 }}
                className="flex items-center gap-3"
             >
-              <div className="h-10 w-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 -rotate-3 transition-transform hover:rotate-0">
+              <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 -rotate-3 transition-transform hover:rotate-0">
                 <ShieldCheck className="h-5 w-5 text-white" />
               </div>
               <div className="flex flex-col">
@@ -180,7 +180,7 @@ export default function FinanceSidebar({ isOpen, setIsOpen }) {
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-emerald-600 transition-all hover:bg-white group shadow-sm ${isCollapsed ? "" : "ml-4"}`}
+            className={`p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-blue-600 transition-all hover:bg-white group shadow-sm ${isCollapsed ? "" : "ml-4"}`}
           >
             {isOpen ? (
               <ChevronLeft size={16} />
@@ -202,12 +202,12 @@ export default function FinanceSidebar({ isOpen, setIsOpen }) {
                       onClick={() => toggleGroup(group.group)}
                       className="w-full flex items-center justify-between px-4 mb-2 group/header"
                     >
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/header:text-emerald-600 transition-colors">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/header:text-blue-600 transition-colors">
                         {group.group}
                       </span>
                       <motion.div
                         animate={{ rotate: isGroupCollapsed ? 0 : 90 }}
-                        className="text-slate-300 group-hover/header:text-emerald-400"
+                        className="text-slate-300 group-hover/header:text-blue-400"
                       >
                          <ChevronRight size={10} />
                       </motion.div>
@@ -250,7 +250,7 @@ export default function FinanceSidebar({ isOpen, setIsOpen }) {
              <div className="relative shrink-0">
                <img 
                  src={user?.profile?.avatar || "/default-cover.jpg"} 
-                 className="w-9 h-9 rounded-xl object-cover ring-2 ring-slate-100 group-hover:ring-emerald-200 transition-all"
+                 className="w-9 h-9 rounded-xl object-cover ring-2 ring-slate-100 group-hover:ring-blue-200 transition-all"
                  alt="Profile"
                />
                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
@@ -258,13 +258,13 @@ export default function FinanceSidebar({ isOpen, setIsOpen }) {
              
              {!isCollapsed && (
                <div className="flex-1 min-w-0">
-                 <p className="text-[11px] font-black text-slate-800 truncate group-hover:text-emerald-700 transition-colors uppercase italic">{user?.firstName} {user?.lastName}</p>
+                 <p className="text-[11px] font-black text-slate-800 truncate group-hover:text-blue-700 transition-colors uppercase italic">{user?.firstName} {user?.lastName}</p>
                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">Finance Director</p>
                </div>
              )}
              
              {!isCollapsed && (
-               <div className="p-2 text-slate-300 group-hover:text-emerald-500 transition-colors">
+               <div className="p-2 text-slate-300 group-hover:text-blue-500 transition-colors">
                  <ChevronRight size={14} />
                </div>
              )}
@@ -272,7 +272,7 @@ export default function FinanceSidebar({ isOpen, setIsOpen }) {
         </div>
 
         {/* Bottom Accent Line */}
-        <div className="h-1 bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600" />
+        <div className="h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600" />
       </aside>
     </>
   );
