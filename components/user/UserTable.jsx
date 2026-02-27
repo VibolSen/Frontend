@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { Edit, Eye, Trash2, Search, ShieldCheck, Filter, UserPlus, Lock, Power } from "lucide-react";
+import { Edit, Eye, Trash2, Search, ShieldCheck, Filter, UserPlus, Lock, Power, Activity } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SortIndicator = ({ direction }) => {
@@ -30,6 +30,9 @@ export default function UserTable({
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [degreeFilter, setDegreeFilter] = useState("All");
+  const [yearFilter, setYearFilter] = useState("All");
   const [sortConfig, setSortConfig] = useState({
     key: "firstName",
     direction: "ascending",
@@ -42,9 +45,17 @@ export default function UserTable({
         fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesRole = roleFilter === "All" || user.role === roleFilter;
-      return matchesSearch && matchesRole;
+      const matchesStatus =
+        statusFilter === "All" ||
+        (statusFilter === "Active" && user.isActive) ||
+        (statusFilter === "Suspended" && !user.isActive);
+
+      const matchesDegree = degreeFilter === "All" || user.profile?.degreeType === degreeFilter;
+      const matchesYear = yearFilter === "All" || user.profile?.academicLevel === yearFilter;
+
+      return matchesSearch && matchesRole && matchesStatus && matchesDegree && matchesYear;
     });
-  }, [users, searchTerm, roleFilter]);
+  }, [users, searchTerm, roleFilter, statusFilter, degreeFilter, yearFilter]);
 
   const sortedUsers = useMemo(() => {
     if (!sortConfig.key) return filteredUsers;
@@ -127,6 +138,55 @@ export default function UserTable({
                 ))}
             </select>
           </div>
+
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-sm shrink-0">
+            <Activity size={12} className="text-slate-400" />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-transparent text-[10px] font-black uppercase tracking-tight focus:outline-none cursor-pointer text-slate-600"
+            >
+              <option value="All">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Suspended">Suspended</option>
+            </select>
+          </div>
+
+          {(roleFilter === 'STUDENT' || (allRoles.length === 1 && allRoles[0] === 'STUDENT')) && (
+            <>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-sm shrink-0">
+                <ShieldCheck size={12} className="text-slate-400" />
+                <select
+                  value={degreeFilter}
+                  onChange={(e) => setDegreeFilter(e.target.value)}
+                  className="bg-transparent text-[10px] font-black uppercase tracking-tight focus:outline-none cursor-pointer text-slate-600"
+                >
+                  <option value="All">All Degrees</option>
+                  <option value="BACHELOR">Bachelor</option>
+                  <option value="DIPLOMA">Diploma</option>
+                  <option value="ASSOCIATE">Associate</option>
+                  <option value="SHORT_COURSE">Short Course</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-sm shrink-0">
+                <Eye size={12} className="text-slate-400" />
+                <select
+                  value={yearFilter}
+                  onChange={(e) => setYearFilter(e.target.value)}
+                  className="bg-transparent text-[10px] font-black uppercase tracking-tight focus:outline-none cursor-pointer text-slate-600"
+                >
+                  <option value="All">All Years</option>
+                  <option value="ENROLLMENT">Enrollment</option>
+                  <option value="YEAR_1">Year 1</option>
+                  <option value="YEAR_2">Year 2</option>
+                  <option value="YEAR_3">Year 3</option>
+                  <option value="YEAR_4">Year 4</option>
+                </select>
+              </div>
+            </>
+          )}
+
           <div className="px-3 py-1.5 bg-blue-50 text-indigo-700 text-[10px] font-black uppercase tracking-tight rounded-lg border border-blue-100 shrink-0">
             {filteredUsers.length} Total Users
           </div>
@@ -163,8 +223,11 @@ export default function UserTable({
                   <SortIndicator direction={sortConfig.key === "role" ? sortConfig.direction : null} />
                 </div>
               </th>
-              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
+               <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
                 Status
+              </th>
+              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest hidden lg:table-cell">
+                Academic Info
               </th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Management</th>
             </tr>
@@ -172,7 +235,7 @@ export default function UserTable({
           <tbody className="divide-y divide-slate-50">
             {isLoading && sortedUsers.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-12 border-none">
+                <td colSpan={7} className="py-12 border-none">
                   <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                     <div className="h-5 w-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Authenticating Data...</span>
@@ -181,7 +244,7 @@ export default function UserTable({
               </tr>
             ) : sortedUsers.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-12 text-center">
+                <td colSpan={7} className="py-12 text-center">
                   <div className="flex flex-col items-center opacity-40">
                     <ShieldCheck size={24} className="mb-2" />
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No personnel records found</p>
@@ -239,6 +302,20 @@ export default function UserTable({
                         </span>
                       </div>
                     </td>
+                    <td className="px-5 py-3 whitespace-nowrap hidden lg:table-cell">
+                      {user.role === 'STUDENT' ? (
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black text-slate-700 uppercase tracking-tight italic">
+                            {user.profile?.degreeType?.replace('_', ' ') || 'BACHELOR'}
+                          </span>
+                          <span className="text-[9px] font-bold text-blue-600 uppercase tracking-widest mt-0.5">
+                            {user.profile?.academicLevel?.replace('_', ' ') || 'ENROLLMENT'}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] font-medium text-slate-400 italic">N/A</span>
+                      )}
+                    </td>
                     <td className="px-5 py-3 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-1">
                         {(currentUserRole === "ADMIN" || currentUserRole === "HR" || currentUserRole === "STUDY_OFFICE" || currentUserRole === "FINANCE") && (
@@ -291,7 +368,7 @@ export default function UserTable({
                             <Eye className="w-3.5 h-3.5" />
                           </Link>
                         )}
-                        {currentUserRole === "ADMIN" && (
+                        {(currentUserRole === "ADMIN" || currentUserRole === "HR" || (currentUserRole === "STUDY_OFFICE" && user.role === "STUDENT")) && (
                           <button
                             onClick={() => onDeleteClick(user)}
                             className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"

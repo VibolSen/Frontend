@@ -52,6 +52,14 @@ const STATUS_CONFIG = {
     border: "border-emerald-200",
     dot: "bg-emerald-500",
   },
+  IN_PROGRESS: {
+    label: "In Progress",
+    icon: TrendingUp,
+    color: "text-indigo-600",
+    bg: "bg-indigo-50",
+    border: "border-indigo-200",
+    dot: "bg-indigo-400",
+  },
   DROPPED: {
     label: "Dropped",
     icon: XCircle,
@@ -62,7 +70,7 @@ const STATUS_CONFIG = {
   },
 };
 
-const TABS = ["ALL", "PENDING", "APPROVED", "ENROLLED", "DROPPED"];
+const TABS = ["ALL", "PENDING", "APPROVED", "ENROLLED", "IN_PROGRESS", "DROPPED"];
 
 // ─── Enrollment Row Component ──────────────────────────────────────────────
 function EnrollmentRow({ enrollment, onStatusChange, onDelete, index }) {
@@ -180,7 +188,16 @@ function EnrollmentRow({ enrollment, onStatusChange, onDelete, index }) {
                   <UserCheck size={13} />
                 </button>
               )}
-              {(enrollment.status === "ENROLLED" || enrollment.status === "APPROVED") && (
+              {enrollment.status === "ENROLLED" && (
+                <button
+                  onClick={() => handleAction("IN_PROGRESS")}
+                  title="Mark as In Progress"
+                  className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all"
+                >
+                  <TrendingUp size={13} />
+                </button>
+              )}
+              {(enrollment.status === "ENROLLED" || enrollment.status === "APPROVED" || enrollment.status === "IN_PROGRESS") && (
                 <button
                   onClick={() => handleAction("DROPPED")}
                   title="Drop Course"
@@ -417,8 +434,8 @@ export default function EnrollmentManagementView() {
       const data = await apiClient.get("/enrollments");
       setEnrollments(Array.isArray(data) ? data : []);
     } catch (err) {
-      // Use mock data for demo if API not yet ready
-      setEnrollments(MOCK_ENROLLMENTS);
+      console.error("Failed to fetch enrollments:", err);
+      showToast("Could not load enrollments. Please try again.", "error");
     } finally {
       setIsLoading(false);
     }
@@ -452,11 +469,8 @@ export default function EnrollmentManagementView() {
       );
       showToast(`Enrollment status updated to ${newStatus}.`);
     } catch (err) {
-      // Optimistic update for demo
-      setEnrollments((prev) =>
-        prev.map((e) => (e.id === enrollmentId ? { ...e, status: newStatus } : e))
-      );
-      showToast(`Status updated to ${newStatus}.`);
+      const errorMsg = err.response?.data?.error || "Failed to update status.";
+      showToast(errorMsg, "error");
     }
   };
 
@@ -464,25 +478,21 @@ export default function EnrollmentManagementView() {
     try {
       await apiClient.delete(`/enrollments/${enrollmentId}`);
       setEnrollments((prev) => prev.filter((e) => e.id !== enrollmentId));
-      showToast("Enrollment record removed.", "error");
+      showToast("Enrollment record removed.");
     } catch (err) {
-      setEnrollments((prev) => prev.filter((e) => e.id !== enrollmentId));
-      showToast("Record removed.", "success");
+      const errorMsg = err.response?.data?.error || "Failed to remove record.";
+      showToast(errorMsg, "error");
     }
   };
 
   const handleSaveEnrollment = async (formData) => {
     try {
       const result = await apiClient.post("/enrollments", formData);
-      setEnrollments((prev) => [result || { ...formData, id: Date.now(), status: "PENDING" }, ...prev]);
+      setEnrollments((prev) => [result, ...prev]);
       showToast("New enrollment created successfully!");
     } catch (err) {
-      // Optimistic add for demo
-      setEnrollments((prev) => [
-        { ...formData, id: Date.now(), createdAt: new Date().toISOString() },
-        ...prev,
-      ]);
-      showToast("Enrollment created!");
+      const errorMsg = err.response?.data?.error || "Failed to create enrollment.";
+      showToast(errorMsg, "error");
     }
   };
 
@@ -744,61 +754,3 @@ export default function EnrollmentManagementView() {
     </div>
   );
 }
-
-// ─── Mock Data (used when API is not yet ready) ────────────────────────────
-const MOCK_ENROLLMENTS = [
-  {
-    id: 1,
-    status: "ENROLLED",
-    semester: "2025-S1",
-    createdAt: "2025-01-15T09:00:00Z",
-    student: { firstName: "Sophea", lastName: "Chan", studentId: "STU-001" },
-    course: { name: "Web Development", code: "CS301", credits: 3 },
-    group: { name: "Group A" },
-  },
-  {
-    id: 2,
-    status: "PENDING",
-    semester: "2025-S1",
-    createdAt: "2025-01-20T10:30:00Z",
-    student: { firstName: "Dara", lastName: "Kim", studentId: "STU-002" },
-    course: { name: "Database Systems", code: "CS201", credits: 3 },
-    group: { name: "Group B" },
-  },
-  {
-    id: 3,
-    status: "APPROVED",
-    semester: "2025-S1",
-    createdAt: "2025-01-22T11:00:00Z",
-    student: { firstName: "Vibol", lastName: "Pich", studentId: "STU-003" },
-    course: { name: "Data Structures", code: "CS102", credits: 4 },
-    group: { name: "Group A" },
-  },
-  {
-    id: 4,
-    status: "DROPPED",
-    semester: "2024-S2",
-    createdAt: "2024-09-10T08:00:00Z",
-    student: { firstName: "Mealea", lastName: "Sok", studentId: "STU-004" },
-    course: { name: "Algorithms", code: "CS103", credits: 4 },
-    group: { name: "Group C" },
-  },
-  {
-    id: 5,
-    status: "ENROLLED",
-    semester: "2025-S1",
-    createdAt: "2025-01-18T14:00:00Z",
-    student: { firstName: "Rithya", lastName: "Heng", studentId: "STU-005" },
-    course: { name: "Software Engineering", code: "CS401", credits: 3 },
-    group: { name: "Group B" },
-  },
-  {
-    id: 6,
-    status: "PENDING",
-    semester: "2025-S1",
-    createdAt: "2025-02-01T09:15:00Z",
-    student: { firstName: "Pisey", lastName: "Lim", studentId: "STU-006" },
-    course: { name: "Machine Learning", code: "CS501", credits: 3 },
-    group: { name: "Group A" },
-  },
-];

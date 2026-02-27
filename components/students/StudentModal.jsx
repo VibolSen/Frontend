@@ -10,6 +10,8 @@ const initialFormState = {
   lastName: "",
   email: "",
   password: "",
+  degreeType: "BACHELOR",
+  academicLevel: "ENROLLMENT",
 };
 
 export default function StudentModal({
@@ -37,7 +39,9 @@ export default function StudentModal({
           firstName: studentToEdit.firstName || "",
           lastName: studentToEdit.lastName || "",
           email: studentToEdit.email || "",
-          password: "", // Password not pre-filled for security
+          password: "",
+          degreeType: studentToEdit.profile?.degreeType || "BACHELOR",
+          academicLevel: studentToEdit.profile?.academicLevel || "ENROLLMENT",
         });
       } else {
         setFormData(initialFormState);
@@ -173,6 +177,38 @@ export default function StudentModal({
                         {errors.lastName}
                       </motion.p>
                     )}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">Degree Type</label>
+                    <select
+                      name="degreeType"
+                      value={formData.degreeType}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all duration-200"
+                    >
+                      <option value="BACHELOR">Bachelor Degree</option>
+                      <option value="DIPLOMA">Diploma Degree</option>
+                      <option value="ASSOCIATE">Associate Degree</option>
+                      <option value="SHORT_COURSE">Short Course</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 ml-1">Academic Year</label>
+                    <select
+                      name="academicLevel"
+                      value={formData.academicLevel}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all duration-200"
+                    >
+                      <option value="ENROLLMENT">Just Enrolment</option>
+                      <option value="YEAR_1">Year 1</option>
+                      <option value="YEAR_2">Year 2</option>
+                      <option value="YEAR_3">Year 3</option>
+                      <option value="YEAR_4">Year 4</option>
+                    </select>
                   </div>
                 </div>
 

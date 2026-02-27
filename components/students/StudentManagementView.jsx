@@ -178,7 +178,8 @@ export default function StudentManagementView() {
       await fetchStudents();
       handleCloseModal();
     } catch (err) {
-      showMessage(`Failed to save student: ${err.message}`, "error");
+      const errorMessage = err.response?.data?.error || err.message;
+      showMessage(errorMessage, "error");
     } finally {
       setIsLoading(false);
     }

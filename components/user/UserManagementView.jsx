@@ -103,7 +103,8 @@ export default function UserManagementView() {
       await fetchUsers();
       handleCloseModal();
     } catch (err) {
-      showMessage(err.response?.data?.error || err.message, "error");
+      const errorMessage = err.response?.data?.error || err.message;
+      showMessage(errorMessage, "error");
     } finally {
       setIsLoading(false);
     }
@@ -122,7 +123,8 @@ export default function UserManagementView() {
       setUsers(users.filter((u) => u.id !== userToDelete.id));
       showMessage("User deleted successfully!");
     } catch (err) {
-      showMessage(err.response?.data?.error || err.message, "error");
+      const errorMessage = err.response?.data?.error || err.message;
+      showMessage(errorMessage, "error");
     } finally {
       setIsLoading(false);
       setIsConfirmModalOpen(false);
