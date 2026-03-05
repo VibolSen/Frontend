@@ -1,6 +1,6 @@
 "use client";
 import BudgetManagement from "@/components/admin/finance/BudgetManagement";
 
-export default function FinanceBudgetsPage() {
-   return <BudgetManagement />;
+export default function AdminBudgetsPage() {
+    return <BudgetManagement />;
 }
