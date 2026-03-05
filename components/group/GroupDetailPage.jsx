@@ -4,13 +4,13 @@ import React, { useState } from "react";
 import Link from "next/link";
 import ManageGroupMembersModal from "./ManageGroupMembersModal";
 import GroupModal from "./GroupModal";
-import { 
-  ArrowLeft, 
-  Users, 
-  BookOpen, 
-  Edit3, 
-  UserPlus, 
-  MoreVertical 
+import {
+  ArrowLeft,
+  Users,
+  BookOpen,
+  Edit3,
+  UserPlus,
+  MoreVertical
 } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { apiClient } from "@/lib/api";
@@ -59,12 +59,13 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
   return (
     <div className="min-h-screen bg-[#EBF4F6] p-6 lg:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
-        
+
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="space-y-1">
             <Link
               href={`/${role}/groups`}
+              prefetch={false}
               className="inline-flex items-center px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm text-[13px] font-bold mb-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -95,7 +96,7 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
 
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
+
           {/* Left Column - Group Info */}
           <div className="lg:col-span-1 space-y-6">
             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">

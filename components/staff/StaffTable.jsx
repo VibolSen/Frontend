@@ -148,15 +148,15 @@ export default function StaffTable({
             ) : sortedStaff.length === 0 ? (
               <tr>
                 <td colSpan={4} className="py-12 text-center">
-                   <div className="flex flex-col items-center opacity-40">
-                     <Users size={24} className="mb-2" />
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No personnel records found</p>
-                   </div>
+                  <div className="flex flex-col items-center opacity-40">
+                    <Users size={24} className="mb-2" />
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No personnel records found</p>
+                  </div>
                 </td>
               </tr>
             ) : (
               sortedStaff.map((staff, index) => (
-                <motion.tr 
+                <motion.tr
                   key={staff.id}
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -195,8 +195,9 @@ export default function StaffTable({
                         </button>
                       )}
                       {currentUserRole && (
-                        <Link 
+                        <Link
                           href={`/${currentUserRole.toLowerCase()}/staff/${staff.id}`}
+                          prefetch={false}
                           className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                           title="Full Profile"
                         >

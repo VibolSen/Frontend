@@ -148,15 +148,15 @@ export default function GroupsTable({
             ) : processedGroups.length === 0 ? (
               <tr>
                 <td colSpan={4} className="py-12 text-center">
-                   <div className="flex flex-col items-center opacity-40">
-                     <Users size={24} className="mb-2" />
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No active groups found</p>
-                   </div>
+                  <div className="flex flex-col items-center opacity-40">
+                    <Users size={24} className="mb-2" />
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No active groups found</p>
+                  </div>
                 </td>
               </tr>
             ) : (
               processedGroups.map((group, index) => (
-                <motion.tr 
+                <motion.tr
                   key={group.id}
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -193,7 +193,7 @@ export default function GroupsTable({
                     {group.monitor ? (
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[8px] font-black border border-slate-200">
-                           {group.monitor.firstName[0]}{group.monitor.lastName[0]}
+                          {group.monitor.firstName[0]}{group.monitor.lastName[0]}
                         </div>
                         <div className="flex flex-col">
                           <span className="text-[11px] font-bold text-slate-700 leading-tight">{group.monitor.firstName} {group.monitor.lastName}</span>
@@ -213,6 +213,7 @@ export default function GroupsTable({
                     <div className="flex items-center justify-center gap-1">
                       <Link
                         href={`/${role}/groups/${group.id}`}
+                        prefetch={false}
                         className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                         title="View Group"
                       >

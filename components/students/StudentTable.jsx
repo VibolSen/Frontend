@@ -72,15 +72,15 @@ export default function StudentTable({
             ) : filteredStudents.length === 0 ? (
               <tr>
                 <td colSpan={4} className="text-center py-10">
-                   <div className="flex flex-col items-center opacity-40">
-                     <Trash2 size={24} className="mb-2" />
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No matching students found</p>
-                   </div>
+                  <div className="flex flex-col items-center opacity-40">
+                    <Trash2 size={24} className="mb-2" />
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No matching students found</p>
+                  </div>
                 </td>
               </tr>
             ) : (
               filteredStudents.map((student, index) => (
-                <motion.tr 
+                <motion.tr
                   key={student.id}
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -119,8 +119,9 @@ export default function StudentTable({
                           </button>
                         )}
                         {currentUserRole && (
-                          <Link 
+                          <Link
                             href={`/${currentUserRole.toLowerCase()}/users/${student.id}`}
+                            prefetch={false}
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                             title="Full Profile"
                           >

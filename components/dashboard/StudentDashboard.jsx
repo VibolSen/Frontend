@@ -83,17 +83,17 @@ const StudentDashboard = ({ loggedInUser }) => {
     );
   }
 
-  const { 
-    myProfile, 
-    pendingAssignmentsCount = 0, 
-    pendingExamsCount = 0, 
-    attendanceRate = 0, 
+  const {
+    myProfile,
+    pendingAssignmentsCount = 0,
+    pendingExamsCount = 0,
+    attendanceRate = 0,
     gpa = 0,
     recentAnnouncements = [],
     upcomingSessions = [],
     recentGrades = []
   } = dashboardData;
-  
+
   const totalCourses = dashboardData.enrollments || (myProfile?.groups ? Array.from(new Set(myProfile.groups.flatMap(group => group.courses.map(course => course.id)))).length : 0);
 
   const getGreeting = () => {
@@ -118,7 +118,7 @@ const StudentDashboard = ({ loggedInUser }) => {
 
   return (
     <div className="min-h-screen bg-slate-50/20 pb-8">
-      <motion.div 
+      <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="show"
@@ -148,8 +148,8 @@ const StudentDashboard = ({ loggedInUser }) => {
               "Excellence is not a gift, but a skill that takes practice. Keep pushing forward."
             </h2>
             <div className="flex flex-wrap gap-2.5 pt-2">
-              <Link href="/student/courses" className="px-5 py-2 bg-white text-blue-700 font-black rounded-lg text-[12px] shadow-sm hover:bg-slate-50 transition-colors">Continue Learning</Link>
-              <Link href="/student/schedule" className="px-5 py-2 bg-blue-600 text-white font-black rounded-lg text-[12px] border border-white/10 hover:bg-blue-500 transition-colors">View Schedule</Link>
+              <Link href="/student/courses" prefetch={false} className="px-5 py-2 bg-white text-blue-700 font-black rounded-lg text-[12px] shadow-sm hover:bg-slate-50 transition-colors">Continue Learning</Link>
+              <Link href="/student/schedule" prefetch={false} className="px-5 py-2 bg-blue-600 text-white font-black rounded-lg text-[12px] border border-white/10 hover:bg-blue-500 transition-colors">View Schedule</Link>
             </div>
           </div>
           {/* Decorative shapes */}
@@ -167,7 +167,7 @@ const StudentDashboard = ({ loggedInUser }) => {
             { label: "My Groups", value: myProfile.groups?.length || 0, icon: Users, color: "sky", href: "/student/profile" },
           ].map((stat, i) => (
             <motion.div variants={itemVariants} key={stat.label} whileHover={{ y: -5 }}>
-              <Link href={stat.href} className="group flex flex-col p-4 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300">
+              <Link href={stat.href} prefetch={false} className="group flex flex-col p-4 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300">
                 <div className={`h-10 w-10 rounded-xl bg-${stat.color}-50 text-${stat.color}-600 flex items-center justify-center mb-3 transition-transform group-hover:scale-105`}>
                   <stat.icon size={20} />
                 </div>
@@ -187,7 +187,7 @@ const StudentDashboard = ({ loggedInUser }) => {
             <motion.section variants={itemVariants} className="space-y-4">
               <div className="flex items-center justify-between px-1">
                 <h3 className="text-lg font-black text-slate-800 tracking-tight">Quick Actions</h3>
-                <Link href="/student/settings" className="text-[10px] font-bold text-blue-600 hover:text-blue-800">Preferences</Link>
+                <Link href="/student/settings" prefetch={false} className="text-[10px] font-bold text-blue-600 hover:text-blue-800">Preferences</Link>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
@@ -200,6 +200,7 @@ const StudentDashboard = ({ loggedInUser }) => {
                 ].map((action) => (
                   <Link
                     href={action.href}
+                    prefetch={false}
                     key={action.label}
                     className="group relative flex flex-col items-center gap-2 p-4 rounded-2xl bg-white border border-slate-100 hover:border-blue-200 hover:shadow-md transition-all active:scale-95"
                   >
@@ -224,7 +225,7 @@ const StudentDashboard = ({ loggedInUser }) => {
                     <p className="text-[9px] text-slate-400 font-bold tracking-widest uppercase">Stay Informed</p>
                   </div>
                 </div>
-                <Link href="/student/announcements" className="text-[10px] font-bold text-blue-600 hover:text-blue-800">View All</Link>
+                <Link href="/student/announcements" prefetch={false} className="text-[10px] font-bold text-blue-600 hover:text-blue-800">View All</Link>
               </div>
 
               <div className="space-y-3">
@@ -271,7 +272,7 @@ const StudentDashboard = ({ loggedInUser }) => {
                   <p className="text-[9px] text-slate-400 font-bold tracking-widest uppercase">Community & Groups</p>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {myProfile.groups?.map((group) => (
                   <div key={group.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200/50 hover:bg-white hover:border-blue-200 transition-all group">
@@ -288,8 +289,8 @@ const StudentDashboard = ({ loggedInUser }) => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Enrolled in:</span>
-                       <span className="text-[9px] font-bold text-slate-600">{group.courses?.length || 0} Courses</span>
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Enrolled in:</span>
+                      <span className="text-[9px] font-bold text-slate-600">{group.courses?.length || 0} Courses</span>
                     </div>
                   </div>
                 ))}
@@ -303,43 +304,43 @@ const StudentDashboard = ({ loggedInUser }) => {
             <motion.section variants={itemVariants} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
                 <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
-                    <Calendar size={16} className="text-indigo-500" />
-                    Upcoming Classes
+                  <Calendar size={16} className="text-indigo-500" />
+                  Upcoming Classes
                 </h3>
-                <Link href="/student/schedule" className="text-[10px] font-bold text-indigo-600 hover:underline flex items-center">
-                    Full Schedule <ChevronRight size={12} />
+                <Link href="/student/schedule" prefetch={false} className="text-[10px] font-bold text-indigo-600 hover:underline flex items-center">
+                  Full Schedule <ChevronRight size={12} />
                 </Link>
               </div>
 
               <div className="p-2 space-y-2">
                 {upcomingSessions.length === 0 ? (
-                    <p className="text-xs text-slate-400 p-4 text-center italic">No classes scheduled.</p>
+                  <p className="text-xs text-slate-400 p-4 text-center italic">No classes scheduled.</p>
                 ) : (
                   upcomingSessions.map((session, idx) => (
-                        <div key={idx} className="p-3 bg-white border border-slate-100 rounded-xl hover:border-indigo-100 hover:bg-indigo-50/30 transition-all group">
-                            <div className="flex justify-between items-start mb-1">
-                                <h4 className="text-xs font-bold text-slate-800 group-hover:text-indigo-700 transition-colors truncate max-w-[150px]">
-                                    {session.courseName || session.title}
-                                </h4>
-                                <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
-                                    {moment(session.startTime).format("HH:mm")}
-                                </span>
-                            </div>
-                            
-                            <div className="flex items-center gap-3 mt-2">
-                                <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium whitespace-nowrap">
-                                    <Clock size={10} className="text-slate-400" />
-                                    {moment(session.startTime).format("h:mm A")}
-                                </div>
-                                {session.location && (
-                                    <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium truncate">
-                                        <MapPin size={10} className="text-rose-400" />
-                                        {session.location}
-                                    </div>
-                                )}
-                            </div>
+                    <div key={idx} className="p-3 bg-white border border-slate-100 rounded-xl hover:border-indigo-100 hover:bg-indigo-50/30 transition-all group">
+                      <div className="flex justify-between items-start mb-1">
+                        <h4 className="text-xs font-bold text-slate-800 group-hover:text-indigo-700 transition-colors truncate max-w-[150px]">
+                          {session.courseName || session.title}
+                        </h4>
+                        <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
+                          {moment(session.startTime).format("HH:mm")}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-3 mt-2">
+                        <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium whitespace-nowrap">
+                          <Clock size={10} className="text-slate-400" />
+                          {moment(session.startTime).format("h:mm A")}
                         </div>
-                    ))
+                        {session.location && (
+                          <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium truncate">
+                            <MapPin size={10} className="text-rose-400" />
+                            {session.location}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
                 )}
               </div>
             </motion.section>
@@ -365,32 +366,32 @@ const StudentDashboard = ({ loggedInUser }) => {
                   <p className="text-[10px] text-slate-400 text-center py-2">No graded items yet.</p>
                 )}
               </div>
-              <Link href="/student/transcript" className="mt-4 pt-4 border-t border-slate-50 text-[11px] font-bold text-blue-600 flex items-center justify-center gap-1">
+              <Link href="/student/transcript" prefetch={false} className="mt-4 pt-4 border-t border-slate-50 text-[11px] font-bold text-blue-600 flex items-center justify-center gap-1">
                 View All Grades <ChevronRight size={12} />
               </Link>
             </motion.section>
 
             {/* Upcoming Activities Side Card */}
             <motion.div variants={itemVariants}>
-              <UpcomingActivities 
-                assignmentsCount={pendingAssignmentsCount} 
-                examsCount={pendingExamsCount} 
+              <UpcomingActivities
+                assignmentsCount={pendingAssignmentsCount}
+                examsCount={pendingExamsCount}
               />
             </motion.div>
 
             {/* Profile Glance - Small Card */}
             <motion.section variants={itemVariants} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-center">
-               <div className="h-16 w-16 bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 border-4 border-white shadow-sm">
-                 <Users size={32} />
-               </div>
-               <h4 className="text-md font-black text-slate-900">{myProfile.firstName} {myProfile.lastName}</h4>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{myProfile.role}</p>
-               <div className="mt-4 pt-4 border-t border-slate-50">
-                 <Link href="/student/profile" className="text-[12px] font-bold text-blue-600 hover:text-blue-800 transition-colors flex items-center justify-center gap-1.5">
-                   Edit Profile Page
-                   <ChevronRight size={13} />
-                 </Link>
-               </div>
+              <div className="h-16 w-16 bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 border-4 border-white shadow-sm">
+                <Users size={32} />
+              </div>
+              <h4 className="text-md font-black text-slate-900">{myProfile.firstName} {myProfile.lastName}</h4>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{myProfile.role}</p>
+              <div className="mt-4 pt-4 border-t border-slate-50">
+                <Link href="/student/profile" prefetch={false} className="text-[12px] font-bold text-blue-600 hover:text-blue-800 transition-colors flex items-center justify-center gap-1.5">
+                  Edit Profile Page
+                  <ChevronRight size={13} />
+                </Link>
+              </div>
             </motion.section>
           </div>
         </div>

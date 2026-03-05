@@ -126,7 +126,7 @@ const HRDashboard = () => {
 
   return (
     <div className="min-h-screen bg-slate-50/20 pb-10">
-      <motion.div 
+      <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="show"
@@ -157,7 +157,7 @@ const HRDashboard = () => {
             { title: "Open Roles", val: 0, icon: UserPlus, color: "sky", href: "/hr/job-postings" },
           ].map((stat) => (
             <motion.div variants={itemVariants} key={stat.title} whileHover={{ y: -3 }}>
-              <Link href={stat.href} className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-blue-100 hover:shadow-md transition-all">
+              <Link href={stat.href} prefetch={false} className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-blue-100 hover:shadow-md transition-all">
                 <div>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{stat.title}</p>
                   <p className="text-xl font-black text-slate-900 leading-none">{stat.val}</p>
@@ -187,6 +187,7 @@ const HRDashboard = () => {
             ].map((action) => (
               <Link
                 href={action.href}
+                prefetch={false}
                 key={action.label}
                 className="group flex flex-col items-center gap-2 p-3 rounded-xl border border-slate-50 hover:border-blue-100 hover:bg-slate-50/50 transition-all active:scale-95"
               >
@@ -222,7 +223,7 @@ const HRDashboard = () => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                   />
                   <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase' }} />
@@ -240,11 +241,11 @@ const HRDashboard = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={coursesByDepartment}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis 
-                    dataKey="name" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    fontSize={10} 
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    fontSize={10}
                     fontWeight={700}
                     tick={{ fill: '#94a3b8' }}
                   />

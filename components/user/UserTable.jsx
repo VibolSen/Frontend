@@ -132,14 +132,14 @@ export default function UserTable({
           </div>
         </div>
       </div>
-      
+
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead className="bg-slate-50/10 border-b border-slate-100">
             <tr>
               <th className="px-5 py-3 text-left w-10">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 w-4 h-4 cursor-pointer"
                   checked={sortedUsers.length > 0 && selectedUserIds.length === sortedUsers.length}
                   onChange={handleSelectAll}
@@ -147,7 +147,7 @@ export default function UserTable({
               </th>
               <th className="px-2 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer group" onClick={() => handleSort("firstName")}>
                 <div className="flex items-center gap-1">
-                   Identity
+                  Identity
                   <SortIndicator direction={sortConfig.key === "firstName" ? sortConfig.direction : null} />
                 </div>
               </th>
@@ -193,9 +193,9 @@ export default function UserTable({
                 const courseCount = user._count?.ledCourses || 0;
                 const maxLoad = user.profile?.maxWorkload || 5;
                 const workloadPercent = Math.min((courseCount / maxLoad) * 100, 100);
-                
+
                 return (
-                  <motion.tr 
+                  <motion.tr
                     key={user.id}
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -203,8 +203,8 @@ export default function UserTable({
                     className={`group hover:bg-blue-50/20 transition-colors ${selectedUserIds.includes(user.id) ? 'bg-indigo-50/40' : ''}`}
                   >
                     <td className="px-5 py-3">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 w-4 h-4 cursor-pointer"
                         checked={selectedUserIds.includes(user.id)}
                         onChange={() => handleSelectUser(user.id)}
@@ -283,8 +283,9 @@ export default function UserTable({
                           </>
                         )}
                         {currentUserRole && (
-                          <Link 
+                          <Link
                             href={`/${currentUserRole.toLowerCase()}/users/${user.id}`}
+                            prefetch={false}
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                             title="Full profile"
                           >

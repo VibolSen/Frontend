@@ -31,6 +31,7 @@ const NavLink = ({ icon, label, href, isCollapsed, isActive }) => (
   <li>
     <Link
       href={href}
+      prefetch={false}
       className={`group flex items-center gap-3 my-1 px-3 py-2.5 rounded-xl transition-all duration-300 relative
         ${isActive
           ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
@@ -240,6 +241,7 @@ export default function FinanceSidebar({ isOpen, setIsOpen }) {
         <div className="p-4 border-t border-slate-200 relative z-10 bg-white/50 backdrop-blur-md">
           <Link
             href="/finance/profile"
+            prefetch={false}
             className={`flex items-center gap-3 p-2 rounded-2xl transition-all hover:bg-white hover:shadow-md group ${isCollapsed ? "justify-center" : "bg-white border border-slate-100 shadow-sm"}`}
           >
             <div className="relative shrink-0">

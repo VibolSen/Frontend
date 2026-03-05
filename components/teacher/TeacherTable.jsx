@@ -65,7 +65,7 @@ export default function TeacherTable({
             {isLoading && teachers.length === 0 ? (
               <tr>
                 <td colSpan={canManageTeachers ? 4 : 3} className="py-12">
-                   <div className="flex flex-col items-center justify-center gap-3 opacity-50">
+                  <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                     <div className="h-5 w-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Retrieving Records...</span>
                   </div>
@@ -74,15 +74,15 @@ export default function TeacherTable({
             ) : filteredTeachers.length === 0 ? (
               <tr>
                 <td colSpan={4} className="text-center py-10">
-                   <div className="flex flex-col items-center opacity-40">
-                     <Users size={24} className="mb-2" />
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No matching faculty found</p>
-                   </div>
+                  <div className="flex flex-col items-center opacity-40">
+                    <Users size={24} className="mb-2" />
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No matching faculty found</p>
+                  </div>
                 </td>
               </tr>
             ) : (
               filteredTeachers.map((teacher, index) => (
-                <motion.tr 
+                <motion.tr
                   key={teacher.id}
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -119,8 +119,9 @@ export default function TeacherTable({
                           <Edit className="w-3.5 h-3.5" />
                         </button>
                         {currentUserRole && (
-                          <Link 
+                          <Link
                             href={`/${currentUserRole.toLowerCase()}/users/${teacher.id}`}
+                            prefetch={false}
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                             title="Full Profile"
                           >

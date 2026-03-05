@@ -36,6 +36,7 @@ const NavLink = ({ icon, label, href, isCollapsed, isActive }) => (
   <li>
     <Link
       href={href}
+      prefetch={false}
       className={`group flex items-center gap-3 my-1 px-3 py-2.5 rounded-xl transition-all duration-300 relative
         ${isActive
           ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
@@ -287,7 +288,15 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
             )}
 
             {!isCollapsed && (
-              <button className="p-2 text-slate-400 hover:text-rose-500 transition-colors">
+              <button
+                onClick={() => {
+                  localStorage.removeItem("token");
+                  localStorage.removeItem("user");
+                  window.location.href = "/login";
+                }}
+                className="p-2 text-slate-400 hover:text-rose-500 transition-colors"
+                title="Sign Out"
+              >
                 <LogOut size={14} />
               </button>
             )}

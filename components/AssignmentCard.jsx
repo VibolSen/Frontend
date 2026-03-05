@@ -10,10 +10,10 @@ export default function AssignmentCard({ assignment, onNavigate, onDelete }) {
   // Format the due date for display
   const formattedDueDate = dueDate
     ? new Date(dueDate).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
     : "N/A";
 
   return (
@@ -95,6 +95,7 @@ export default function AssignmentCard({ assignment, onNavigate, onDelete }) {
       <div className="absolute top-4 right-4 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
         <Link
           href={`/teacher/assignments/${assignment.id}/edit`}
+          prefetch={false}
           className="p-1.5 bg-slate-100 hover:bg-blue-200 rounded-md"
           title="Edit Assignment"
         >

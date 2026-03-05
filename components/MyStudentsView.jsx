@@ -52,15 +52,15 @@ export default function MyStudentsView({ loggedInUser }) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-             <div className="h-10 w-1.5 bg-emerald-600 rounded-full" />
-             Student Community
+            <div className="h-10 w-1.5 bg-emerald-600 rounded-full" />
+            Student Community
           </h1>
           <p className="text-slate-500 font-medium text-sm ml-4 border-l border-slate-200 pl-4">
             Unified view of active learners across all your assigned academic sessions.
           </p>
         </div>
-        
-        <button 
+
+        <button
           onClick={fetchMyStudents}
           className="p-2.5 bg-white text-slate-400 hover:text-emerald-600 rounded-2xl border border-slate-200 hover:border-emerald-100 shadow-sm transition-all active:scale-95"
         >
@@ -159,8 +159,9 @@ export default function MyStudentsView({ loggedInUser }) {
                         </div>
                       </td>
                       <td className="px-8 py-6 text-center">
-                        <Link 
+                        <Link
                           href={`/teacher/students/${student.id}`}
+                          prefetch={false}
                           className="inline-flex items-center gap-2 px-4 py-2 bg-white text-slate-600 hover:text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-200 hover:border-indigo-200 shadow-sm transition-all active:scale-95"
                         >
                           <Eye size={14} />
