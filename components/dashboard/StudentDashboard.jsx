@@ -130,8 +130,11 @@ const StudentDashboard = ({ loggedInUser }) => {
             <h1 className="text-2xl md:text-3xl font-black text-blue-600 tracking-tight">
               {getGreeting()}, <span className="text-indigo-600">{myProfile.firstName}</span>!
             </h1>
-            <p className="text-slate-500 font-medium text-sm">
+            <p className="text-slate-500 font-medium text-sm flex items-center gap-2">
               Track your academy journey and stay ahead.
+              <span className="h-1 w-1 rounded-full bg-slate-300" />
+              <span className="text-blue-600 font-black uppercase text-[10px]">Year {myProfile.profile?.academicYear || "1"}</span>
+              <span className="text-indigo-600 font-black uppercase text-[10px]">{myProfile.profile?.generation || "New Gen"}</span>
             </p>
           </div>
           <div className="flex items-center gap-2.5 px-3.5 py-1.5 bg-white border border-slate-200 rounded-xl shadow-sm">
@@ -386,6 +389,10 @@ const StudentDashboard = ({ loggedInUser }) => {
               </div>
               <h4 className="text-md font-black text-slate-900">{myProfile.firstName} {myProfile.lastName}</h4>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{myProfile.role}</p>
+              <div className="flex items-center justify-center gap-2 mt-2">
+                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[9px] font-black uppercase border border-blue-100">Year {myProfile.profile?.academicYear || "1"}</span>
+                <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-[9px] font-black uppercase border border-indigo-100">{myProfile.profile?.generation || "Batch"}</span>
+              </div>
               <div className="mt-4 pt-4 border-t border-slate-50">
                 <Link href="/student/profile" prefetch={false} className="text-[12px] font-bold text-blue-600 hover:text-blue-800 transition-colors flex items-center justify-center gap-1.5">
                   Edit Profile Page

@@ -27,13 +27,16 @@ export default function UserTable({
   currentUserRole,
   selectedUserIds = [],
   onSelectionChange,
+  initialRoleFilter = "All",
 }) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("All");
+  const [roleFilter, setRoleFilter] = useState(initialRoleFilter);
   const [sortConfig, setSortConfig] = useState({
     key: "firstName",
     direction: "ascending",
   });
+  const [yearFilter, setYearFilter] = useState("All");
+  const [genFilter, setGenFilter] = useState("All");
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
@@ -42,16 +45,27 @@ export default function UserTable({
         fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesRole = roleFilter === "All" || user.role === roleFilter;
-      return matchesSearch && matchesRole;
+      const matchesYear = yearFilter === "All" || String(user.profile?.academicYear) === yearFilter;
+      const matchesGen = genFilter === "All" || (user.profile?.generation || "").toLowerCase().includes(genFilter.toLowerCase());
+      return matchesSearch && matchesRole && matchesYear && matchesGen;
     });
-  }, [users, searchTerm, roleFilter]);
+  }, [users, searchTerm, roleFilter, yearFilter, genFilter]);
 
   const sortedUsers = useMemo(() => {
     if (!sortConfig.key) return filteredUsers;
     return [...filteredUsers].sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key])
+      let aVal = a[sortConfig.key];
+      let bVal = b[sortConfig.key];
+
+      // Handle nested profile fields for sorting if needed (optional)
+      if (sortConfig.key === "academicYear") {
+        aVal = a.profile?.academicYear || 0;
+        bVal = b.profile?.academicYear || 0;
+      }
+
+      if (aVal < bVal)
         return sortConfig.direction === "ascending" ? -1 : 1;
-      if (a[sortConfig.key] > b[sortConfig.key])
+      if (aVal > bVal)
         return sortConfig.direction === "ascending" ? 1 : -1;
       return 0;
     });
@@ -127,8 +141,36 @@ export default function UserTable({
                 ))}
             </select>
           </div>
+
+          {roleFilter === "STUDENT" && (
+            <>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-sm shrink-0">
+                <select
+                  value={yearFilter}
+                  onChange={(e) => setYearFilter(e.target.value)}
+                  className="bg-transparent text-[10px] font-black uppercase tracking-tight focus:outline-none cursor-pointer text-slate-600"
+                >
+                  <option value="All">All Years</option>
+                  <option value="1">Year 1</option>
+                  <option value="2">Year 2</option>
+                  <option value="3">Year 3</option>
+                  <option value="4">Year 4</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-sm shrink-0">
+                <input
+                  type="text"
+                  placeholder="Gen Filter..."
+                  value={genFilter === "All" ? "" : genFilter}
+                  onChange={(e) => setGenFilter(e.target.value || "All")}
+                  className="bg-transparent text-[10px] font-black uppercase tracking-tight focus:outline-none w-20 text-slate-600"
+                />
+              </div>
+            </>
+          )}
+
           <div className="px-3 py-1.5 bg-blue-50 text-indigo-700 text-[10px] font-black uppercase tracking-tight rounded-lg border border-blue-100 shrink-0">
-            {filteredUsers.length} Total Users
+            {filteredUsers.length} Records
           </div>
         </div>
       </div>
@@ -163,6 +205,14 @@ export default function UserTable({
                   <SortIndicator direction={sortConfig.key === "role" ? sortConfig.direction : null} />
                 </div>
               </th>
+              {roleFilter === "STUDENT" && (
+                <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer" onClick={() => handleSort("academicYear")}>
+                  <div className="flex items-center gap-1">
+                    Academic Rank
+                    <SortIndicator direction={sortConfig.key === "academicYear" ? sortConfig.direction : null} />
+                  </div>
+                </th>
+              )}
               <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
                 Status
               </th>
@@ -231,6 +281,14 @@ export default function UserTable({
                         {user.role}
                       </span>
                     </td>
+                    {roleFilter === "STUDENT" && (
+                      <td className="px-5 py-3 whitespace-nowrap">
+                        <div className="flex flex-col">
+                          <span className="text-[11px] font-black text-slate-700">Year {user.profile?.academicYear || "1"}</span>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{user.profile?.generation || "New Batch"}</span>
+                        </div>
+                      </td>
+                    )}
                     <td className="px-5 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         <div className={`w-1.5 h-1.5 rounded-full ${user.isActive ? 'bg-emerald-500' : 'bg-slate-300'}`} />

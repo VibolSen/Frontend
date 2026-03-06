@@ -11,7 +11,7 @@ const initialFormState = {
   lastName: "",
   email: "",
   password: "",
-  role: "", 
+  role: "",
   gender: "",
   academicStatus: "ACTIVE",
   emergencyContactName: "",
@@ -20,6 +20,8 @@ const initialFormState = {
   specialization: "",
   maxWorkload: "",
   departmentId: "",
+  academicYear: 1,
+  generation: "",
 };
 
 export default function UserModal({
@@ -33,14 +35,14 @@ export default function UserModal({
 }) {
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
-  const [mounted, setMounted] = useState(false); 
+  const [mounted, setMounted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showDetailed, setShowDetailed] = useState(false);
 
   const isEditMode = !!userToEdit;
 
   useEffect(() => {
-    setMounted(true); 
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -60,6 +62,8 @@ export default function UserModal({
           specialization: userToEdit.profile?.specialization?.join(", ") || "",
           maxWorkload: userToEdit.profile?.maxWorkload || "",
           departmentId: userToEdit.departmentId || "",
+          academicYear: userToEdit.profile?.academicYear || 1,
+          generation: userToEdit.profile?.generation || "",
         });
       } else {
         setFormData({
@@ -72,21 +76,21 @@ export default function UserModal({
     }
   }, [isOpen, userToEdit, roles]);
 
-   const handleChange = (e) => {
-     const { name, value } = e.target;
-     
-     // Prevent numbers in first/last name fields
-     if ((name === "firstName" || name === "lastName") && /\d/.test(value)) {
-       return; 
-     }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-     setFormData((prev) => ({ ...prev, [name]: value }));
-     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-   };
+    // Prevent numbers in first/last name fields
+    if ((name === "firstName" || name === "lastName") && /\d/.test(value)) {
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.firstName.trim()) {
       newErrors.firstName = "First name is required";
     } else if (/\d/.test(formData.firstName)) {
@@ -113,9 +117,9 @@ export default function UserModal({
     if (validateForm()) {
       const dataToSend = { ...formData };
       if (isEditMode && !dataToSend.password) {
-        delete dataToSend.password; 
+        delete dataToSend.password;
       }
-      
+
       // Convert specialization string to array
       if (typeof dataToSend.specialization === 'string') {
         dataToSend.specialization = dataToSend.specialization
@@ -123,12 +127,12 @@ export default function UserModal({
           .map(s => s.trim())
           .filter(s => s !== "");
       }
-      
+
       onSave(dataToSend);
     }
   };
 
-  if (!isOpen || !mounted) return null; 
+  if (!isOpen || !mounted) return null;
 
   const modalContent = (
     <AnimatePresence>
@@ -240,6 +244,38 @@ export default function UserModal({
                         <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-2.5 text-slate-400">
                           {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {formData.role === "STUDENT" && (
+                    <div className="bg-indigo-50/30 p-4 rounded-xl border border-indigo-100/50 space-y-4">
+                      <h3 className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-2">Academic Information</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold text-slate-700 ml-1">Academic Year</label>
+                          <select
+                            name="academicYear"
+                            value={formData.academicYear}
+                            onChange={(e) => setFormData(prev => ({ ...prev, academicYear: parseInt(e.target.value) }))}
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
+                          >
+                            <option value={1}>Year 1</option>
+                            <option value={2}>Year 2</option>
+                            <option value={3}>Year 3</option>
+                            <option value={4}>Year 4</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold text-slate-700 ml-1">Generation / Batch</label>
+                          <input
+                            name="generation"
+                            placeholder="e.g. Gen 12"
+                            value={formData.generation}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
