@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { ChevronUp, ChevronDown, Edit, Trash2, Search, Filter, Layers } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronUp, ChevronDown, Edit, Trash2, Search, Filter, Layers, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SortIndicator = ({ direction }) => {
@@ -13,7 +14,7 @@ const SortIndicator = ({ direction }) => {
   );
 };
 
-const FacultyTable = ({ faculties, onEditClick, onDeleteClick, isLoading, onAddFacultyClick }) => {
+const FacultyTable = ({ faculties, onEditClick, onDeleteClick, isLoading, onAddFacultyClick, role = 'admin' }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortColumn, setSortColumn] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
@@ -145,15 +146,15 @@ const FacultyTable = ({ faculties, onEditClick, onDeleteClick, isLoading, onAddF
             ) : filteredFaculties.length === 0 ? (
               <tr>
                 <td colSpan={3} className="py-12 text-center">
-                   <div className="flex flex-col items-center opacity-40">
-                     <Layers size={24} className="mb-2" />
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No faculty divisions found</p>
-                   </div>
+                  <div className="flex flex-col items-center opacity-40">
+                    <Layers size={24} className="mb-2" />
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No faculty divisions found</p>
+                  </div>
                 </td>
               </tr>
             ) : (
               filteredFaculties.map((faculty, index) => (
-                <motion.tr 
+                <motion.tr
                   key={faculty.id}
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -175,7 +176,7 @@ const FacultyTable = ({ faculties, onEditClick, onDeleteClick, isLoading, onAddF
                     {faculty.head ? (
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[8px] font-black border border-slate-200">
-                           {faculty.head.firstName[0]}{faculty.head.lastName[0]}
+                          {faculty.head.firstName[0]}{faculty.head.lastName[0]}
                         </div>
                         <div className="flex flex-col">
                           <span className="text-[11px] font-bold text-slate-700">{faculty.head.firstName} {faculty.head.lastName}</span>
@@ -193,6 +194,13 @@ const FacultyTable = ({ faculties, onEditClick, onDeleteClick, isLoading, onAddF
                   </td>
                   <td className="px-5 py-3 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center gap-1">
+                      <Link
+                        href={`/${role}/faculty/${faculty.id}`}
+                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                        title="View details"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </Link>
                       <button
                         onClick={() => onEditClick(faculty)}
                         className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
