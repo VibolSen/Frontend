@@ -276,8 +276,16 @@ export default function UserTable({
                     {/* Identity */}
                     <td className="px-2 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 text-indigo-700 flex items-center justify-center font-black text-[11px] shrink-0 border border-blue-200">
-                          {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 text-indigo-700 flex items-center justify-center font-black text-[11px] shrink-0 border border-blue-200 overflow-hidden relative group-hover:shadow-md transition-shadow">
+                          {user.profile?.avatar ? (
+                            <img
+                              src={user.profile.avatar}
+                              alt={`${user.firstName} ${user.lastName}`}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span>{user.firstName.charAt(0)}{user.lastName.charAt(0)}</span>
+                          )}
                         </div>
                         <div className="flex flex-col">
                           <span className="text-[13px] font-black text-slate-800 tracking-tight">{user.firstName} {user.lastName}</span>

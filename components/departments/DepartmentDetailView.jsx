@@ -42,8 +42,16 @@ function StatCard({ icon: Icon, label, value, color = "blue" }) {
 const StudentSmallCard = ({ student }) => (
     <div className="group p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:bg-white transition-all cursor-default">
         <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-indigo-600 font-black shadow-sm group-hover:scale-110 transition-transform">
-                {student.firstName[0]}{student.lastName[0]}
+            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-indigo-600 font-black shadow-sm group-hover:scale-110 transition-transform overflow-hidden relative">
+                {student.profile?.avatar ? (
+                    <img
+                        src={student.profile.avatar}
+                        alt={`${student.firstName} ${student.lastName}`}
+                        className="w-full h-full object-cover"
+                    />
+                ) : (
+                    <span>{student.firstName[0]}{student.lastName[0]}</span>
+                )}
             </div>
             <div className="min-w-0 flex-1">
                 <p className="text-sm font-black text-slate-800 truncate">{student.firstName} {student.lastName}</p>
