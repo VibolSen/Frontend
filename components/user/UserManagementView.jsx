@@ -9,7 +9,7 @@ import ResetPasswordModal from "./ResetPasswordModal";
 import AuditLogView from "./AuditLogView";
 import ConfirmationDialog from "../ConfirmationDialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, UserPlus, Users, ShieldAlert, History, Activity, ShieldCheck } from "lucide-react";
+import { Plus, UserPlus, Users, ShieldAlert, History, Activity, ShieldCheck, Trash2, X } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import { apiClient } from "@/lib/api";
 
@@ -35,6 +35,7 @@ export default function UserManagementView() {
   const [userForReset, setUserForReset] = useState(null);
   const [migratingUser, setMigratingUser] = useState(null);
   const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const [isBulkConfirmOpen, setIsBulkConfirmOpen] = useState(false);
   const [departments, setDepartments] = useState([]);
 
   const stats = {
@@ -58,7 +59,9 @@ export default function UserManagementView() {
     setIsLoading(true);
     try {
       const data = await apiClient.get("/users");
-      setUsers(data);
+      // Filter out ADMIN users from the list as per request
+      const nonAdminUsers = data.filter(u => u.role !== 'ADMIN');
+      setUsers(nonAdminUsers);
     } catch (err) {
       showMessage(err.message || "Failed to fetch users.", "error");
     } finally {
@@ -68,7 +71,7 @@ export default function UserManagementView() {
 
   useEffect(() => {
     fetchUsers();
-    
+
     // Fetch departments for the modal
     apiClient.get("/departments").then(setDepartments).catch(console.error);
   }, [fetchUsers]);
@@ -212,7 +215,7 @@ export default function UserManagementView() {
   const handleBulkStatusChange = async (isActive) => {
     setIsLoading(true);
     try {
-      await Promise.all(selectedUserIds.map(id => 
+      await Promise.all(selectedUserIds.map(id =>
         apiClient.put(`/users/${id}`, { isActive })
       ));
       showMessage(`Successfully ${isActive ? 'activated' : 'suspended'} ${selectedUserIds.length} personnel accounts`);
@@ -225,14 +228,33 @@ export default function UserManagementView() {
     }
   };
 
+  const handleBulkDelete = async () => {
+    setIsBulkConfirmOpen(true);
+  };
+
+  const executeBulkDelete = async () => {
+    setIsLoading(true);
+    try {
+      await apiClient.post('/users/bulk-delete', { ids: selectedUserIds });
+      showMessage(`Successfully deleted ${selectedUserIds.length} user records`);
+      setSelectedUserIds([]);
+      await fetchUsers();
+      setIsBulkConfirmOpen(false);
+    } catch (err) {
+      showMessage(err.response?.data?.error || "Bulk deletion failed", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Premium Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-             <div className="h-10 w-1.5 bg-blue-600 rounded-full" />
-             User Management Console
+            <div className="h-10 w-1.5 bg-blue-600 rounded-full" />
+            User Management Console
           </h1>
           <p className="text-slate-500 font-medium text-sm ml-4 border-l border-slate-200 pl-4">
             Unified control for personnel credentials, access policies, and system auditing.
@@ -243,7 +265,7 @@ export default function UserManagementView() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsBulkModalOpen(true)}
-              className="group flex items-center gap-2 px-5 py-2.5 bg-white text-indigo-700 text-[11px] font-black uppercase tracking-widest rounded-2xl hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 shadow-sm transition-all active:scale-95"
+              className="group flex items-center gap-2 px-6 py-2.5 bg-white text-indigo-700 text-[11px] font-black uppercase tracking-widest rounded-2xl hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 shadow-lg shadow-indigo-100 transition-all active:scale-95 whitespace-nowrap"
             >
               <UserPlus size={16} className="group-hover:scale-110 transition-transform" />
               Bulk Enrollment
@@ -266,33 +288,44 @@ export default function UserManagementView() {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-6 border border-white/10 backdrop-blur-md"
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-white/80 backdrop-blur-2xl px-8 py-5 rounded-[2.5rem] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.15)] flex items-center gap-8 border border-slate-200/60"
           >
-            <div className="flex items-center gap-3 pr-6 border-r border-white/10">
-              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-black text-xs">
+            <div className="flex items-center gap-4 pr-8 border-r border-slate-200">
+              <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-lg shadow-indigo-200 ring-4 ring-indigo-50">
                 {selectedUserIds.length}
               </div>
-              <span className="text-xs font-black uppercase tracking-widest text-slate-400">Personnel Selected</span>
+              <div className="flex flex-col text-left">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">Selection Active</span>
+                <span className="text-[13px] font-bold text-slate-800 tracking-tight whitespace-nowrap">Personnel Selected</span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button 
+            <div className="flex items-center gap-3">
+              <button
                 onClick={() => handleBulkStatusChange(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-emerald-200/50"
               >
-                <Activity size={12} /> Activate All
+                <Activity size={12} strokeWidth={3} /> Activate
               </button>
-              <button 
+              <button
                 onClick={() => handleBulkStatusChange(false)}
-                className="flex items-center gap-2 px-4 py-2 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-amber-200/50"
               >
-                <ShieldAlert size={12} /> Suspend All
+                <ShieldAlert size={12} strokeWidth={3} /> Suspend
               </button>
-              <button 
+              {currentUser?.role === 'ADMIN' && (
+                <button
+                  onClick={handleBulkDelete}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-rose-200/50"
+                >
+                  <Trash2 size={12} strokeWidth={3} /> Delete
+                </button>
+              )}
+              <button
                 onClick={() => setSelectedUserIds([])}
-                className="flex items-center gap-2 px-4 py-2 hover:bg-white/5 text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ml-2"
+                className="ml-2 p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-2xl transition-all"
               >
-                Cancel
+                <X size={18} strokeWidth={3} />
               </button>
             </div>
           </motion.div>
@@ -301,7 +334,7 @@ export default function UserManagementView() {
 
       {/* Modern Tab Navigation */}
       <div className="flex items-center gap-8 border-b border-slate-100 px-2 pb-px overflow-x-auto scrollbar-hide">
-        <button 
+        <button
           onClick={() => setActiveTab("directory")}
           className={`flex items-center gap-2 pb-4 px-1 text-[11px] font-black uppercase tracking-widest transition-all relative ${activeTab === "directory" ? "text-blue-600" : "text-slate-400 hover:text-slate-600"}`}
         >
@@ -310,7 +343,7 @@ export default function UserManagementView() {
           {activeTab === "directory" && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full" />}
         </button>
         {currentUser?.role === "ADMIN" && (
-          <button 
+          <button
             onClick={() => setActiveTab("audit")}
             className={`flex items-center gap-2 pb-4 px-1 text-[11px] font-black uppercase tracking-widest transition-all relative ${activeTab === "audit" ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"}`}
           >
@@ -393,7 +426,7 @@ export default function UserManagementView() {
         onClose={handleCloseModal}
         onSave={handleSaveUser}
         userToEdit={editingUser}
-        roles={ROLES} 
+        roles={ROLES}
         departments={departments}
         isLoading={isLoading}
       />
@@ -429,6 +462,17 @@ export default function UserManagementView() {
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
         isLoading={isLoading}
+      />
+
+      <ConfirmationDialog
+        isOpen={isBulkConfirmOpen}
+        title="Bulk Deletion"
+        message={`Warning: You are about to permanently delete ${selectedUserIds.length} personnel accounts. This action cannot be reversed.`}
+        onConfirm={executeBulkDelete}
+        onCancel={() => setIsBulkConfirmOpen(false)}
+        isLoading={isLoading}
+        type="danger"
+        confirmText={`Delete ${selectedUserIds.length} Accounts`}
       />
 
       <ConfirmationDialog

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { Edit, Trash2, Search, Layers, GraduationCap } from "lucide-react";
+import Link from "next/link";
+import { Edit, Trash2, Search, Layers, GraduationCap, Eye } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function DepartmentsTable({
@@ -8,6 +9,7 @@ export default function DepartmentsTable({
   onEditClick,
   onDeleteClick,
   isLoading = false,
+  role = "admin",
 }) {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -23,7 +25,7 @@ export default function DepartmentsTable({
       {/* Header Area */}
       <div className="p-4 border-b border-slate-100 bg-slate-50/30">
         <div className="flex flex-col md:flex-row justify-between items-center gap-3">
-           <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <div className="h-8 w-1 bg-blue-600 rounded-full" />
             <h2 className="text-sm font-black text-slate-800 uppercase tracking-tight">Organization Roster</h2>
           </div>
@@ -59,7 +61,7 @@ export default function DepartmentsTable({
           <tbody className="divide-y divide-slate-50">
             {isLoading && filteredDepartments.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-12 border-none">
+                <td colSpan={5} className="py-12 border-none">
                   <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                     <div className="h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Mapping Units...</span>
@@ -68,16 +70,16 @@ export default function DepartmentsTable({
               </tr>
             ) : filteredDepartments.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-12 text-center">
-                   <div className="flex flex-col items-center opacity-40">
-                     <Layers size={24} className="mb-2" />
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No departments mapped</p>
-                   </div>
+                <td colSpan={5} className="py-12 text-center">
+                  <div className="flex flex-col items-center opacity-40">
+                    <Layers size={24} className="mb-2" />
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No departments mapped</p>
+                  </div>
                 </td>
               </tr>
             ) : (
               filteredDepartments.map((dept, index) => (
-                <motion.tr 
+                <motion.tr
                   key={dept.id}
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -97,15 +99,15 @@ export default function DepartmentsTable({
                   </td>
                   <td className="px-5 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                        <GraduationCap size={14} className="text-indigo-400" />
-                        <span className="text-[12px] font-bold text-slate-600">{dept.faculty?.name || 'Unassigned'}</span>
-                     </div>
+                      <GraduationCap size={14} className="text-indigo-400" />
+                      <span className="text-[12px] font-bold text-slate-600">{dept.faculty?.name || 'Unassigned'}</span>
+                    </div>
                   </td>
                   <td className="px-5 py-4 whitespace-nowrap">
                     {dept.head ? (
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-[8px] font-black border border-indigo-100 uppercase">
-                           {dept.head.firstName[0]}{dept.head.lastName[0]}
+                          {dept.head.firstName[0]}{dept.head.lastName[0]}
                         </div>
                         <div className="flex flex-col">
                           <span className="text-[11px] font-bold text-slate-700 leading-tight">{dept.head.firstName} {dept.head.lastName}</span>
@@ -122,7 +124,14 @@ export default function DepartmentsTable({
                     </span>
                   </td>
                   <td className="px-5 py-4 whitespace-nowrap text-center">
-                    <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center justify-center gap-1">
+                      <Link
+                        href={`/${role}/departments/${dept.id}`}
+                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                        title="View details"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </Link>
                       <button
                         onClick={() => onEditClick(dept)}
                         className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"

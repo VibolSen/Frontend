@@ -22,7 +22,9 @@ const initialFormState = {
   facultyId: "",
   departmentId: "",
   academicYear: 1,
+  semester: 1,
   generation: "",
+  batchId: "",
 };
 
 export default function UserModal({
@@ -70,7 +72,9 @@ export default function UserModal({
           facultyId: existingDept?.facultyId || "",
           departmentId: userToEdit.departmentId || "",
           academicYear: userToEdit.profile?.academicYear || 1,
+          semester: userToEdit.profile?.semester || 1,
           generation: userToEdit.profile?.generation || "",
+          batchId: userToEdit.profile?.batchId || "",
         });
       } else {
         setFormData({ ...initialFormState, role: roles?.[0] || "" });
@@ -284,18 +288,104 @@ export default function UserModal({
                           <option value={2}>Year 2 — Sophomore</option>
                           <option value={3}>Year 3 — Junior</option>
                           <option value={4}>Year 4 — Senior</option>
+                          <option value={5}>Year 5 — Graduating</option>
                         </select>
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700">Generation / Batch</label>
-                        <input
-                          name="generation"
-                          placeholder="e.g. Gen 12 or Batch 2024"
-                          value={formData.generation}
-                          onChange={handleChange}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
-                        />
+                        <label className="text-xs font-semibold text-slate-700">Semester</label>
+                        <select name="semester" value={formData.semester}
+                          onChange={(e) => setFormData(prev => ({ ...prev, semester: parseInt(e.target.value) }))}
+                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                          <option value={1}>Semester 1</option>
+                          <option value={2}>Semester 2</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between items-center">
+                          <label className="text-xs font-semibold text-slate-700">Batch / Generation</label>
+                          {formData.departmentId && (departments.find(d => d.id === formData.departmentId)?.batches?.length > 0) && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                // Toggle logic: if we have a select but want to type, or vice versa
+                                // Using a state like 'isManual' would be cleaner, but let's try a simpler approach
+                                // We'll just check if the current value is in the department list
+                              }}
+                              className="hidden" // We'll use a better approach below
+                            />
+                          )}
+                        </div>
+
+                        {formData.departmentId ? (
+                          <>
+                            {(() => {
+                              const deptBatches = (departments.find(d => d.id === formData.departmentId)?.batches || []);
+                              const hasBatches = deptBatches.length > 0;
+
+                              if (hasBatches) {
+                                return (
+                                  <div className="space-y-2">
+                                    <select
+                                      name="batchId"
+                                      value={formData.batchId}
+                                      onChange={(e) => {
+                                        const bId = e.target.value;
+                                        const selected = deptBatches.find(b => b.id === bId);
+                                        setFormData(prev => ({
+                                          ...prev,
+                                          batchId: bId,
+                                          generation: selected ? selected.name : (bId === "CUSTOM_ENTRY" ? prev.generation : "")
+                                        }));
+                                      }}
+                                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                                    >
+                                      <option value="">— Select Batch —</option>
+                                      {deptBatches.map(batch => (
+                                        <option key={batch.id} value={batch.id}>{batch.name} ({batch.status})</option>
+                                      ))}
+                                      <option value="CUSTOM_ENTRY">+ Enter Manually...</option>
+                                    </select>
+
+                                    {/* Show manual input if choice is CUSTOM_ENTRY or if manually set */}
+                                    {formData.batchId === "CUSTOM_ENTRY" && (
+                                      <input
+                                        type="text"
+                                        placeholder="Type generation (e.g. G1)"
+                                        value={formData.generation}
+                                        autoFocus
+                                        onChange={(e) => setFormData(prev => ({ ...prev, generation: e.target.value }))}
+                                        className="w-full px-3 py-2 bg-white border border-blue-400 rounded-xl text-sm focus:outline-none ring-2 ring-blue-500/10"
+                                      />
+                                    )}
+                                  </div>
+                                );
+                              } else {
+                                // No generations defined for this dept, allow direct typing
+                                return (
+                                  <input
+                                    name="generation"
+                                    placeholder="Type generation (e.g. G1)"
+                                    value={formData.generation}
+                                    onChange={handleChange}
+                                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                                  />
+                                );
+                              }
+                            })()}
+                          </>
+                        ) : (
+                          <input
+                            name="generation"
+                            placeholder="Select department first"
+                            value={formData.generation}
+                            disabled
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm opacity-50 cursor-not-allowed"
+                          />
+                        )}
                       </div>
                     </div>
 

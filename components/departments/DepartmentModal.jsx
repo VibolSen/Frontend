@@ -15,6 +15,8 @@ export default function DepartmentModal({
   const [name, setName] = useState("");
   const [facultyId, setFacultyId] = useState("");
   const [headId, setHeadId] = useState("");
+  const [generations, setGenerations] = useState([]);
+  const [genInput, setGenInput] = useState("");
   const [error, setError] = useState("");
   const [mounted, setMounted] = useState(false);
 
@@ -29,9 +31,26 @@ export default function DepartmentModal({
       setName(departmentToEdit?.name || "");
       setFacultyId(departmentToEdit?.facultyId || "");
       setHeadId(departmentToEdit?.headId || "");
+      setGenerations(departmentToEdit?.generations || []);
+      setGenInput("");
       setError("");
     }
   }, [isOpen, departmentToEdit]);
+
+  const handleAddGeneration = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const val = genInput.trim();
+      if (val && !generations.includes(val)) {
+        setGenerations([...generations, val]);
+        setGenInput("");
+      }
+    }
+  };
+
+  const removeGeneration = (gen) => {
+    setGenerations(generations.filter(g => g !== gen));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -39,10 +58,11 @@ export default function DepartmentModal({
       setError("Department name cannot be empty.");
       return;
     }
-    onSave({ 
-      name, 
+    onSave({
+      name,
       facultyId: facultyId || null,
-      headId: headId || null 
+      headId: headId || null,
+      generations
     });
   };
 
@@ -104,11 +124,10 @@ export default function DepartmentModal({
                       if (error) setError("");
                     }}
                     disabled={isLoading}
-                    className={`w-full px-4 py-2.5 bg-slate-50 border rounded-xl text-sm transition-all duration-200 ${
-                      error
-                        ? "border-red-500 ring-4 ring-red-500/10"
-                        : "border-slate-200 hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white"
-                    }`}
+                    className={`w-full px-4 py-2.5 bg-slate-50 border rounded-xl text-sm transition-all duration-200 ${error
+                      ? "border-red-500 ring-4 ring-red-500/10"
+                      : "border-slate-200 hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white"
+                      }`}
                     placeholder="e.g., Computer Science"
                   />
                   {error && (
@@ -146,7 +165,7 @@ export default function DepartmentModal({
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-700 ml-1">
                     Head of Department (HoD)
@@ -164,6 +183,34 @@ export default function DepartmentModal({
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-700 ml-1">
+                    Manage Generations
+                  </label>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {generations.map(gen => (
+                      <span key={gen} className="px-2 py-1 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-lg border border-amber-100 flex items-center gap-1">
+                        {gen}
+                        <button type="button" onClick={() => removeGeneration(gen)} className="hover:text-amber-900">
+                          <X size={10} />
+                        </button>
+                      </span>
+                    ))}
+                    {generations.length === 0 && (
+                      <p className="text-[10px] text-slate-400 italic py-1">No generations defined yet.</p>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={genInput}
+                    onChange={(e) => setGenInput(e.target.value)}
+                    onKeyDown={handleAddGeneration}
+                    disabled={isLoading}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+                    placeholder="Type generation (e.g. G1) and press Enter"
+                  />
                 </div>
               </div>
 

@@ -7,7 +7,7 @@ import UserModal from "../user/UserModal";
 import RoleMigrationModal from "../user/RoleMigrationModal";
 import ResetPasswordModal from "../user/ResetPasswordModal";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
-import { Plus } from "lucide-react";
+import { Plus, Trash2, Activity, ShieldAlert, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiClient } from "@/lib/api";
 
@@ -30,6 +30,7 @@ export default function StaffManagementView() {
   const [migratingUser, setMigratingUser] = useState(null);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [userForReset, setUserForReset] = useState(null);
+  const [isBulkConfirmOpen, setIsBulkConfirmOpen] = useState(false);
 
   const availableStaffRoles = useMemo(() => {
     if (user?.role === "ADMIN") {
@@ -55,7 +56,8 @@ export default function StaffManagementView() {
     setIsLoading(true);
     try {
       const allUsers = await apiClient.get("/users");
-      const staffOnly = allUsers.filter((user) => user.role !== "STUDENT");
+      // Filter out STUDENTs to get staff, AND filter out ADMINs as requested
+      const staffOnly = allUsers.filter((user) => user.role !== "STUDENT" && user.role !== "ADMIN");
       setStaffList(staffOnly);
     } catch (err) {
       showMessage(`Failed to load staff data: ${err.message}`, "error");
@@ -72,7 +74,7 @@ export default function StaffManagementView() {
   const handleBulkStatusChange = async (isActive) => {
     setIsLoading(true);
     try {
-      await Promise.all(selectedUserIds.map(id => 
+      await Promise.all(selectedUserIds.map(id =>
         apiClient.put(`/users/${id}`, { isActive })
       ));
       showMessage(`Successfully ${isActive ? 'activated' : 'suspended'} ${selectedUserIds.length} personnel accounts`);
@@ -80,6 +82,25 @@ export default function StaffManagementView() {
       await fetchStaff();
     } catch (err) {
       showMessage("Bulk operation failed for some users", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    setIsBulkConfirmOpen(true);
+  };
+
+  const executeBulkDelete = async () => {
+    setIsLoading(true);
+    try {
+      await apiClient.post('/users/bulk-delete', { ids: selectedUserIds });
+      showMessage(`Successfully deleted ${selectedUserIds.length} personnel records`);
+      setSelectedUserIds([]);
+      await fetchStaff();
+      setIsBulkConfirmOpen(false);
+    } catch (err) {
+      showMessage(err.response?.data?.error || "Bulk deletion failed", "error");
     } finally {
       setIsLoading(false);
     }
@@ -229,33 +250,44 @@ export default function StaffManagementView() {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-6 border border-white/10 backdrop-blur-md"
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-white/80 backdrop-blur-2xl px-8 py-5 rounded-[2.5rem] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.15)] flex items-center gap-8 border border-slate-200/60"
           >
-            <div className="flex items-center gap-3 pr-6 border-r border-white/10">
-              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-black text-xs">
+            <div className="flex items-center gap-4 pr-8 border-r border-slate-200">
+              <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-lg shadow-indigo-200 ring-4 ring-indigo-50">
                 {selectedUserIds.length}
               </div>
-              <span className="text-xs font-black uppercase tracking-widest text-slate-400">Personnel Selected</span>
+              <div className="flex flex-col text-left">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">Selection Active</span>
+                <span className="text-[13px] font-bold text-slate-800 tracking-tight whitespace-nowrap">Personnel Selected</span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button 
+            <div className="flex items-center gap-3">
+              <button
                 onClick={() => handleBulkStatusChange(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-emerald-200/50"
               >
-                Activate All
+                <Activity size={12} strokeWidth={3} /> Activate
               </button>
-              <button 
+              <button
                 onClick={() => handleBulkStatusChange(false)}
-                className="flex items-center gap-2 px-4 py-2 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                className="flex items-center gap-2 px-5 py-2.5 bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-rose-200/50"
               >
-                Suspend All
+                <ShieldAlert size={12} strokeWidth={3} /> Suspend
               </button>
-              <button 
+              {user?.role === 'ADMIN' && (
+                <button
+                  onClick={handleBulkDelete}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-rose-200/50"
+                >
+                  <Trash2 size={12} strokeWidth={3} /> Delete
+                </button>
+              )}
+              <button
                 onClick={() => setSelectedUserIds([])}
-                className="flex items-center gap-2 px-4 py-2 hover:bg-white/5 text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ml-2"
+                className="ml-2 p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-2xl transition-all"
               >
-                Cancel
+                <X size={18} strokeWidth={3} />
               </button>
             </div>
           </motion.div>
@@ -324,6 +356,17 @@ export default function StaffManagementView() {
         title="Delete Staff Member"
         message={`Are you sure you want to delete ${itemToDelete?.firstName} ${itemToDelete?.lastName}?`}
         isLoading={isLoading}
+      />
+
+      <ConfirmationDialog
+        isOpen={isBulkConfirmOpen}
+        title="Personnel Deletion"
+        message={`Warning: You are about to permanently delete ${selectedUserIds.length} personnel accounts. This operation is irreversible.`}
+        onConfirm={executeBulkDelete}
+        onCancel={() => setIsBulkConfirmOpen(false)}
+        isLoading={isLoading}
+        type="danger"
+        confirmText={`Delete ${selectedUserIds.length} Members`}
       />
       <ConfirmationDialog
         isOpen={isSuccessModalOpen}

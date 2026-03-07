@@ -37,6 +37,7 @@ export default function UserTable({
   const [roleFilter, setRoleFilter] = useState(initialRoleFilter);
   const [yearFilter, setYearFilter] = useState("All");
   const [deptFilter, setDeptFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
   const [sortConfig, setSortConfig] = useState({ key: "firstName", direction: "ascending" });
 
   const isStudentView = roleFilter === "STUDENT";
@@ -60,9 +61,10 @@ export default function UserTable({
       const matchesRole = roleFilter === "All" || user.role === roleFilter;
       const matchesYear = yearFilter === "All" || String(user.profile?.academicYear) === yearFilter;
       const matchesDept = deptFilter === "All" || user.departmentId === deptFilter;
-      return matchesSearch && matchesRole && matchesYear && matchesDept;
+      const matchesStatus = statusFilter === "All" || (statusFilter === "Active" ? user.isActive : !user.isActive);
+      return matchesSearch && matchesRole && matchesYear && matchesDept && matchesStatus;
     });
-  }, [users, searchTerm, roleFilter, yearFilter, deptFilter]);
+  }, [users, searchTerm, roleFilter, yearFilter, deptFilter, statusFilter]);
 
   const sortedUsers = useMemo(() => {
     if (!sortConfig.key) return filteredUsers;
@@ -142,6 +144,17 @@ export default function UserTable({
               </select>
             </div>
           )}
+
+          {/* Status filter */}
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
+            <Power size={11} className={statusFilter === "All" ? "text-slate-400" : statusFilter === "Active" ? "text-emerald-500" : "text-rose-500"} />
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-transparent text-[10px] font-black uppercase tracking-tight focus:outline-none cursor-pointer text-slate-600">
+              <option value="All">All Statuses</option>
+              <option value="Active">Active</option>
+              <option value="Suspended">Suspended</option>
+            </select>
+          </div>
 
           {/* Student-specific filters */}
           {isStudentView && (
