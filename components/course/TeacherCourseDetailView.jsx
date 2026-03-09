@@ -81,10 +81,9 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
                 {course.name}
               </h1>
               <div className="flex items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                <span>CODE: {course.code || "REG-ACAD"}</span>
-                <span className="w-1 h-1 bg-slate-300 rounded-full" />
                 <span>ID: {course.id?.slice(-8).toUpperCase()}</span>
               </div>
+
             </div>
           </div>
 
@@ -135,17 +134,6 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
             <div className="px-8 py-4">
               <AnnouncementsView courseId={courseId} loggedInUser={loggedInUser} hideHeader />
             </div>
-          </section>
-
-          {/* Syllabus / Description */}
-          <section className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-8 space-y-4">
-            <h2 className="text-xl font-black text-slate-800 tracking-tight flex items-center gap-3">
-              <div className="w-1 h-6 bg-indigo-600 rounded-full" />
-              Curriculum Overview
-            </h2>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              {course.description || "The instructional objectives and detailed curriculum mapping for this course are currently being finalized by the department lead."}
-            </p>
           </section>
         </div>
 

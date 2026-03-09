@@ -295,8 +295,8 @@ export default function StudyOfficeDashboard() {
                         </div>
                         <div className="min-w-0">
                           <p className="text-[11px] font-bold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">{course.name}</p>
-                          <p className="text-[9px] text-slate-500 font-medium uppercase tracking-tighter">Code: {course.code || "N/A"}</p>
                         </div>
+
                       </div>
                     ))}
                   </div>

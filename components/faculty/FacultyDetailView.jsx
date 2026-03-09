@@ -164,8 +164,8 @@ function DepartmentCard({ dept, index, role }) {
                                                 </div>
                                                 <div className="min-w-0">
                                                     <p className="text-[12px] font-black text-slate-800 truncate">{course.name}</p>
-                                                    {course.code && <p className="text-[9px] font-bold text-slate-400 uppercase">{course.code}</p>}
                                                     <div className="flex items-center gap-2 mt-1">
+
                                                         <span className="text-[9px] text-slate-400">{course._count?.enrollments || 0} enrolled</span>
                                                         <span className="text-slate-200">•</span>
                                                         <span className="text-[9px] text-slate-400">{course._count?.groups || 0} group{(course._count?.groups || 0) !== 1 ? "s" : ""}</span>
@@ -251,16 +251,6 @@ export default function FacultyDetailView({ role = "admin" }) {
                         </div>
                         <div>
                             <h1 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tight">{faculty.name}</h1>
-                            {faculty.head ? (
-                                <div className="flex items-center gap-1.5 mt-1">
-                                    <BadgeCheck size={13} className="text-emerald-500" />
-                                    <span className="text-sm text-slate-500 font-medium">
-                                        Dean: <span className="font-bold text-slate-700">{faculty.head.firstName} {faculty.head.lastName}</span>
-                                    </span>
-                                </div>
-                            ) : (
-                                <p className="text-sm text-slate-400 italic mt-1">No Dean Assigned</p>
-                            )}
                         </div>
                     </div>
                 </div>

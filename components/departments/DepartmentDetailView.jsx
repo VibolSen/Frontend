@@ -201,8 +201,7 @@ export default function DepartmentDetailView({ role = "admin" }) {
     const filteredCourses = useMemo(() => {
         if (!department) return [];
         return (department.departmentCourses || []).filter(({ course }) =>
-            course.name.toLowerCase().includes(search.toLowerCase()) ||
-            course.code?.toLowerCase().includes(search.toLowerCase())
+            course.name.toLowerCase().includes(search.toLowerCase())
         );
     }, [department, search]);
 

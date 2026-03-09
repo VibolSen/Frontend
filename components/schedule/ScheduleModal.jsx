@@ -179,8 +179,9 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
                             <select id="course" value={courseId} onChange={(e) => setCourseId(e.target.value)} className={inputStyle} disabled={isReadOnly}>
                                 <option value="">Select Course (Optional)</option>
                                 {courses.map(course => (
-                                    <option key={course.id} value={course.id}>{course.name} ({course.code})</option>
+                                    <option key={course.id} value={course.id}>{course.name}</option>
                                 ))}
+
                             </select>
                         </div>
                         <div>

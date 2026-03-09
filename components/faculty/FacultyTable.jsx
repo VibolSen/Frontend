@@ -124,9 +124,6 @@ const FacultyTable = ({ faculties, onEditClick, onDeleteClick, isLoading, onAddF
                   <SortIndicator direction={sortColumn === 'name' ? sortDirection : null} />
                 </div>
               </th>
-              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                Division Leadership
-              </th>
               <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">
                 Academic Scope
               </th>
@@ -171,21 +168,6 @@ const FacultyTable = ({ faculties, onEditClick, onDeleteClick, isLoading, onAddF
                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Academic Body</span>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-5 py-3 whitespace-nowrap">
-                    {faculty.head ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[8px] font-black border border-slate-200">
-                          {faculty.head.firstName[0]}{faculty.head.lastName[0]}
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-[11px] font-bold text-slate-700">{faculty.head.firstName} {faculty.head.lastName}</span>
-                          <span className="text-[8px] font-medium text-slate-400 uppercase tracking-tighter">Current Dean</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <span className="text-[10px] font-bold text-slate-300 italic">No Head Assigned</span>
-                    )}
                   </td>
                   <td className="px-5 py-3 whitespace-nowrap hidden md:table-cell">
                     <span className="px-2 py-0.5 text-[9px] font-black text-indigo-700 bg-blue-50 rounded-md border border-blue-100 uppercase tracking-wide">

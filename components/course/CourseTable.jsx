@@ -182,16 +182,11 @@ export default function CoursesTable({
                   <td className="px-5 py-3 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-[10px] shrink-0 border border-indigo-100 uppercase">
-                        {course.code ? course.code.substring(0, 2) : course.name.charAt(0)}
+                        {course.name.charAt(0)}
                       </div>
                       <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-1.5">
                           <span className="text-[13px] font-black text-slate-800 tracking-tight truncate max-w-[150px]">{course.name}</span>
-                          {course.code && (
-                             <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[8px] font-black rounded uppercase tracking-tighter border border-slate-200">
-                               {course.code}
-                             </span>
-                          )}
                         </div>
                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Academic Curriculum</span>
                       </div>

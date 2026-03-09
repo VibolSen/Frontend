@@ -111,7 +111,7 @@ function SemesterSection({ semester, index }) {
               <table className="w-full">
                 <thead className="bg-slate-50/50">
                   <tr>
-                    {["Course", "Code", "Credits", "Midterm", "Final", "Grade", "Points"].map((h) => (
+                    {["Course", "Credits", "Midterm", "Final", "Grade", "Points"].map((h) => (
                       <th key={h} className="px-5 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">
                         {h}
                       </th>
@@ -135,7 +135,6 @@ function SemesterSection({ semester, index }) {
                             <p className="text-[9px] text-slate-400 font-medium">{course.teacher}</p>
                           )}
                         </td>
-                        <td className="px-5 py-3.5 text-[11px] font-mono font-bold text-slate-500">{course.code || "–"}</td>
                         <td className="px-5 py-3.5 text-[12px] font-bold text-slate-600">{course.credits || 3}</td>
                         <td className="px-5 py-3.5 text-[12px] font-bold text-slate-600">{course.midterm ?? "–"}</td>
                         <td className="px-5 py-3.5 text-[12px] font-bold text-slate-600">{course.final ?? "–"}</td>

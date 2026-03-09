@@ -42,11 +42,6 @@ export default function FacultyPage() {
   return (
     <div className="container mx-auto px-6 py-8">
       <h1 className="text-3xl font-bold mb-4">{faculty.name}</h1>
-      {faculty.head && (
-        <p className="text-lg mb-4">
-          <strong>Head of Faculty:</strong> {faculty.head.firstName} {faculty.head.lastName}
-        </p>
-      )}
       <h2 className="text-2xl font-bold mb-2">Departments</h2>
       {faculty.departments.length > 0 ? (
         <ul>
