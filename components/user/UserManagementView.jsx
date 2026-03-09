@@ -365,31 +365,31 @@ export default function UserManagementView() {
           >
             {/* Quick Stats Dashboard */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-blue-100 transition-colors">
+              <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-blue-100 transition-colors">
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Users</p>
-                  <h3 className="text-2xl font-black text-slate-800">{stats.total}</h3>
+                  <h3 className="text-xl font-black text-slate-800">{stats.total}</h3>
                 </div>
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-all">
-                  <Users size={20} />
+                <div className="p-2.5 bg-blue-50 text-blue-600 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-all">
+                  <Users size={18} />
                 </div>
               </div>
-              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-emerald-100 transition-colors">
+              <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-emerald-100 transition-colors">
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Accounts</p>
-                  <h3 className="text-2xl font-black text-emerald-600">{stats.active}</h3>
+                  <h3 className="text-xl font-black text-emerald-600">{stats.active}</h3>
                 </div>
-                <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                  <Activity size={20} />
+                <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                  <Activity size={18} />
                 </div>
               </div>
-              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-rose-100 transition-colors">
+              <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-rose-100 transition-colors">
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Suspended</p>
-                  <h3 className="text-2xl font-black text-rose-500">{stats.suspended}</h3>
+                  <h3 className="text-xl font-black text-rose-500">{stats.suspended}</h3>
                 </div>
-                <div className="p-3 bg-rose-50 text-rose-500 rounded-2xl group-hover:bg-rose-500 group-hover:text-white transition-all">
-                  <ShieldAlert size={20} />
+                <div className="p-2.5 bg-rose-50 text-rose-500 rounded-2xl group-hover:bg-rose-500 group-hover:text-white transition-all">
+                  <ShieldAlert size={18} />
                 </div>
               </div>
             </div>

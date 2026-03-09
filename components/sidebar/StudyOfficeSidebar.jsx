@@ -93,7 +93,6 @@ const STUDY_OFFICE_NAV_GROUPS = [
       { label: "Courses", icon: <Book />, href: "/study-office/courses" },
       { label: "Groups", icon: <Hash />, href: "/study-office/groups" },
       { label: "Facilities", icon: <Grid />, href: "/study-office/rooms" },
-      { label: "Enrollment", icon: <GraduationCap />, href: "/study-office/enrollment" },
     ]
   },
   {

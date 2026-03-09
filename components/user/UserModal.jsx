@@ -306,7 +306,7 @@ export default function UserModal({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <div className="flex justify-between items-center">
-                          <label className="text-xs font-semibold text-slate-700">Batch / Generation</label>
+                          <label className="text-xs font-semibold text-slate-700">Generation</label>
                           {formData.departmentId && (departments.find(d => d.id === formData.departmentId)?.batches?.length > 0) && (
                             <button
                               type="button"
@@ -338,41 +338,24 @@ export default function UserModal({
                                         setFormData(prev => ({
                                           ...prev,
                                           batchId: bId,
-                                          generation: selected ? selected.name : (bId === "CUSTOM_ENTRY" ? prev.generation : "")
+                                          generation: selected ? selected.name : ""
                                         }));
                                       }}
                                       className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
                                     >
-                                      <option value="">— Select Batch —</option>
+                                      <option value="">— Select Generation —</option>
                                       {deptBatches.map(batch => (
                                         <option key={batch.id} value={batch.id}>{batch.name} ({batch.status})</option>
                                       ))}
-                                      <option value="CUSTOM_ENTRY">+ Enter Manually...</option>
                                     </select>
-
-                                    {/* Show manual input if choice is CUSTOM_ENTRY or if manually set */}
-                                    {formData.batchId === "CUSTOM_ENTRY" && (
-                                      <input
-                                        type="text"
-                                        placeholder="Type generation (e.g. G1)"
-                                        value={formData.generation}
-                                        autoFocus
-                                        onChange={(e) => setFormData(prev => ({ ...prev, generation: e.target.value }))}
-                                        className="w-full px-3 py-2 bg-white border border-blue-400 rounded-xl text-sm focus:outline-none ring-2 ring-blue-500/10"
-                                      />
-                                    )}
                                   </div>
                                 );
                               } else {
                                 // No generations defined for this dept, allow direct typing
                                 return (
-                                  <input
-                                    name="generation"
-                                    placeholder="Type generation (e.g. G1)"
-                                    value={formData.generation}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
-                                  />
+                                  <div className="text-center py-4 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Setup Generations in Dept. Settings</p>
+                                  </div>
                                 );
                               }
                             })()}

@@ -96,8 +96,8 @@ export default function DepartmentDetailView({ role = "admin" }) {
         status: "",
         semester: ""
     });
-    const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
-    const [selectedBatch, setSelectedBatch] = useState(null);
+    const [isGenerationModalOpen, setIsGenerationModalOpen] = useState(false);
+    const [selectedGeneration, setSelectedGeneration] = useState(null);
     const [isActionLoading, setIsActionLoading] = useState(false);
 
     const fetchDepartment = async () => {
@@ -117,48 +117,48 @@ export default function DepartmentDetailView({ role = "admin" }) {
         fetchDepartment();
     }, [id]);
 
-    const handlePromoteBatch = async (batchId) => {
-        if (!confirm("Are you sure you want to promote all students in this batch to the next academic year?")) return;
+    const handlePromoteGeneration = async (batchId) => {
+        if (!confirm("Are you sure you want to promote all students in this generation to the next academic year?")) return;
         setIsActionLoading(true);
         try {
             await apiClient.post(`/batches/${batchId}/promote`);
             await fetchDepartment();
-            alert("Batch promoted successfully!");
+            alert("Generation promoted successfully!");
         } catch (err) {
-            alert("Failed to promote batch: " + err.message);
+            alert("Failed to promote generation: " + err.message);
         } finally {
             setIsActionLoading(false);
         }
     };
 
-    const handleUpdateBatchStatus = async (batchId, status) => {
-        if (!confirm(`Are you sure you want to set all students in this batch to ${status}?`)) return;
+    const handleUpdateGenerationStatus = async (batchId, status) => {
+        if (!confirm(`Are you sure you want to set all students in this generation to ${status}?`)) return;
         setIsActionLoading(true);
         try {
             await apiClient.post(`/batches/${batchId}/status`, { academicStatus: status });
             await apiClient.put(`/batches/${batchId}`, { status });
             await fetchDepartment();
-            alert("Batch status updated successfully!");
+            alert("Generation status updated successfully!");
         } catch (err) {
-            alert("Failed to update batch: " + err.message);
+            alert("Failed to update generation: " + err.message);
         } finally {
             setIsActionLoading(false);
         }
     };
 
-    const handleSaveBatch = async (batchData) => {
+    const handleSaveGeneration = async (batchData) => {
         setIsActionLoading(true);
         try {
-            if (selectedBatch) {
-                await apiClient.put(`/batches/${selectedBatch.id}`, batchData);
+            if (selectedGeneration) {
+                await apiClient.put(`/batches/${selectedGeneration.id}`, batchData);
             } else {
                 await apiClient.post('/batches', { ...batchData, departmentId: id });
             }
             await fetchDepartment();
-            setIsBatchModalOpen(false);
-            setSelectedBatch(null);
+            setIsGenerationModalOpen(false);
+            setSelectedGeneration(null);
         } catch (err) {
-            alert("Failed to save batch: " + err.message);
+            alert("Failed to save generation: " + err.message);
         } finally {
             setIsActionLoading(false);
         }
@@ -308,7 +308,7 @@ export default function DepartmentDetailView({ role = "admin" }) {
                     <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-4">
                         <div className="flex items-center gap-2 mb-2">
                             <Calendar size={14} className="text-amber-600" />
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-amber-700">Batch Enrollment Summary</h3>
+                            <h3 className="text-[10px] font-black uppercase tracking-widest text-amber-700">Generation Enrollment Summary</h3>
                         </div>
                         <div className="flex flex-wrap gap-2">
                             {(department.batches || []).map(batch => {
@@ -337,7 +337,7 @@ export default function DepartmentDetailView({ role = "admin" }) {
                 <div className="p-6 space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex gap-2">
-                            {["students", "courses", "batches"].map(t => (
+                            {["students", "courses", "generations"].map(t => (
                                 <button
                                     key={t}
                                     onClick={() => setTab(t)}
@@ -556,19 +556,19 @@ export default function DepartmentDetailView({ role = "admin" }) {
                         </div>
                     )}
 
-                    {tab === "batches" && (
+                    {tab === "generations" && (
                         <div className="space-y-6">
                             <div className="flex justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-100">
                                 <div>
-                                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-800">Academic Batches</h3>
-                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">Manage cohorts, dates, and bulk actions</p>
+                                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-800">Academic Generations</h3>
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">Manage cohorts, dates, and graduation cycles</p>
                                 </div>
                                 <button
-                                    onClick={() => setIsBatchModalOpen(true)}
+                                    onClick={() => setIsGenerationModalOpen(true)}
                                     className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 shadow-md shadow-indigo-100"
                                 >
                                     <UserPlus size={14} />
-                                    New Batch
+                                    New Generation
                                 </button>
                             </div>
 
@@ -602,14 +602,14 @@ export default function DepartmentDetailView({ role = "admin" }) {
 
                                             <div className="flex flex-wrap items-center gap-2 border-t lg:border-t-0 lg:border-l border-slate-100 pt-4 lg:pt-0 lg:pl-6">
                                                 <button
-                                                    onClick={() => handlePromoteBatch(batch.id)}
+                                                    onClick={() => handlePromoteGeneration(batch.id)}
                                                     className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-100"
                                                 >
                                                     <RefreshCcw size={14} />
                                                     Promote Year
                                                 </button>
                                                 <button
-                                                    onClick={() => handleUpdateBatchStatus(batch.id, 'GRADUATED')}
+                                                    onClick={() => handleUpdateGenerationStatus(batch.id, 'GRADUATED')}
                                                     className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-100"
                                                 >
                                                     <CheckCircle2 size={14} />
@@ -617,12 +617,12 @@ export default function DepartmentDetailView({ role = "admin" }) {
                                                 </button>
                                                 <button
                                                     onClick={() => {
-                                                        setSelectedBatch(batch);
-                                                        setIsBatchModalOpen(true);
+                                                        setSelectedGeneration(batch);
+                                                        setIsGenerationModalOpen(true);
                                                     }}
                                                     className="px-4 py-2 bg-slate-50 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100"
                                                 >
-                                                    Edit Batch
+                                                    Edit Generation
                                                 </button>
                                             </div>
                                         </div>
@@ -633,7 +633,7 @@ export default function DepartmentDetailView({ role = "admin" }) {
                             {(department.batches || []).length === 0 && (
                                 <div className="text-center py-20 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
                                     <Calendar size={32} className="mx-auto mb-3 text-slate-300" />
-                                    <p className="text-sm font-bold text-slate-400">No batches defined for this department</p>
+                                    <p className="text-sm font-bold text-slate-400">No generations defined for this department</p>
                                 </div>
                             )}
                         </div>
@@ -641,32 +641,44 @@ export default function DepartmentDetailView({ role = "admin" }) {
                 </div>
             </div>
 
-            <BatchModal
-                isOpen={isBatchModalOpen}
+            <GenerationModal
+                isOpen={isGenerationModalOpen}
                 onClose={() => {
-                    setIsBatchModalOpen(false);
-                    setSelectedBatch(null);
+                    setIsGenerationModalOpen(false);
+                    setSelectedGeneration(null);
                 }}
-                onSave={handleSaveBatch}
-                batchToEdit={selectedBatch}
+                onSave={handleSaveGeneration}
+                generationToEdit={selectedGeneration}
                 isLoading={isActionLoading}
             />
         </div>
     );
 }
 
-function BatchModal({ isOpen, onClose, onSave, batchToEdit, isLoading }) {
+function GenerationModal({ isOpen, onClose, onSave, generationToEdit, isLoading }) {
     const [name, setName] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
 
     useEffect(() => {
         if (isOpen) {
-            setName(batchToEdit?.name || "");
-            setStartDate(batchToEdit?.startDate ? new Date(batchToEdit.startDate).toISOString().split('T')[0] : "");
-            setEndDate(batchToEdit?.endDate ? new Date(batchToEdit.endDate).toISOString().split('T')[0] : "");
+            setName(generationToEdit?.name || "");
+            setStartDate(generationToEdit?.startDate ? new Date(generationToEdit.startDate).toISOString().split('T')[0] : "");
+            setEndDate(generationToEdit?.endDate ? new Date(generationToEdit.endDate).toISOString().split('T')[0] : "");
         }
-    }, [isOpen, batchToEdit]);
+    }, [isOpen, generationToEdit]);
+
+    // Auto-calculate end date (4 years after start date)
+    const handleStartDateChange = (e) => {
+        const start = e.target.value;
+        setStartDate(start);
+
+        if (start) {
+            const date = new Date(start);
+            date.setFullYear(date.getFullYear() + 4);
+            setEndDate(date.toISOString().split('T')[0]);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -678,18 +690,18 @@ function BatchModal({ isOpen, onClose, onSave, batchToEdit, isLoading }) {
                 className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
             >
                 <div className="p-6 border-b flex justify-between items-center">
-                    <h2 className="text-xl font-black text-slate-800">{batchToEdit ? "Edit Batch" : "New Batch"}</h2>
+                    <h2 className="text-xl font-black text-slate-800">{generationToEdit ? "Edit Generation" : "New Generation"}</h2>
                     <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X size={20} /></button>
                 </div>
                 <form onSubmit={(e) => { e.preventDefault(); onSave({ name, startDate, endDate }); }} className="p-6 space-y-4">
                     <div className="space-y-1.5">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Batch Name (Generation)</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Generation Name</label>
                         <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. G1" className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500" required />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Start Date</label>
-                            <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500" />
+                            <input type="date" value={startDate} onChange={handleStartDateChange} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500" />
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">End Date</label>
@@ -699,7 +711,7 @@ function BatchModal({ isOpen, onClose, onSave, batchToEdit, isLoading }) {
                     <div className="pt-4 flex justify-end gap-3">
                         <button type="button" onClick={onClose} className="px-5 py-2 text-sm font-bold text-slate-500">Cancel</button>
                         <button type="submit" disabled={isLoading} className="px-6 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-100 disabled:opacity-50">
-                            {isLoading ? "Saving..." : "Save Batch"}
+                            {isLoading ? "Saving..." : generationToEdit ? "Update Generation" : "Save Generation"}
                         </button>
                     </div>
                 </form>

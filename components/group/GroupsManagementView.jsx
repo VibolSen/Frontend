@@ -15,6 +15,7 @@ export default function GroupManagementView({ role }) {
   const [groups, setGroups] = useState([]);
   const [courses, setCourses] = useState([]);
   const [allStudents, setAllStudents] = useState([]);
+  const [batches, setBatches] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isManageMembersModalOpen, setIsManageMembersModalOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState(null);
@@ -39,15 +40,17 @@ export default function GroupManagementView({ role }) {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [groupsData, coursesData, studentsData] = await Promise.all([
+      const [groupsData, coursesData, studentsData, batchesData] = await Promise.all([
         apiClient.get("/groups"),
         apiClient.get("/courses"),
-        apiClient.get("/students"), // Updated from /api/users?role=STUDENT
+        apiClient.get("/students"),
+        apiClient.get("/batches"),
       ]);
 
       setGroups(groupsData || []);
       setCourses(coursesData || []);
       setAllStudents(studentsData || []);
+      setBatches(batchesData || []);
     } catch (err) {
       showMessage(err.message, "error");
     } finally {
@@ -192,6 +195,7 @@ export default function GroupManagementView({ role }) {
           groupToEdit={editingGroup}
           courses={courses}
           allStudents={allStudents}
+          batches={batches}
           isLoading={isLoading}
         />
       )}

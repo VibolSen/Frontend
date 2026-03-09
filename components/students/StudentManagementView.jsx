@@ -239,25 +239,25 @@ export default function StudentManagementView() {
       {/* Quick Summary Cards */}
       {!isLoading && students.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-blue-600">
+          <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-blue-600">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Roster</p>
-            <p className="text-2xl font-black text-slate-800">{students.length}</p>
+            <p className="text-xl font-black text-slate-800">{students.length}</p>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-indigo-600">
+          <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-indigo-600">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Year 1 Students</p>
-            <p className="text-2xl font-black text-slate-800">
+            <p className="text-xl font-black text-slate-800">
               {students.filter(s => s.profile?.academicYear === 1).length}
             </p>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-emerald-600">
+          <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-emerald-600">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Accounts</p>
-            <p className="text-2xl font-black text-slate-800">
+            <p className="text-xl font-black text-slate-800">
               {students.filter(s => s.isActive).length}
             </p>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-amber-600">
+          <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-amber-600">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Suspended</p>
-            <p className="text-2xl font-black text-slate-800">
+            <p className="text-xl font-black text-slate-800">
               {students.filter(s => !s.isActive).length}
             </p>
           </div>
