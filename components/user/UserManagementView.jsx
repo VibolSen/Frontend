@@ -368,6 +368,7 @@ export default function UserManagementView() {
               currentUserRole={currentUser?.role}
               selectedUserIds={selectedUserIds}
               onSelectionChange={setSelectedUserIds}
+              basePath="users"
             />
           </motion.div>
         ) : (

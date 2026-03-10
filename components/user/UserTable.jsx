@@ -32,6 +32,7 @@ export default function UserTable({
   selectedUserIds = [],
   onSelectionChange,
   initialRoleFilter = "All",
+  basePath = "users",
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState(initialRoleFilter);
@@ -382,7 +383,7 @@ export default function UserTable({
                           </>
                         )}
                         {currentUserRole && (
-                          <Link href={`/${currentUserRole.toLowerCase()}/users/${user.id}`} prefetch={false}
+                          <Link href={`/${currentUserRole.toLowerCase().replace('_', '-')}/${basePath}/${user.id}`} prefetch={false}
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Full profile">
                             <Eye className="w-3.5 h-3.5" />
                           </Link>

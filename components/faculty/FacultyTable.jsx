@@ -124,32 +124,29 @@ const FacultyTable = ({ faculties, onEditClick, onDeleteClick, isLoading, onAddF
                   <SortIndicator direction={sortColumn === 'name' ? sortDirection : null} />
                 </div>
               </th>
-              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">
-                Academic Scope
-              </th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Controls</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {isLoading && filteredFaculties.length === 0 ? (
+              </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+              {isLoading && filteredFaculties.length === 0 ? (
               <tr>
-                <td colSpan={3} className="py-12 border-none">
+                <td colSpan={2} className="py-12 border-none">
                   <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                     <div className="h-5 w-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Mapping Assets...</span>
                   </div>
                 </td>
               </tr>
-            ) : filteredFaculties.length === 0 ? (
+              ) : filteredFaculties.length === 0 ? (
               <tr>
-                <td colSpan={3} className="py-12 text-center">
+                <td colSpan={2} className="py-12 text-center">
                   <div className="flex flex-col items-center opacity-40">
                     <Layers size={24} className="mb-2" />
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No faculty divisions found</p>
                   </div>
                 </td>
               </tr>
-            ) : (
+              ) : (
               filteredFaculties.map((faculty, index) => (
                 <motion.tr
                   key={faculty.id}
@@ -169,14 +166,8 @@ const FacultyTable = ({ faculties, onEditClick, onDeleteClick, isLoading, onAddF
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-3 whitespace-nowrap hidden md:table-cell">
-                    <span className="px-2 py-0.5 text-[9px] font-black text-indigo-700 bg-blue-50 rounded-md border border-blue-100 uppercase tracking-wide">
-                      {(faculty.departments || []).length} Departments
-                    </span>
-                  </td>
                   <td className="px-5 py-3 whitespace-nowrap text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      <Link
+                    <div className="flex items-center justify-center gap-1">                      <Link
                         href={`/${role}/faculty/${faculty.id}`}
                         className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                         title="View details"

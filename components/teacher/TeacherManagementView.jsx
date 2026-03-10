@@ -264,6 +264,7 @@ export default function TeacherManagementView() {
           currentUserRole={currentUser?.role}
           selectedUserIds={selectedUserIds}
           onSelectionChange={setSelectedUserIds}
+          basePath={currentUser?.role === "STUDY_OFFICE" ? "teacher" : "teachers"}
         />
       </motion.div>
       {isModalOpen && (

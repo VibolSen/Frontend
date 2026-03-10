@@ -39,7 +39,6 @@ function StatCard({ icon: Icon, label, value, color = "blue" }) {
 
 function DepartmentCard({ dept, index, role }) {
     const [expanded, setExpanded] = useState(false);
-    const [tab, setTab] = useState("students"); // "students" | "courses"
 
     const studentsByYear = useMemo(() => {
         const map = { 1: [], 2: [], 3: [], 4: [], null: [] };
@@ -78,9 +77,6 @@ function DepartmentCard({ dept, index, role }) {
                         <span className="px-2 py-1 text-[9px] font-black bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-lg uppercase tracking-wide">
                             {dept.users?.length || 0} Students
                         </span>
-                        <span className="px-2 py-1 text-[9px] font-black bg-blue-50 text-blue-700 border border-blue-100 rounded-lg uppercase tracking-wide">
-                            {dept.departmentCourses?.length || 0} Courses
-                        </span>
                     </span>
                     {expanded ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
                 </div>
@@ -97,90 +93,42 @@ function DepartmentCard({ dept, index, role }) {
                         className="overflow-hidden"
                     >
                         <div className="border-t border-slate-100 p-5 space-y-4">
-                            {/* Tabs */}
-                            <div className="flex gap-2">
-                                {["students", "courses"].map(t => (
-                                    <button key={t} onClick={() => setTab(t)}
-                                        className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${tab === t ? "bg-indigo-600 text-white shadow-md shadow-indigo-200" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                                            }`}>
-                                        {t === "students" ? `Students (${dept.users?.length || 0})` : `Courses (${dept.departmentCourses?.length || 0})`}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Students Tab */}
-                            {tab === "students" && (
-                                <div className="space-y-3">
-                                    {dept.users?.length === 0 ? (
-                                        <div className="text-center py-8 text-slate-300">
-                                            <GraduationCap size={28} className="mx-auto mb-2 opacity-50" />
-                                            <p className="text-xs font-bold">No students enrolled yet</p>
-                                        </div>
-                                    ) : (
-                                        [1, 2, 3, 4].map(yr => {
-                                            const group = studentsByYear[yr];
-                                            if (!group || group.length === 0) return null;
-                                            return (
-                                                <div key={yr}>
-                                                    <p className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest mb-2 ${yearColors[yr]}`}>
-                                                        Year {yr} — {group.length} student{group.length !== 1 ? "s" : ""}
-                                                    </p>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                                                        {group.map(student => (
-                                                            <div key={student.id} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                                                                <div className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-[9px] font-black shrink-0">
-                                                                    {student.firstName[0]}{student.lastName[0]}
-                                                                </div>
-                                                                <div className="min-w-0">
-                                                                    <p className="text-[11px] font-black text-slate-700 truncate">{student.firstName} {student.lastName}</p>
-                                                                    <p className="text-[9px] text-slate-400 truncate">{student.profile?.studentId || student.email}</p>
-                                                                </div>
-                                                                {student.profile?.generation && (
-                                                                    <span className="ml-auto text-[8px] font-bold text-slate-400 shrink-0">{student.profile.generation}</span>
-                                                                )}
+                            <div className="space-y-3">
+                                {dept.users?.length === 0 ? (
+                                    <div className="text-center py-8 text-slate-300">
+                                        <GraduationCap size={28} className="mx-auto mb-2 opacity-50" />
+                                        <p className="text-xs font-bold">No students enrolled yet</p>
+                                    </div>
+                                ) : (
+                                    [1, 2, 3, 4].map(yr => {
+                                        const group = studentsByYear[yr];
+                                        if (!group || group.length === 0) return null;
+                                        return (
+                                            <div key={yr}>
+                                                <p className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest mb-2 ${yearColors[yr]}`}>
+                                                    Year {yr} — {group.length} student{group.length !== 1 ? "s" : ""}
+                                                </p>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                                    {group.map(student => (
+                                                        <div key={student.id} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                                                            <div className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-[9px] font-black shrink-0">
+                                                                {student.firstName[0]}{student.lastName[0]}
                                                             </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Courses Tab */}
-                            {tab === "courses" && (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {dept.departmentCourses?.length === 0 ? (
-                                        <div className="col-span-2 text-center py-8 text-slate-300">
-                                            <BookOpen size={28} className="mx-auto mb-2 opacity-50" />
-                                            <p className="text-xs font-bold">No courses assigned yet</p>
-                                        </div>
-                                    ) : (
-                                        dept.departmentCourses.map(({ course }) => (
-                                            <div key={course.id} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                                <div className="p-2 bg-blue-100 rounded-lg shrink-0">
-                                                    <BookOpen size={14} className="text-blue-600" />
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-[12px] font-black text-slate-800 truncate">{course.name}</p>
-                                                    <div className="flex items-center gap-2 mt-1">
-
-                                                        <span className="text-[9px] text-slate-400">{course._count?.enrollments || 0} enrolled</span>
-                                                        <span className="text-slate-200">•</span>
-                                                        <span className="text-[9px] text-slate-400">{course._count?.groups || 0} group{(course._count?.groups || 0) !== 1 ? "s" : ""}</span>
-                                                    </div>
-                                                    {course.leadBy && (
-                                                        <p className="text-[9px] text-slate-400 mt-0.5 truncate">
-                                                            Taught by {course.leadBy.firstName} {course.leadBy.lastName}
-                                                        </p>
-                                                    )}
+                                                            <div className="min-w-0">
+                                                                <p className="text-[11px] font-black text-slate-700 truncate">{student.firstName} {student.lastName}</p>
+                                                                <p className="text-[9px] text-slate-400 truncate">{student.profile?.studentId || student.email}</p>
+                                                            </div>
+                                                            {student.profile?.generation && (
+                                                                <span className="ml-auto text-[8px] font-bold text-slate-400 shrink-0">{student.profile.generation}</span>
+                                                            )}
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </div>
-                                        ))
-                                    )}
-                                </div>
-                            )}
+                                        );
+                                    })
+                                )}
+                            </div>
                         </div>
                     </motion.div>
                 )}
@@ -214,11 +162,10 @@ export default function FacultyDetailView({ role = "admin" }) {
     }, [faculty, search]);
 
     const stats = useMemo(() => {
-        if (!faculty) return { depts: 0, students: 0, courses: 0 };
+        if (!faculty) return { depts: 0, students: 0 };
         const depts = faculty.departments || [];
         const students = depts.reduce((sum, d) => sum + (d.users?.length || 0), 0);
-        const courses = depts.reduce((sum, d) => sum + (d.departmentCourses?.length || 0), 0);
-        return { depts: depts.length, students, courses };
+        return { depts: depts.length, students };
     }, [faculty]);
 
     if (isLoading) return (
@@ -256,10 +203,9 @@ export default function FacultyDetailView({ role = "admin" }) {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <StatCard icon={Building2} label="Departments" value={stats.depts} color="blue" />
                     <StatCard icon={GraduationCap} label="Students" value={stats.students} color="indigo" />
-                    <StatCard icon={BookOpen} label="Courses" value={stats.courses} color="emerald" />
                 </div>
             </div>
 

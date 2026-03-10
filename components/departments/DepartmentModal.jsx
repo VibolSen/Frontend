@@ -14,8 +14,6 @@ export default function DepartmentModal({
 }) {
   const [name, setName] = useState("");
   const [facultyId, setFacultyId] = useState("");
-  const [generations, setGenerations] = useState([]);
-  const [genInput, setGenInput] = useState("");
   const [error, setError] = useState("");
   const [mounted, setMounted] = useState(false);
 
@@ -29,26 +27,9 @@ export default function DepartmentModal({
     if (isOpen) {
       setName(departmentToEdit?.name || "");
       setFacultyId(departmentToEdit?.facultyId || "");
-      setGenerations(departmentToEdit?.generations || []);
-      setGenInput("");
       setError("");
     }
   }, [isOpen, departmentToEdit]);
-
-  const handleAddGeneration = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const val = genInput.trim();
-      if (val && !generations.includes(val)) {
-        setGenerations([...generations, val]);
-        setGenInput("");
-      }
-    }
-  };
-
-  const removeGeneration = (gen) => {
-    setGenerations(generations.filter(g => g !== gen));
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -58,8 +39,7 @@ export default function DepartmentModal({
     }
     onSave({
       name,
-      facultyId: facultyId || null,
-      generations
+      facultyId: facultyId || null
     });
   };
 
@@ -161,35 +141,6 @@ export default function DepartmentModal({
                       </svg>
                     </div>
                   </div>
-                </div>
-
-
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-700 ml-1">
-                    Manage Generations
-                  </label>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {generations.map(gen => (
-                      <span key={gen} className="px-2 py-1 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-lg border border-amber-100 flex items-center gap-1">
-                        {gen}
-                        <button type="button" onClick={() => removeGeneration(gen)} className="hover:text-amber-900">
-                          <X size={10} />
-                        </button>
-                      </span>
-                    ))}
-                    {generations.length === 0 && (
-                      <p className="text-[10px] text-slate-400 italic py-1">No generations defined yet.</p>
-                    )}
-                  </div>
-                  <input
-                    type="text"
-                    value={genInput}
-                    onChange={(e) => setGenInput(e.target.value)}
-                    onKeyDown={handleAddGeneration}
-                    disabled={isLoading}
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
-                    placeholder="Type generation (e.g. G1) and press Enter"
-                  />
                 </div>
               </div>
 

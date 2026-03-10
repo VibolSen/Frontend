@@ -295,6 +295,7 @@ export default function StudentManagementView() {
           currentUserRole={currentUser?.role}
           selectedUserIds={selectedUserIds}
           onSelectionChange={setSelectedUserIds}
+          basePath="students"
         />
       </motion.div>
 

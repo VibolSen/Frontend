@@ -54,15 +54,13 @@ export default function DepartmentsTable({
               <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Department Unit</th>
               <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Faculty Affiliate</th>
 
-              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest leading-tight">Academic Scope</th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Management</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {isLoading && filteredDepartments.length === 0 ? (
+              </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+              {isLoading && filteredDepartments.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-12 border-none">
-                  <div className="flex flex-col items-center justify-center gap-3 opacity-50">
+                <td colSpan={4} className="py-12 border-none">                  <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                     <div className="h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Mapping Units...</span>
                   </div>
@@ -70,7 +68,7 @@ export default function DepartmentsTable({
               </tr>
             ) : filteredDepartments.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-12 text-center">
+                <td colSpan={4} className="py-12 text-center">
                   <div className="flex flex-col items-center opacity-40">
                     <Layers size={24} className="mb-2" />
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No departments mapped</p>
@@ -104,11 +102,6 @@ export default function DepartmentsTable({
                     </div>
                   </td>
 
-                  <td className="px-5 py-4 whitespace-nowrap text-center">
-                    <span className="px-2 py-0.5 text-[9px] font-black text-indigo-700 bg-indigo-50 border border-indigo-100 rounded uppercase tracking-widest">
-                      {dept._count?.departmentCourses ?? 0} modules
-                    </span>
-                  </td>
                   <td className="px-5 py-4 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center gap-1">
                       <Link

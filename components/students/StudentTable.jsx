@@ -120,7 +120,7 @@ export default function StudentTable({
                         )}
                         {currentUserRole && (
                           <Link
-                            href={`/${currentUserRole.toLowerCase()}/users/${student.id}`}
+                            href={`/${currentUserRole.toLowerCase().replace('_', '-')}/students/${student.id}`}
                             prefetch={false}
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                             title="Full Profile"

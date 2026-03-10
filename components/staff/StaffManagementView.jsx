@@ -274,6 +274,7 @@ export default function StaffManagementView() {
           currentUserRole={user?.role}
           selectedUserIds={selectedUserIds}
           onSelectionChange={setSelectedUserIds}
+          basePath="staff"
         />
       </motion.div>
 

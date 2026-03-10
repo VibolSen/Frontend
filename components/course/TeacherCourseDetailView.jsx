@@ -157,10 +157,6 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
 
               <div className="space-y-3 pt-2">
                 <div className="flex items-center justify-between text-xs font-bold p-3 bg-slate-50 rounded-xl">
-                  <span className="text-slate-400 uppercase tracking-widest">Credits</span>
-                  <span className="text-slate-800">{course.credits || 3.0} Units</span>
-                </div>
-                <div className="flex items-center justify-between text-xs font-bold p-3 bg-slate-50 rounded-xl">
                   <span className="text-slate-400 uppercase tracking-widest">Dept</span>
                   <span className="text-slate-800">{course.courseDepartments?.[0]?.department?.name || "N/A"}</span>
                 </div>

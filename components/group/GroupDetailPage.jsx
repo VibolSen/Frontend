@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import ManageGroupMembersModal from "./ManageGroupMembersModal";
+import ManageGroupCoursesModal from "./ManageGroupCoursesModal";
 import GroupModal from "./GroupModal";
 import {
   ArrowLeft,
@@ -10,17 +11,26 @@ import {
   BookOpen,
   Edit3,
   UserPlus,
-  MoreVertical
+  MoreVertical,
+  PlusCircle
 } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { apiClient } from "@/lib/api";
 
 export default function GroupDetailPage({ initialGroup, allStudents, role }) {
   const [group, setGroup] = useState(initialGroup);
+  const [allCourses, setAllCourses] = useState([]);
   const [isManageMembersModalOpen, setIsManageMembersModalOpen] =
+    useState(false);
+  const [isManageCoursesModalOpen, setIsManageCoursesModalOpen] =
     useState(false);
   const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // Fetch courses for the assign courses modal
+    apiClient.get("/courses").then(setAllCourses).catch(console.error);
+  }, []);
 
   const handleSaveMembers = async (studentIds) => {
     setIsLoading(true);
@@ -29,6 +39,21 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
       setGroup(data);
       console.log("Group members updated successfully!");
       handleCloseManageMembersModal();
+    } catch (err) {
+      console.error(err.message);
+    }
+    finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveCourses = async (courseIds) => {
+    setIsLoading(true);
+    try {
+      const data = await apiClient.put(`/groups/${group.id}`, { courseIds });
+      setGroup(data);
+      console.log("Group courses updated successfully!");
+      handleCloseManageCoursesModal();
     } catch (err) {
       console.error(err.message);
     }
@@ -54,6 +79,8 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
 
   const handleCloseManageMembersModal = () =>
     setIsManageMembersModalOpen(false);
+  const handleCloseManageCoursesModal = () =>
+    setIsManageCoursesModalOpen(false);
   const handleCloseEditGroupModal = () => setIsEditGroupModalOpen(false);
 
   return (
@@ -83,6 +110,13 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
             >
               <Edit3 className="w-3.5 h-3.5" />
               Edit Group
+            </button>
+            <button
+              onClick={() => setIsManageCoursesModalOpen(true)}
+              className="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:text-indigo-600 hover:border-indigo-200 rounded-xl text-[13px] font-bold shadow-sm transition-all flex items-center gap-2"
+            >
+              <PlusCircle className="w-3.5 h-3.5 text-indigo-500" />
+              Assign Course
             </button>
             <button
               onClick={() => setIsManageMembersModalOpen(true)}
@@ -210,13 +244,24 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
           />
         )}
 
+        {isManageCoursesModalOpen && (
+          <ManageGroupCoursesModal
+            isOpen={isManageCoursesModalOpen}
+            onClose={handleCloseManageCoursesModal}
+            group={group}
+            allCourses={allCourses}
+            onSaveChanges={handleSaveCourses}
+            isLoading={isLoading}
+          />
+        )}
+
         {isEditGroupModalOpen && (
           <GroupModal
             isOpen={isEditGroupModalOpen}
             onClose={handleCloseEditGroupModal}
             onSave={handleSaveGroupDetails}
             groupToEdit={group}
-            courses={group.courses}
+            courses={allCourses}
             isLoading={isLoading}
           />
         )}
@@ -224,3 +269,4 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
     </div>
   );
 }
+

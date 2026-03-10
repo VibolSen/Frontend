@@ -120,7 +120,7 @@ export default function TeacherTable({
                         </button>
                         {currentUserRole && (
                           <Link
-                            href={`/${currentUserRole.toLowerCase()}/users/${teacher.id}`}
+                            href={`/${currentUserRole.toLowerCase().replace('_', '-')}/${currentUserRole === 'STUDY_OFFICE' ? 'teacher' : 'teachers'}/${teacher.id}`}
                             prefetch={false}
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                             title="Full Profile"
