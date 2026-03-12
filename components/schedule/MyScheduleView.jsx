@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@/context/UserContext';
 import ScheduleCalendarView from './ScheduleCalendarView';
-import ScheduleModal from './ScheduleModal';
+import ScheduleDetailView from './ScheduleDetailView';
 import { apiClient } from '@/lib/api';
 
 export default function MyScheduleView() {
@@ -58,11 +58,10 @@ export default function MyScheduleView() {
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-semibold mb-4">My Schedules</h2>
       <ScheduleCalendarView schedules={schedules} onSelectEvent={handleSelectEvent} />
-      <ScheduleModal
+      <ScheduleDetailView
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         schedule={currentSchedule}
-        isReadOnly={true}
       />
     </div>
   );

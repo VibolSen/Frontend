@@ -172,7 +172,7 @@ export default function CoursesTable({
                        {course.leadBy ? (
                          <>
                            <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[8px] font-black border border-slate-200">
-                             {course.leadBy.firstName[0]}{course.leadBy.lastName[0]}
+                             {course.leadBy.firstName?.[0] || ""}{course.leadBy.lastName?.[0] || ""}
                            </div>
                            <div className="flex flex-col">
                              <span className="text-[11px] font-bold text-slate-700 leading-tight">{course.leadBy.firstName} {course.leadBy.lastName}</span>

@@ -66,7 +66,38 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
   }, [schedule]);
 
   useEffect(() => {
+    if (courseId && courses.length > 0) {
+      const selectedCourse = courses.find(c => c.id === courseId);
+      if (selectedCourse) {
+        setTitle(selectedCourse.name);
+        
+        // Auto-populate Advisor (Teacher) if not already set or if creating new
+        if (selectedCourse.leadById) {
+          setAssignedToTeacherId(selectedCourse.leadById);
+        } else if (selectedCourse.leadBy) {
+          setAssignedToTeacherId(selectedCourse.leadBy.id);
+        }
+
+        // Filter groups related to this course
+        const relatedGroups = groups.filter(g => 
+          g.courseIds?.includes(courseId) || (g.courses && g.courses.some(c => c.id === courseId))
+        );
+        
+        // If only one group is related, auto-select it
+        if (relatedGroups.length === 1) {
+          setAssignedToGroupId(relatedGroups[0].id);
+        } else if (assignedToGroupId && !relatedGroups.some(g => g.id === assignedToGroupId)) {
+            // Clear group if previously selected group is not related to new course
+            setAssignedToGroupId('');
+        }
+      }
+    }
+  }, [courseId, courses, groups]);
+
+  useEffect(() => {
     const fetchData = async () => {
+      // Only fetch data if modal is open and NOT in read-only mode
+      // Students only access this in isReadOnly=true mode, so they won't trigger 403s here
       if (isOpen && !isReadOnly) {
         try {
           const [teachersData, groupsData, coursesData, roomsData] = await Promise.all([
@@ -168,16 +199,11 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
                 
                 <div className="flex-grow overflow-y-auto p-4">
                   <form id="schedule-form" onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <label htmlFor="title" className="block text-xs font-semibold text-gray-800">Title / Subject</label>
-                      <input type="text" name="title" id="title" value={title} onChange={(e) => setTitle(e.target.value)} className={inputStyle} required disabled={isReadOnly} placeholder="e.g., Math Class" />
-                    </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                             <label htmlFor="course" className="block text-xs font-semibold text-gray-800">Link to Course</label>
-                            <select id="course" value={courseId} onChange={(e) => setCourseId(e.target.value)} className={inputStyle} disabled={isReadOnly}>
-                                <option value="">Select Course (Optional)</option>
+                            <select id="course" value={courseId} onChange={(e) => setCourseId(e.target.value)} className={inputStyle} disabled={isReadOnly} required>
+                                <option value="">Select Course</option>
                                 {courses.map(course => (
                                     <option key={course.id} value={course.id}>{course.name}</option>
                                 ))}
@@ -262,9 +288,23 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
                         <h4 className="text-base font-semibold text-gray-800">Assignment Details</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div>
+                            <p className="block text-xs font-medium text-gray-700">Course</p>
+                            <p className="mt-1 text-sm text-gray-900">
+                              {schedule.course ? schedule.course.name : 'N/A'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="block text-xs font-medium text-gray-700">Room</p>
+                            <p className="mt-1 text-sm text-gray-900">
+                              {schedule.room ? schedule.room.name : (schedule.location || 'N/A')}
+                            </p>
+                          </div>
+                          <div>
                             <p className="block text-xs font-medium text-gray-700">Teacher</p>
                             <p className="mt-1 text-sm text-gray-900">
-                              {schedule.creator ? `${schedule.creator.firstName} ${schedule.creator.lastName}`: 'N/A'}
+                              {schedule.assignedToTeacher 
+                                ? `${schedule.assignedToTeacher.firstName} ${schedule.assignedToTeacher.lastName}`
+                                : (schedule.creator ? `${schedule.creator.firstName} ${schedule.creator.lastName}` : 'N/A')}
                             </p>
                           </div>
                           <div>
@@ -294,9 +334,12 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
                             <label htmlFor="assignedToGroup" className="block text-xs font-medium text-gray-700">Assign to Group</label>
                             <select id="assignedToGroup" name="assignedToGroup" value={assignedToGroupId} onChange={(e) => setAssignedToGroupId(e.target.value)} className={inputStyle}>
                                 <option value="">Select Group</option>
-                                {groups.map((group) => (
-                                <option key={group.id} value={group.id}>{group.name}</option>
-                                ))}
+                                {groups
+                                  .filter(group => !courseId || group.courseIds?.includes(courseId) || (group.courses && group.courses.some(c => c.id === courseId)))
+                                  .map((group) => (
+                                    <option key={group.id} value={group.id}>{group.name}</option>
+                                  ))
+                                }
                             </select>
                             </div>
                         </div>

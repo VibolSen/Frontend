@@ -41,7 +41,7 @@ export default function StudentCoursesView({ loggedInUser }) {
     return courses.filter(
       (course) =>
         course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.courseDepartments[0]?.department?.name
+        (course.departmentName || course.courseDepartments?.[0]?.department?.name)
           ?.toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
         (course.leadBy &&
@@ -211,7 +211,7 @@ export default function StudentCoursesView({ loggedInUser }) {
                   {/* Category & Progress % */}
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                      {course.courseDepartments[0]?.department?.name || "General"}
+                      {course.departmentName || course.courseDepartments?.[0]?.department?.name || "General"}
                     </span>
                     <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md border border-blue-100/50">
                       {progress}%

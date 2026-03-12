@@ -64,6 +64,11 @@ export default function ScheduleView() {
       setIsModalOpen(false);
     } catch (error) {
       console.error('Error saving schedule:', error);
+      if (error.response && error.response.status === 409) {
+          alert(`Schedule Conflict: ${error.response.data.error || 'Conflict detected.'}`);
+      } else {
+          alert('Failed to save schedule. Please try again.');
+      }
     }
   };
 
