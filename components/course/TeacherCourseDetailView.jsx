@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { 
-  BookOpenIcon, 
-  UserIcon, 
-  CalendarIcon, 
+import {
+  BookOpenIcon,
+  UserIcon,
+  CalendarIcon,
   InfoIcon,
   MessageSquareIcon,
   ArrowLeftIcon,
@@ -57,7 +57,7 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
         <InfoIcon className="mx-auto h-12 w-12 text-slate-300 mb-4" />
         <h2 className="text-xl font-bold text-slate-900">Course Not Found</h2>
         <p className="text-slate-500 mt-2">We couldn't retrieve the details for this course.</p>
-        <Link href="/teacher/courses" className="mt-6 inline-flex items-center px-6 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all shadow-lg">
+        <Link href="/teacher/courses" prefetch={false} className="mt-6 inline-flex items-center px-6 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all shadow-lg">
           <ArrowLeftIcon size={16} className="mr-2" /> back to My Catalog
         </Link>
       </div>
@@ -70,7 +70,7 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
       <div className="relative overflow-hidden bg-white rounded-[2rem] border border-slate-100 shadow-sm p-8">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-4">
-            <Link href="/teacher/courses" className="inline-flex items-center px-4 py-2 bg-slate-50 text-slate-500 hover:text-indigo-600 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-slate-100 group/back">
+            <Link href="/teacher/courses" prefetch={false} className="inline-flex items-center px-4 py-2 bg-slate-50 text-slate-500 hover:text-indigo-600 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-slate-100 group/back">
               <ArrowLeftIcon size={14} className="mr-2 group-hover/back:-translate-x-1 transition-transform" /> Back to Catalog
             </Link>
             <div className="space-y-2">
@@ -81,13 +81,12 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
                 {course.name}
               </h1>
               <div className="flex items-center gap-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                <span>CODE: {course.code || "REG-ACAD"}</span>
-                <span className="w-1 h-1 bg-slate-300 rounded-full" />
                 <span>ID: {course.id?.slice(-8).toUpperCase()}</span>
               </div>
+
             </div>
           </div>
-          
+
           <div className="hidden lg:block">
             <div className="h-24 w-24 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-[2rem] flex items-center justify-center text-indigo-200 border border-indigo-100 shadow-inner">
               <BookOpenIcon size={48} />
@@ -136,17 +135,6 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
               <AnnouncementsView courseId={courseId} loggedInUser={loggedInUser} hideHeader />
             </div>
           </section>
-
-          {/* Syllabus / Description */}
-          <section className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-8 space-y-4">
-            <h2 className="text-xl font-black text-slate-800 tracking-tight flex items-center gap-3">
-              <div className="w-1 h-6 bg-indigo-600 rounded-full" />
-              Curriculum Overview
-            </h2>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              {course.description || "The instructional objectives and detailed curriculum mapping for this course are currently being finalized by the department lead."}
-            </p>
-          </section>
         </div>
 
         {/* Sidebar Column */}
@@ -166,12 +154,8 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
                   <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest mt-1">Course Director</p>
                 </div>
               </div>
-              
+
               <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-between text-xs font-bold p-3 bg-slate-50 rounded-xl">
-                  <span className="text-slate-400 uppercase tracking-widest">Credits</span>
-                  <span className="text-slate-800">{course.credits || 3.0} Units</span>
-                </div>
                 <div className="flex items-center justify-between text-xs font-bold p-3 bg-slate-50 rounded-xl">
                   <span className="text-slate-400 uppercase tracking-widest">Dept</span>
                   <span className="text-slate-800">{course.courseDepartments?.[0]?.department?.name || "N/A"}</span>
@@ -192,9 +176,10 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
                 { label: "Assignment Control", icon: ClipboardListIcon, link: "/teacher/assignment" },
                 { label: "Gradebook Entry", icon: BookOpenIcon, link: "/teacher/gradebook" },
               ].map((action, i) => (
-                <Link 
+                <Link
                   key={i}
                   href={action.link}
+                  prefetch={false}
                   className="w-full py-4 px-5 bg-white/5 hover:bg-white/10 rounded-2xl text-left transition-all border border-white/5 flex items-center justify-between group"
                 >
                   <div className="flex items-center gap-3">

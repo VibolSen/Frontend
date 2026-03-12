@@ -15,7 +15,6 @@ const SortIndicator = ({ direction }) => {
 
 export default function CoursesTable({
   courses = [],
-  departments = [],
   teachers = [],
   onAddCourseClick,
   onEdit,
@@ -23,7 +22,6 @@ export default function CoursesTable({
   isLoading,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("All");
   const [teacherFilter, setTeacherFilter] = useState("All");
   const [sortConfig, setSortConfig] = useState({
     key: "name",
@@ -34,27 +32,17 @@ export default function CoursesTable({
     return courses.filter((course) => {
       const matchesSearch =
         course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (course.courseDepartments &&
-          course.courseDepartments.some((cd) =>
-            cd.department.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )) ||
         (course.leadBy &&
           `${course.leadBy.firstName} ${course.leadBy.lastName}`
             .toLowerCase()
             .includes(searchTerm.toLowerCase()));
 
-      const matchesDepartment =
-        departmentFilter === "All" ||
-        (course.courseDepartments &&
-          course.courseDepartments.some(
-            (cd) => cd.departmentId === departmentFilter
-          ));
       const matchesTeacher =
         teacherFilter === "All" || course.leadById === teacherFilter;
 
-      return matchesSearch && matchesDepartment && matchesTeacher;
+      return matchesSearch && matchesTeacher;
     });
-  }, [courses, searchTerm, departmentFilter, teacherFilter]);
+  }, [courses, searchTerm, teacherFilter]);
 
   const sortedCourses = useMemo(() => {
     if (!sortConfig.key) return filteredCourses;
@@ -103,20 +91,6 @@ export default function CoursesTable({
 
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
-            <Layers size={12} className="text-slate-400" />
-            <select
-              value={departmentFilter}
-              onChange={(e) => setDepartmentFilter(e.target.value)}
-              className="bg-transparent text-[10px] font-black uppercase tracking-tight focus:outline-none cursor-pointer text-slate-600"
-            >
-              <option value="All text-slate-400">All Departments</option>
-              {departments.map((dept) => (
-                <option key={dept.id} value={dept.id} className="normal-case font-medium">{dept.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-sm">
             <User size={12} className="text-slate-400" />
             <select
               value={teacherFilter}
@@ -131,6 +105,9 @@ export default function CoursesTable({
               ))}
             </select>
           </div>
+          <div className="px-3 py-1.5 bg-blue-50 text-indigo-700 text-[10px] font-black uppercase tracking-tight rounded-lg border border-blue-100 shrink-0">
+            {filteredCourses.length} Total Courses
+          </div>
         </div>
       </div>
 
@@ -144,17 +121,15 @@ export default function CoursesTable({
                   <SortIndicator direction={sortConfig.key === "name" ? sortConfig.direction : null} />
                 </div>
               </th>
-              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest hidden lg:table-cell">Dept. Link</th>
-              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Academic Faculty</th>
-              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Credits</th>
-              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Sectors</th>
+              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Lecturer</th>
+              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Groups</th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
             {isLoading && sortedCourses.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-12 border-none">
+                <td colSpan={4} className="py-12 border-none">
                   <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                     <div className="h-5 w-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 tracking-widest">Compiling Catalog...</span>
@@ -163,7 +138,7 @@ export default function CoursesTable({
               </tr>
             ) : sortedCourses.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-12 text-center">
+                <td colSpan={4} className="py-12 text-center">
                    <div className="flex flex-col items-center opacity-40">
                      <BookOpen size={24} className="mb-2" />
                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No course entries matched</p>
@@ -182,27 +157,15 @@ export default function CoursesTable({
                   <td className="px-5 py-3 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-[10px] shrink-0 border border-indigo-100 uppercase">
-                        {course.code ? course.code.substring(0, 2) : course.name.charAt(0)}
+                        {course.name.charAt(0)}
                       </div>
                       <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-1.5">
                           <span className="text-[13px] font-black text-slate-800 tracking-tight truncate max-w-[150px]">{course.name}</span>
-                          {course.code && (
-                             <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 text-[8px] font-black rounded uppercase tracking-tighter border border-slate-200">
-                               {course.code}
-                             </span>
-                          )}
                         </div>
                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Academic Curriculum</span>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-5 py-3 whitespace-nowrap hidden lg:table-cell">
-                    <span className="text-[11px] font-bold text-slate-600 truncate max-w-[120px] block uppercase tracking-tighter">
-                      {course.courseDepartments && course.courseDepartments.length > 0
-                        ? course.courseDepartments.map(cd => cd.department.name).join(", ")
-                        : "General Faculty"}
-                    </span>
                   </td>
                   <td className="px-5 py-3 whitespace-nowrap">
                     <div className="flex items-center gap-2">
@@ -213,7 +176,7 @@ export default function CoursesTable({
                            </div>
                            <div className="flex flex-col">
                              <span className="text-[11px] font-bold text-slate-700 leading-tight">{course.leadBy.firstName} {course.leadBy.lastName}</span>
-                             <span className="text-[8px] font-medium text-slate-400 uppercase tracking-tighter">Lead Instructor</span>
+                             <span className="text-[8px] font-medium text-slate-400 uppercase tracking-tighter">Lecturer</span>
                            </div>
                          </>
                        ) : (
@@ -221,14 +184,9 @@ export default function CoursesTable({
                        )}
                     </div>
                   </td>
-                  <td className="px-5 py-3 whitespace-nowrap text-center">
-                    <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-700 text-[11px] font-black border border-blue-100 shadow-sm">
-                      {course.credits || 3}
-                    </div>
-                  </td>
                   <td className="px-5 py-3 whitespace-nowrap text-center hidden md:table-cell">
                     <span className="px-2 py-0.5 text-[9px] font-black text-indigo-700 bg-indigo-50 border border-indigo-100 rounded uppercase tracking-widest">
-                       {course._count?.groups ?? 0} Sectors
+                       {course._count?.groups ?? 0} Groups
                     </span>
                   </td>
                   <td className="px-5 py-3 whitespace-nowrap text-center">

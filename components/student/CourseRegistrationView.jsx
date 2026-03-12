@@ -41,7 +41,6 @@ function CourseCard({ course, enrollmentStatus, onRequest, onDrop, isLoading }) 
         {/* Header */}
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-mono font-bold text-slate-400">{course.code || "N/A"}</p>
             <h3 className="text-[13px] font-black text-slate-800 mt-0.5 leading-tight">{course.name}</h3>
           </div>
           <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl shrink-0">
@@ -68,13 +67,6 @@ function CourseCard({ course, enrollmentStatus, onRequest, onDrop, isLoading }) 
             </span>
           )}
         </div>
-
-        {/* Description */}
-        {course.description && (
-          <p className="text-[11px] text-slate-500 font-medium leading-relaxed line-clamp-2">
-            {course.description}
-          </p>
-        )}
 
         <div className="mt-auto pt-3 border-t border-slate-50">
           {statusCfg ? (

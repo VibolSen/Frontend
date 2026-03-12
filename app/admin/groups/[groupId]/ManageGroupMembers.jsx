@@ -14,19 +14,25 @@ export default function ManageGroupMembers({
     initialGroup.students.map((s) => s.id)
   );
   const [searchTerm, setSearchTerm] = useState("");
+  const [showAll, setShowAll] = useState(false);
 
   const { enrolledStudents, availableStudents } = useMemo(() => {
     const enrolledSet = new Set(enrolledStudentIds);
-    
-    const filtered = allStudents.filter(s => 
-      `${s.firstName} ${s.lastName} ${s.email}`.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const batchDeptId = initialGroup.batch?.departmentId || null;
 
-    const enrolled = filtered.filter(s => enrolledSet.has(s.id));
+    const filtered = allStudents.filter(s => {
+      const matchesSearch = `${s.firstName} ${s.lastName} ${s.email}`.toLowerCase().includes(searchTerm.toLowerCase());
+      // When filtered mode: must match both generation AND department
+      const matchesBatch = showAll || !initialGroup.batchId || s.profile?.batchId === initialGroup.batchId;
+      const matchesDept = showAll || !batchDeptId || s.departmentId === batchDeptId;
+      return matchesSearch && matchesBatch && matchesDept;
+    });
+
+    const enrolled = allStudents.filter(s => enrolledSet.has(s.id));
     const available = filtered.filter(s => !enrolledSet.has(s.id));
 
     return { enrolledStudents: enrolled, availableStudents: available };
-  }, [allStudents, enrolledStudentIds, searchTerm]);
+  }, [allStudents, enrolledStudentIds, searchTerm, showAll, initialGroup.batchId, initialGroup.batch]);
 
   const handleAddStudent = (studentId) => {
     setEnrolledStudentIds((prev) => [...prev, studentId]);
@@ -57,11 +63,10 @@ export default function ManageGroupMembers({
       </div>
       <button
         onClick={() => type === 'enrolled' ? handleRemoveStudent(student.id) : handleAddStudent(student.id)}
-        className={`p-2 rounded-xl transition-all ${
-          type === 'enrolled' 
-          ? 'text-rose-400 hover:bg-rose-50 hover:text-rose-600' 
+        className={`p-2 rounded-xl transition-all ${type === 'enrolled'
+          ? 'text-rose-400 hover:bg-rose-50 hover:text-rose-600'
           : 'text-emerald-400 hover:bg-emerald-50 hover:text-emerald-600'
-        }`}
+          }`}
       >
         {type === 'enrolled' ? <UserMinus size={18} /> : <UserPlus size={18} />}
       </button>
@@ -88,12 +93,21 @@ export default function ManageGroupMembers({
         {/* Available Students */}
         <div className="flex flex-col h-[400px] lg:h-[450px]">
           <div className="flex items-center justify-between mb-4 px-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">Available Pool</span>
+              <button
+                onClick={() => setShowAll(!showAll)}
+                className={`text-[9px] font-bold px-2 py-0.5 rounded-full transition-all border ${showAll
+                  ? "bg-slate-900 text-white border-slate-900"
+                  : "bg-white text-slate-400 border-slate-200 hover:border-slate-400"
+                  }`}
+              >
+                {showAll ? "Showing All System Users" : "Filtered by Generation"}
+              </button>
               <span className="bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">{availableStudents.length}</span>
             </div>
           </div>
-          
+
           <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-1">
             {availableStudents.length > 0 ? (
               availableStudents.map((student) => (
@@ -123,7 +137,7 @@ export default function ManageGroupMembers({
               <span className="bg-indigo-100 text-indigo-600 text-[10px] font-bold px-2 py-0.5 rounded-full">{enrolledStudents.length}</span>
             </div>
             {enrolledStudents.length > 0 && (
-              <button 
+              <button
                 onClick={() => setEnrolledStudentIds([])}
                 className="text-[10px] font-bold text-rose-500 hover:underline"
               >

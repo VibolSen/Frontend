@@ -14,7 +14,6 @@ export default function FacultyModal({
   heads = [],
 }) {
   const [name, setName] = useState("");
-  const [headId, setHeadId] = useState("");
   const [mounted, setMounted] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -27,10 +26,8 @@ export default function FacultyModal({
   useEffect(() => {
     if (isOpen) {
       setName(facultyToEdit?.name || "");
-      setHeadId(facultyToEdit?.headId || "");
     } else {
       setName("");
-      setHeadId("");
     }
   }, [isOpen, facultyToEdit]);
 
@@ -44,7 +41,7 @@ export default function FacultyModal({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      onSave({ name, headId });
+      onSave({ name });
     }
   };
 
@@ -118,25 +115,6 @@ export default function FacultyModal({
                       {errors.name}
                     </motion.p>
                   )}
-                </div>
-                
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 ml-1">
-                    Faculty Head (Dean)
-                  </label>
-                  <select
-                    value={headId}
-                    onChange={(e) => setHeadId(e.target.value)}
-                    disabled={isLoading}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white"
-                  >
-                    <option value="">(None)</option>
-                    {heads.map(h => (
-                      <option key={h.id} value={h.id}>
-                        {h.firstName} {h.lastName} ({h.role})
-                      </option>
-                    ))}
-                  </select>
                 </div>
               </div>
 

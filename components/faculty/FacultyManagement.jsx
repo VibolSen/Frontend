@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { apiClient } from '@/lib/api';
 
-export default function FacultyManagement() {
+export default function FacultyManagement({ role = 'admin' }) {
   const [faculties, setFaculties] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingFaculty, setEditingFaculty] = useState(null);
@@ -19,7 +19,6 @@ export default function FacultyManagement() {
   const [successMessage, setSuccessMessage] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [potentialHeads, setPotentialHeads] = useState([]);
 
   const showMessage = (message, type = "success") => {
     if (type === "error") {
@@ -46,20 +45,19 @@ export default function FacultyManagement() {
 
   useEffect(() => {
     fetchFaculties();
-    apiClient.get('/users?roleType=nonStudent').then(setPotentialHeads).catch(console.error);
   }, [fetchFaculties]);
 
   const handleSaveFaculty = async (formData) => {
     setIsLoading(true);
     const isEditing = !!editingFaculty;
-    
+
     try {
       if (isEditing) {
         await apiClient.put(`/faculties/${editingFaculty.id}`, formData);
       } else {
         await apiClient.post('/faculties', formData);
       }
-      
+
       showMessage(
         `Faculty ${isEditing ? 'updated' : 'created'} successfully!`
       );
@@ -150,6 +148,7 @@ export default function FacultyManagement() {
           onDeleteClick={handleDeleteRequest}
           onAddFacultyClick={handleAddClick}
           isLoading={isLoading}
+          role={role}
         />
       </motion.div>
 
@@ -160,7 +159,6 @@ export default function FacultyManagement() {
           onSave={handleSaveFaculty}
           facultyToEdit={editingFaculty}
           isLoading={isLoading}
-          heads={potentialHeads}
         />
       )}
 

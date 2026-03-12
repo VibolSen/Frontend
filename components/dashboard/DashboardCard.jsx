@@ -34,7 +34,7 @@ export default function DashboardCard({ title, value, icon, description, href })
   );
 
   if (href) {
-    return <Link href={href}>{cardContent}</Link>;
+    return <Link href={href} prefetch={false}>{cardContent}</Link>;
   }
 
   return cardContent;

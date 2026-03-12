@@ -9,7 +9,7 @@ import { Plus } from "lucide-react";
 
 import { apiClient } from '@/lib/api';
 
-export default function DepartmentManagementView() {
+export default function DepartmentManagementView({ role = "admin" }) {
   const [departments, setDepartments] = useState([]);
   const [faculties, setFaculties] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -69,7 +69,7 @@ export default function DepartmentManagementView() {
       } else {
         await apiClient.post('/departments', formData);
       }
-      
+
       showMessage(
         `Department ${isEditing ? "updated" : "created"} successfully!`
       );
@@ -159,6 +159,7 @@ export default function DepartmentManagementView() {
           onEditClick={handleEditClick}
           onDeleteClick={handleDeleteRequest}
           isLoading={isLoading}
+          role={role}
         />
       </motion.div>
 

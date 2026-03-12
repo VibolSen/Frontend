@@ -123,7 +123,7 @@ export default function AdministratorDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50/20 pb-10">
-      <motion.div 
+      <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="show"
@@ -159,7 +159,7 @@ export default function AdministratorDashboard() {
             { title: "Groups", val: dashboardData.groupCount, icon: Group, color: "cyan", href: "/admin/groups" },
           ].map((stat, i) => (
             <motion.div variants={itemVariants} key={stat.title} whileHover={{ y: -3 }}>
-              <Link href={stat.href} className="group flex items-center justify-between p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-blue-200 hover:shadow-md transition-all">
+              <Link href={stat.href} prefetch={false} className="group flex items-center justify-between p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-blue-200 hover:shadow-md transition-all">
                 <div>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{stat.title}</p>
                   <p className="text-xl font-black text-slate-900 leading-none">{stat.val}</p>
@@ -197,6 +197,7 @@ export default function AdministratorDashboard() {
                 ].map((action) => (
                   <Link
                     href={action.href}
+                    prefetch={false}
                     key={action.label}
                     className="group flex flex-col items-center gap-2 p-3 rounded-xl border border-slate-50 hover:border-blue-100 hover:bg-slate-50/50 transition-all active:scale-95"
                   >
@@ -232,7 +233,7 @@ export default function AdministratorDashboard() {
                   </div>
                   <span className="text-[10px] font-black uppercase tracking-widest text-blue-50">Intelligence Report</span>
                 </div>
-                
+
                 {dashboardData.studentsPerGroup?.length > 0 ? (
                   <>
                     <h4 className="text-lg font-black leading-tight">
@@ -250,15 +251,15 @@ export default function AdministratorDashboard() {
                 )}
 
                 <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                   <div className="space-y-0.5">
-                      <p className="text-[9px] font-black text-blue-200 uppercase tracking-tighter">Student/Teacher Ratio</p>
-                      <p className="text-sm font-black">
-                        {(dashboardData.studentCount / (dashboardData.teacherCount || 1)).toFixed(1)} : 1
-                      </p>
-                   </div>
-                   <Link href="/admin/reports" className="h-8 w-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
-                     <ChevronRight size={16} />
-                   </Link>
+                  <div className="space-y-0.5">
+                    <p className="text-[9px] font-black text-blue-200 uppercase tracking-tighter">Student/Teacher Ratio</p>
+                    <p className="text-sm font-black">
+                      {(dashboardData.studentCount / (dashboardData.teacherCount || 1)).toFixed(1)} : 1
+                    </p>
+                  </div>
+                  <Link href="/admin/reports" className="h-8 w-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
+                    <ChevronRight size={16} />
+                  </Link>
                 </div>
               </div>
               <div className="absolute -right-6 -bottom-6 h-32 w-32 bg-white/10 rounded-full blur-2xl" />
@@ -266,22 +267,22 @@ export default function AdministratorDashboard() {
             </motion.section>
 
             <motion.section variants={itemVariants} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-center">
-               <div className="h-14 w-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-white shadow-sm">
-                 <Shield size={28} />
-               </div>
-               <h4 className="text-sm font-black text-slate-900 leading-none mb-1">{welcomeName}</h4>
-               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Master Control</p>
-               <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-center gap-6">
-                  <div className="text-center">
-                    <p className="text-[11px] font-black text-slate-900 leading-none">High</p>
-                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Security</p>
-                  </div>
-                  <div className="h-4 w-px bg-slate-100" />
-                  <div className="text-center">
-                    <p className="text-[11px] font-black text-slate-900 leading-none">v4.2</p>
-                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Version</p>
-                  </div>
-               </div>
+              <div className="h-14 w-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-white shadow-sm">
+                <Shield size={28} />
+              </div>
+              <h4 className="text-sm font-black text-slate-900 leading-none mb-1">{welcomeName}</h4>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Master Control</p>
+              <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-center gap-6">
+                <div className="text-center">
+                  <p className="text-[11px] font-black text-slate-900 leading-none">High</p>
+                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Security</p>
+                </div>
+                <div className="h-4 w-px bg-slate-100" />
+                <div className="text-center">
+                  <p className="text-[11px] font-black text-slate-900 leading-none">v4.2</p>
+                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Version</p>
+                </div>
+              </div>
             </motion.section>
           </div>
         </div>

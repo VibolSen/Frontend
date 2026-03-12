@@ -68,7 +68,7 @@ export default function FinanceDashboard() {
         const totalExpenses = expenses?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
         const totalPayroll = payrolls?.reduce((sum, p) => sum + (p.netSalary || 0), 0) || 0;
         const pendingInvoices = invoices?.filter(i => i.status === "PENDING")?.length || 0;
-        
+
         // Simple forecasting: pending revenue - payrolls - other expenses
         const upcomingRevenue = invoices?.filter(i => i.status === "SENT")?.reduce((sum, i) => sum + (i.totalAmount || 0), 0) || 0;
         const upcomingPayroll = payrolls?.filter(p => p.status === "PENDING")?.reduce((sum, p) => sum + (p.netSalary || 0), 0) || 0;
@@ -254,6 +254,7 @@ export default function FinanceDashboard() {
             <motion.div variants={itemVariants} key={stat.title} whileHover={{ y: -3 }}>
               <Link
                 href={stat.href}
+                prefetch={false}
                 className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-emerald-100 hover:shadow-md transition-all"
               >
                 <div>
@@ -341,6 +342,7 @@ export default function FinanceDashboard() {
             ].map((action) => (
               <Link
                 href={action.href}
+                prefetch={false}
                 key={action.label}
                 className="group flex flex-col items-center gap-2 p-3 rounded-xl border border-slate-50 hover:border-emerald-100 hover:bg-slate-50/50 transition-all active:scale-95"
               >
@@ -368,7 +370,7 @@ export default function FinanceDashboard() {
               AI Insights Active
             </div>
           </div>
-          
+
           <div className="mb-6">
             <h3 className="text-xl font-black text-slate-800 tracking-tight">AI Cash Flow Forecasting</h3>
             <p className="text-slate-500 text-sm font-medium">Predicting financial health based on current pending invoices and upcoming payrolls.</p>
@@ -376,18 +378,18 @@ export default function FinanceDashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Current Cash</p>
-               <p className="text-2xl font-black text-slate-900">{formatCurrency(dashboardData?.totalRevenue - (dashboardData?.totalExpenses))}</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Current Cash</p>
+              <p className="text-2xl font-black text-slate-900">{formatCurrency(dashboardData?.totalRevenue - (dashboardData?.totalExpenses))}</p>
             </div>
             <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-               <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Projected Inflow</p>
-               <p className="text-2xl font-black text-slate-900">+{formatCurrency(dashboardData?.upcomingRevenue)}</p>
-               <p className="text-[10px] text-emerald-600 font-bold mt-1">Pending Invoices</p>
+              <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Projected Inflow</p>
+              <p className="text-2xl font-black text-slate-900">+{formatCurrency(dashboardData?.upcomingRevenue)}</p>
+              <p className="text-[10px] text-emerald-600 font-bold mt-1">Pending Invoices</p>
             </div>
             <div className="p-4 bg-rose-50 rounded-2xl border border-rose-100">
-               <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-1">Projected Outflow</p>
-               <p className="text-2xl font-black text-slate-900">-{formatCurrency(dashboardData?.upcomingPayroll)}</p>
-               <p className="text-[10px] text-rose-600 font-bold mt-1">Pending Payrolls</p>
+              <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-1">Projected Outflow</p>
+              <p className="text-2xl font-black text-slate-900">-{formatCurrency(dashboardData?.upcomingPayroll)}</p>
+              <p className="text-[10px] text-rose-600 font-bold mt-1">Pending Payrolls</p>
             </div>
           </div>
 
@@ -400,32 +402,32 @@ export default function FinanceDashboard() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} fontWeight={700} />
                 <YAxis axisLine={false} tickLine={false} fontSize={12} fontWeight={700} />
-                <Tooltip 
+                <Tooltip
                   cursor={{ fill: '#f8fafc' }}
                   contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}
                   formatter={(value) => formatCurrency(value)}
                 />
                 <Bar dataKey="amount" radius={[8, 8, 0, 0]}>
-                  { [0, 1].map((entry, index) => (
+                  {[0, 1].map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={index === 0 ? '#10b981' : '#3b82f6'} />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
-          
+
           <div className="mt-6 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50 flex items-start gap-3">
-             <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
-                <BarChart3 size={18} />
-             </div>
-             <div>
-                <p className="text-sm font-black text-blue-900">AI Analysis</p>
-                <p className="text-xs text-blue-800 font-medium leading-relaxed">
-                   Based on your current transaction patterns, your school is expected to maintain a positive cash flow of approximately 
-                   <span className="font-bold"> {formatCurrency((dashboardData?.totalRevenue - (dashboardData?.totalExpenses)) + dashboardData?.upcomingRevenue - dashboardData?.upcomingPayroll)} </span> 
-                   by the end of the next 30 days. Recommend sending reminders for overdue invoices to further optimize liquidity.
-                </p>
-             </div>
+            <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+              <BarChart3 size={18} />
+            </div>
+            <div>
+              <p className="text-sm font-black text-blue-900">AI Analysis</p>
+              <p className="text-xs text-blue-800 font-medium leading-relaxed">
+                Based on your current transaction patterns, your school is expected to maintain a positive cash flow of approximately
+                <span className="font-bold"> {formatCurrency((dashboardData?.totalRevenue - (dashboardData?.totalExpenses)) + dashboardData?.upcomingRevenue - dashboardData?.upcomingPayroll)} </span>
+                by the end of the next 30 days. Recommend sending reminders for overdue invoices to further optimize liquidity.
+              </p>
+            </div>
           </div>
         </motion.section>
 
@@ -562,7 +564,7 @@ export default function FinanceDashboard() {
                   <p className="text-sm font-black text-emerald-600">
                     {formatCurrency(payment.amount)}
                   </p>
-                  <button 
+                  <button
                     onClick={() => setSelectedPayment(payment)}
                     className="opacity-0 group-hover:opacity-100 p-2 bg-white text-slate-400 hover:text-emerald-600 rounded-lg border border-slate-200 shadow-sm transition-all"
                   >
@@ -597,68 +599,68 @@ export default function FinanceDashboard() {
                 className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200"
               >
                 <div className="bg-emerald-600 p-6 text-white flex justify-between items-center">
-                   <div>
-                      <h2 className="text-xl font-black tracking-tight">Financial Audit Trail</h2>
-                      <p className="text-emerald-100 text-[10px] font-black uppercase tracking-widest mt-1">Verified Bank Activity</p>
-                   </div>
-                   <button onClick={() => setSelectedPayment(null)} className="p-2 hover:bg-emerald-500 rounded-full transition-colors">
-                      <X size={20} />
-                   </button>
+                  <div>
+                    <h2 className="text-xl font-black tracking-tight">Financial Audit Trail</h2>
+                    <p className="text-emerald-100 text-[10px] font-black uppercase tracking-widest mt-1">Verified Bank Activity</p>
+                  </div>
+                  <button onClick={() => setSelectedPayment(null)} className="p-2 hover:bg-emerald-500 rounded-full transition-colors">
+                    <X size={20} />
+                  </button>
                 </div>
-                
+
                 <div className="p-8 space-y-6">
-                   <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                      <div>
-                         <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Audit Amount</p>
-                         <p className="text-3xl font-black text-slate-900">{formatCurrency(selectedPayment.amount)}</p>
-                      </div>
-                      <div className="h-12 w-12 bg-emerald-600 text-white rounded-xl flex items-center justify-center">
-                         <ShieldCheck size={24} />
-                      </div>
-                   </div>
+                  <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                    <div>
+                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Audit Amount</p>
+                      <p className="text-3xl font-black text-slate-900">{formatCurrency(selectedPayment.amount)}</p>
+                    </div>
+                    <div className="h-12 w-12 bg-emerald-600 text-white rounded-xl flex items-center justify-center">
+                      <ShieldCheck size={24} />
+                    </div>
+                  </div>
 
-                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <div className="space-y-1">
-                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Transferred From</p>
-                         <p className="text-sm font-bold text-slate-800 flex items-center gap-2 leading-none"><User size={14} className="text-emerald-500" /> {selectedPayment.senderName || "Unknown"}</p>
-                         <p className="text-[11px] text-slate-500 font-mono mt-1">{selectedPayment.senderAccount || "N/A"}</p>
-                      </div>
-                      <div className="space-y-1 sm:text-right">
-                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Received Account</p>
-                         <p className="text-sm font-bold text-slate-800 uppercase leading-none">School Official Merc</p>
-                         <p className="text-[11px] text-emerald-600 font-mono font-bold mt-1 uppercase">{selectedPayment.receiverAccount || "MAIN_FUND"}</p>
-                      </div>
-                   </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Transferred From</p>
+                      <p className="text-sm font-bold text-slate-800 flex items-center gap-2 leading-none"><User size={14} className="text-emerald-500" /> {selectedPayment.senderName || "Unknown"}</p>
+                      <p className="text-[11px] text-slate-500 font-mono mt-1">{selectedPayment.senderAccount || "N/A"}</p>
+                    </div>
+                    <div className="space-y-1 sm:text-right">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Received Account</p>
+                      <p className="text-sm font-bold text-slate-800 uppercase leading-none">School Official Merc</p>
+                      <p className="text-[11px] text-emerald-600 font-mono font-bold mt-1 uppercase">{selectedPayment.receiverAccount || "MAIN_FUND"}</p>
+                    </div>
+                  </div>
 
-                   <div className="pt-4 border-t border-slate-100 space-y-4">
-                      <div className="flex justify-between items-center text-[11px]">
-                         <span className="font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><Hash size={12} /> Transaction Hash</span>
-                         <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-1 rounded-md truncate max-w-[200px]">{selectedPayment.transactionId}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-[11px]">
-                         <span className="font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><Calendar size={12} /> System Timestamp</span>
-                         <span className="font-bold text-slate-800">{new Date(selectedPayment.createdAt).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-[11px]">
-                         <span className="font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><CreditCard size={12} /> Payment Method</span>
-                         <span className="font-black text-emerald-600 uppercase italic tracking-tighter">{selectedPayment.paymentMethod}</span>
-                      </div>
-                   </div>
+                  <div className="pt-4 border-t border-slate-100 space-y-4">
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><Hash size={12} /> Transaction Hash</span>
+                      <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-1 rounded-md truncate max-w-[200px]">{selectedPayment.transactionId}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><Calendar size={12} /> System Timestamp</span>
+                      <span className="font-bold text-slate-800">{new Date(selectedPayment.createdAt).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><CreditCard size={12} /> Payment Method</span>
+                      <span className="font-black text-emerald-600 uppercase italic tracking-tighter">{selectedPayment.paymentMethod}</span>
+                    </div>
+                  </div>
 
-                   {selectedPayment.notes && (
-                      <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 italic text-[11px] text-slate-500 leading-relaxed">
-                         &quot;{selectedPayment.notes}&quot;
-                      </div>
-                   )}
+                  {selectedPayment.notes && (
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 italic text-[11px] text-slate-500 leading-relaxed">
+                      &quot;{selectedPayment.notes}&quot;
+                    </div>
+                  )}
                 </div>
 
                 <div className="px-8 pb-8 flex gap-3">
-                   <button 
-                      onClick={() => setSelectedPayment(null)}
-                      className="flex-1 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
-                   >
-                      Confirm Audit Check
-                   </button>
+                  <button
+                    onClick={() => setSelectedPayment(null)}
+                    className="flex-1 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
+                  >
+                    Confirm Audit Check
+                  </button>
                 </div>
               </motion.div>
             </div>

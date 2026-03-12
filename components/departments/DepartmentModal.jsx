@@ -14,7 +14,6 @@ export default function DepartmentModal({
 }) {
   const [name, setName] = useState("");
   const [facultyId, setFacultyId] = useState("");
-  const [headId, setHeadId] = useState("");
   const [error, setError] = useState("");
   const [mounted, setMounted] = useState(false);
 
@@ -28,7 +27,6 @@ export default function DepartmentModal({
     if (isOpen) {
       setName(departmentToEdit?.name || "");
       setFacultyId(departmentToEdit?.facultyId || "");
-      setHeadId(departmentToEdit?.headId || "");
       setError("");
     }
   }, [isOpen, departmentToEdit]);
@@ -39,10 +37,9 @@ export default function DepartmentModal({
       setError("Department name cannot be empty.");
       return;
     }
-    onSave({ 
-      name, 
-      facultyId: facultyId || null,
-      headId: headId || null 
+    onSave({
+      name,
+      facultyId: facultyId || null
     });
   };
 
@@ -104,11 +101,10 @@ export default function DepartmentModal({
                       if (error) setError("");
                     }}
                     disabled={isLoading}
-                    className={`w-full px-4 py-2.5 bg-slate-50 border rounded-xl text-sm transition-all duration-200 ${
-                      error
-                        ? "border-red-500 ring-4 ring-red-500/10"
-                        : "border-slate-200 hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white"
-                    }`}
+                    className={`w-full px-4 py-2.5 bg-slate-50 border rounded-xl text-sm transition-all duration-200 ${error
+                      ? "border-red-500 ring-4 ring-red-500/10"
+                      : "border-slate-200 hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white"
+                      }`}
                     placeholder="e.g., Computer Science"
                   />
                   {error && (
@@ -145,25 +141,6 @@ export default function DepartmentModal({
                       </svg>
                     </div>
                   </div>
-                </div>
-                
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 ml-1">
-                    Head of Department (HoD)
-                  </label>
-                  <select
-                    value={headId}
-                    onChange={(e) => setHeadId(e.target.value)}
-                    disabled={isLoading}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white"
-                  >
-                    <option value="">Select HoD (Optional)</option>
-                    {heads.map(h => (
-                      <option key={h.id} value={h.id}>
-                        {h.firstName} {h.lastName} ({h.role})
-                      </option>
-                    ))}
-                  </select>
                 </div>
               </div>
 

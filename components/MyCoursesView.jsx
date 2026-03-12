@@ -227,8 +227,9 @@ export default function MyCoursesView({ loggedInUser }) {
                               {course.name}
                             </p>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
-                              {course.code || "REG-ACAD"}
+                              REG-ACAD
                             </p>
+
                           </div>
                         </div>
                       </td>

@@ -11,6 +11,9 @@ import {
   Eye,
   EyeOff,
   Lock,
+  GraduationCap,
+  Calendar,
+  Layers
 } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import toast from "react-hot-toast";
@@ -329,11 +332,66 @@ export default function ProfilePageContent({
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bio</span>
                 <p className="text-[13px] font-medium text-slate-600 leading-relaxed italic">
-                   {user.profile?.bio || "No bio added yet."}
+                  {user.profile?.bio || "No bio added yet."}
                 </p>
               </div>
             </div>
           </div>
+
+          {/* Academic Information (Students only) */}
+          {user.role === "STUDENT" && (
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 h-full text-slate-400">
+              <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-indigo-500" />
+                Academic Status
+              </h2>
+
+              <div className="space-y-5">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Academic Year</span>
+                    <span className="text-[13px] font-black text-indigo-600 px-3 py-1 bg-indigo-50 rounded-lg w-fit">
+                      Year {user.profile?.academicYear || 1}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Semester</span>
+                    <span className="text-[13px] font-black text-blue-600 px-3 py-1 bg-blue-50 rounded-lg w-fit">
+                      Semester {user.profile?.semester || 1}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Generation / Batch</span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[13px] font-black text-amber-700 px-3 py-1 bg-amber-50 rounded-lg border border-amber-100 uppercase tracking-tight">
+                      {user.profile?.generation || "Not assigned"}
+                    </span>
+                    {user.profile?.batch && (
+                      <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${user.profile.batch.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                        }`}>
+                        {user.profile.batch.status}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {user.profile?.academicStatus && (
+                  <div className="flex flex-col gap-1 pt-2 border-t border-slate-100">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Current Status</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={`h-2 w-2 rounded-full ${user.profile.academicStatus === 'ACTIVE' ? 'bg-emerald-500' : 'bg-amber-500'
+                        }`} />
+                      <span className="text-[12px] font-black text-slate-700 uppercase tracking-widest">
+                        {user.profile.academicStatus}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Change Password */}
           {isCurrentUser && (

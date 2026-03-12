@@ -102,34 +102,34 @@ export default function FacultyDashboard() {
         </header>
 
         {/* Cards Section */}
-                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
 
-                  <DashboardCard
-                    title="My Courses"
-                    value={dashboardData.courseCount || 0}
-                    icon={<Book className="w-6 h-6 text-blue-500" />}
-                    description="Courses you are teaching"
-                    href="/faculty/courses"
-                    bgColor="bg-blue-50"
-                  />
-                  <DashboardCard
-                    title="My Departments"
-                    value={dashboardData.departmentCount || 0}
-                    icon={<Building2 className="w-6 h-6 text-purple-500" />}
-                    description="Departments you are associated with"
-                    href="/faculty/departments"
-                    bgColor="bg-purple-50"
-                  />
-                  <DashboardCard
-                    title="My Groups"
-                    value={dashboardData.groupCount || 0}
-                    icon={<Users className="w-6 h-6 text-pink-600" />}
-                    description="Groups you manage"
-                    href="/faculty/groups"
-                    bgColor="bg-pink-50"
-                  />
-                </section>
+          <DashboardCard
+            title="My Courses"
+            value={dashboardData.courseCount || 0}
+            icon={<Book className="w-6 h-6 text-blue-500" />}
+            description="Courses you are teaching"
+            href="/faculty/courses"
+            bgColor="bg-blue-50"
+          />
+          <DashboardCard
+            title="My Departments"
+            value={dashboardData.departmentCount || 0}
+            icon={<Building2 className="w-6 h-6 text-purple-500" />}
+            description="Departments you are associated with"
+            href="/faculty/departments"
+            bgColor="bg-purple-50"
+          />
+          <DashboardCard
+            title="My Groups"
+            value={dashboardData.groupCount || 0}
+            icon={<Users className="w-6 h-6 text-pink-600" />}
+            description="Groups you manage"
+            href="/faculty/groups"
+            bgColor="bg-pink-50"
+          />
+        </section>
 
         {/* Quick Actions */}
         <section className="bg-white/70 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 shadow-sm">
@@ -182,6 +182,7 @@ export default function FacultyDashboard() {
             ].map((action, i) => (
               <Link
                 href={action.href}
+                prefetch={false}
                 key={i}
                 className="group flex flex-col items-center gap-3 p-4 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 hover:shadow-md transition-all duration-200 cursor-pointer"
               >
@@ -189,8 +190,8 @@ export default function FacultyDashboard() {
                   <action.icon className="w-6 h-6 text-gray-700" />
                 </div>
                 <span className="text-sm font-medium text-gray-800 text-center">
-                    {action.label}
-                  </span>
+                  {action.label}
+                </span>
               </Link>
             ))}
           </div>

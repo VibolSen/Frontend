@@ -294,9 +294,10 @@ export default function AssignmentModal({
                          <option value="">Select Course (Optional)</option>
                          {courses && courses.map((course) => (
                             <option key={course.id} value={course.id}>
-                              {course.name} {course.code ? `(${course.code})` : ''}
+                              {course.name}
                             </option>
                          ))}
+
                       </select>
                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

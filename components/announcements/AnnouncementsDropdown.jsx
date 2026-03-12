@@ -51,7 +51,7 @@ export default function AnnouncementsDropdown() {
                             <div className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">No recent announcements.</div>
                         )}
                         {!isLoading && !error && announcements.map(announcement => (
-                            <Link key={announcement.id} href={`/student/courses/${announcement.courseId}`} className="flex items-center px-4 py-3 -mx-2 transition-colors duration-200 transform border-b border-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-700">
+                            <Link key={announcement.id} href={`/student/courses/${announcement.courseId}`} prefetch={false} className="flex items-center px-4 py-3 -mx-2 transition-colors duration-200 transform border-b border-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-700">
                                 <div className="mx-2">
                                     <p className="text-sm font-semibold text-gray-800 dark:text-white">{announcement.title}</p>
                                     {announcement.course && <p className="text-xs text-gray-600 dark:text-gray-400">{announcement.course.name}</p>}
@@ -59,7 +59,7 @@ export default function AnnouncementsDropdown() {
                             </Link>
                         ))}
                     </div>
-                    <Link href="/announcements" className="block py-2 font-bold text-center text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600">See all announcements</Link>
+                    <Link href="/announcements" prefetch={false} className="block py-2 font-bold text-center text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600">See all announcements</Link>
                 </div>
             )}
         </div>

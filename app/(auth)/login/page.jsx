@@ -22,7 +22,7 @@ export default function LoginPage() {
 
     try {
       // 1. Direct validation call to capture specific backend errors (like suspension message)
-      const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:5001'}/api/auth/login`, {
+      const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

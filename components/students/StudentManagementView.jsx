@@ -7,6 +7,7 @@ import UserModal from "../user/UserModal";
 import RoleMigrationModal from "../user/RoleMigrationModal";
 import ResetPasswordModal from "../user/ResetPasswordModal";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
+import BulkActionsBar from "@/components/ui/BulkActionsBar";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Activity, ShieldAlert } from "lucide-react";
 
@@ -33,6 +34,7 @@ export default function StudentManagementView() {
   const [migratingUser, setMigratingUser] = useState(null);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [userForReset, setUserForReset] = useState(null);
+  const [isBulkConfirmOpen, setIsBulkConfirmOpen] = useState(false);
 
   const showMessage = (message, type = "success") => {
     if (type === "error") {
@@ -64,7 +66,7 @@ export default function StudentManagementView() {
   const handleBulkStatusChange = async (isActive) => {
     setIsLoading(true);
     try {
-      await Promise.all(selectedUserIds.map(id => 
+      await Promise.all(selectedUserIds.map(id =>
         apiClient.patch(`/users/toggle-status/${id}`, { isActive })
       ));
       showMessage(`Successfully ${isActive ? 'activated' : 'suspended'} ${selectedUserIds.length} student accounts`);
@@ -72,6 +74,25 @@ export default function StudentManagementView() {
       await fetchStudents();
     } catch (err) {
       showMessage("Bulk operation failed for some students", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    setIsBulkConfirmOpen(true);
+  };
+
+  const executeBulkDelete = async () => {
+    setIsLoading(true);
+    try {
+      await apiClient.post('/users/bulk-delete', { ids: selectedUserIds });
+      showMessage(`Successfully deleted ${selectedUserIds.length} student records`);
+      setSelectedUserIds([]);
+      await fetchStudents();
+      setIsBulkConfirmOpen(false);
+    } catch (err) {
+      showMessage(err.response?.data?.error || "Bulk deletion failed", "error");
     } finally {
       setIsLoading(false);
     }
@@ -217,45 +238,44 @@ export default function StudentManagementView() {
         )}
       </div>
 
-      {/* Bulk Actions Floating Bar */}
-      <AnimatePresence>
-        {selectedUserIds.length > 0 && (
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-6 border border-white/10 backdrop-blur-md"
-          >
-            <div className="flex items-center gap-3 pr-6 border-r border-white/10">
-              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-black text-xs">
-                {selectedUserIds.length}
-              </div>
-              <span className="text-xs font-black uppercase tracking-widest text-slate-400">Students Selected</span>
-            </div>
+      {/* Quick Summary Cards */}
+      {!isLoading && students.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-blue-600">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Roster</p>
+            <p className="text-xl font-black text-slate-800">{students.length}</p>
+          </div>
+          <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-indigo-600">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Year 1 Students</p>
+            <p className="text-xl font-black text-slate-800">
+              {students.filter(s => s.profile?.academicYear === 1).length}
+            </p>
+          </div>
+          <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-emerald-600">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Accounts</p>
+            <p className="text-xl font-black text-slate-800">
+              {students.filter(s => s.isActive).length}
+            </p>
+          </div>
+          <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm border-l-4 border-l-amber-600">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Suspended</p>
+            <p className="text-xl font-black text-slate-800">
+              {students.filter(s => !s.isActive).length}
+            </p>
+          </div>
+        </div>
+      )}
 
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => handleBulkStatusChange(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-              >
-                Activate All
-              </button>
-              <button 
-                onClick={() => handleBulkStatusChange(false)}
-                className="flex items-center gap-2 px-4 py-2 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-              >
-                Suspend All
-              </button>
-              <button 
-                onClick={() => setSelectedUserIds([])}
-                className="flex items-center gap-2 px-4 py-2 hover:bg-white/5 text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ml-2"
-              >
-                Cancel
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Bulk Actions Floating Bar */}
+      <BulkActionsBar
+        selectedIds={selectedUserIds}
+        onClear={() => setSelectedUserIds([])}
+        onActivate={() => handleBulkStatusChange(true)}
+        onSuspend={() => handleBulkStatusChange(false)}
+        onDelete={handleBulkDelete}
+        label="Students"
+        showDelete={currentUser?.role === 'ADMIN'}
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -265,6 +285,7 @@ export default function StudentManagementView() {
         <UserTable
           users={students}
           allRoles={["STUDENT"]}
+          initialRoleFilter="STUDENT"
           onAddUserClick={handleAddClick}
           onEditClick={handleEditClick}
           onDeleteClick={handleDeleteRequest}
@@ -275,6 +296,7 @@ export default function StudentManagementView() {
           currentUserRole={currentUser?.role}
           selectedUserIds={selectedUserIds}
           onSelectionChange={setSelectedUserIds}
+          basePath="students"
         />
       </motion.div>
 
@@ -321,6 +343,17 @@ export default function StudentManagementView() {
           isLoading={isLoading}
         />
       )}
+
+      <ConfirmationDialog
+        isOpen={isBulkConfirmOpen}
+        title="Students Deletion"
+        message={`Warning: You are about to permanently delete ${selectedUserIds.length} student accounts from the system. This action cannot be undone.`}
+        onConfirm={executeBulkDelete}
+        onCancel={() => setIsBulkConfirmOpen(false)}
+        isLoading={isLoading}
+        type="danger"
+        confirmText={`Delete ${selectedUserIds.length} Students`}
+      />
       <ConfirmationDialog
         isOpen={isSuccessModalOpen}
         title="Success"

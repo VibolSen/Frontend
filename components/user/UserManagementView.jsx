@@ -8,8 +8,9 @@ import RoleMigrationModal from "./RoleMigrationModal";
 import ResetPasswordModal from "./ResetPasswordModal";
 import AuditLogView from "./AuditLogView";
 import ConfirmationDialog from "../ConfirmationDialog";
+import BulkActionsBar from "@/components/ui/BulkActionsBar";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, UserPlus, Users, ShieldAlert, History, Activity, ShieldCheck } from "lucide-react";
+import { Plus, UserPlus, Users, History, Activity, ShieldAlert } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import { apiClient } from "@/lib/api";
 
@@ -35,6 +36,7 @@ export default function UserManagementView() {
   const [userForReset, setUserForReset] = useState(null);
   const [migratingUser, setMigratingUser] = useState(null);
   const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const [isBulkConfirmOpen, setIsBulkConfirmOpen] = useState(false);
   const [departments, setDepartments] = useState([]);
 
   const stats = {
@@ -58,7 +60,9 @@ export default function UserManagementView() {
     setIsLoading(true);
     try {
       const data = await apiClient.get("/users");
-      setUsers(data);
+      // Filter out ADMIN users from the list as per request
+      const nonAdminUsers = data.filter(u => u.role !== 'ADMIN');
+      setUsers(nonAdminUsers);
     } catch (err) {
       showMessage(err.message || "Failed to fetch users.", "error");
     } finally {
@@ -68,7 +72,7 @@ export default function UserManagementView() {
 
   useEffect(() => {
     fetchUsers();
-    
+
     // Fetch departments for the modal
     apiClient.get("/departments").then(setDepartments).catch(console.error);
   }, [fetchUsers]);
@@ -214,7 +218,7 @@ export default function UserManagementView() {
   const handleBulkStatusChange = async (isActive) => {
     setIsLoading(true);
     try {
-      await Promise.all(selectedUserIds.map(id => 
+      await Promise.all(selectedUserIds.map(id =>
         apiClient.put(`/users/${id}`, { isActive })
       ));
       showMessage(`Successfully ${isActive ? 'activated' : 'suspended'} ${selectedUserIds.length} personnel accounts`);
@@ -227,14 +231,33 @@ export default function UserManagementView() {
     }
   };
 
+  const handleBulkDelete = async () => {
+    setIsBulkConfirmOpen(true);
+  };
+
+  const executeBulkDelete = async () => {
+    setIsLoading(true);
+    try {
+      await apiClient.post('/users/bulk-delete', { ids: selectedUserIds });
+      showMessage(`Successfully deleted ${selectedUserIds.length} user records`);
+      setSelectedUserIds([]);
+      await fetchUsers();
+      setIsBulkConfirmOpen(false);
+    } catch (err) {
+      showMessage(err.response?.data?.error || "Bulk deletion failed", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Premium Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-             <div className="h-10 w-1.5 bg-blue-600 rounded-full" />
-             User Management Console
+            <div className="h-10 w-1.5 bg-blue-600 rounded-full" />
+            User Management Console
           </h1>
           <p className="text-slate-500 font-medium text-sm ml-4 border-l border-slate-200 pl-4">
             Unified control for personnel credentials, access policies, and system auditing.
@@ -245,7 +268,7 @@ export default function UserManagementView() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsBulkModalOpen(true)}
-              className="group flex items-center gap-2 px-5 py-2.5 bg-white text-indigo-700 text-[11px] font-black uppercase tracking-widest rounded-2xl hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 shadow-sm transition-all active:scale-95"
+              className="group flex items-center gap-2 px-6 py-2.5 bg-white text-indigo-700 text-[11px] font-black uppercase tracking-widest rounded-2xl hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 shadow-lg shadow-indigo-100 transition-all active:scale-95 whitespace-nowrap"
             >
               <UserPlus size={16} className="group-hover:scale-110 transition-transform" />
               Bulk Enrollment
@@ -262,48 +285,19 @@ export default function UserManagementView() {
       </div>
 
       {/* Bulk Actions Floating Bar */}
-      <AnimatePresence>
-        {selectedUserIds.length > 0 && (
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-6 border border-white/10 backdrop-blur-md"
-          >
-            <div className="flex items-center gap-3 pr-6 border-r border-white/10">
-              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-black text-xs">
-                {selectedUserIds.length}
-              </div>
-              <span className="text-xs font-black uppercase tracking-widest text-slate-400">Personnel Selected</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button 
-                onClick={() => handleBulkStatusChange(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-              >
-                <Activity size={12} /> Activate All
-              </button>
-              <button 
-                onClick={() => handleBulkStatusChange(false)}
-                className="flex items-center gap-2 px-4 py-2 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-              >
-                <ShieldAlert size={12} /> Suspend All
-              </button>
-              <button 
-                onClick={() => setSelectedUserIds([])}
-                className="flex items-center gap-2 px-4 py-2 hover:bg-white/5 text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ml-2"
-              >
-                Cancel
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <BulkActionsBar
+        selectedIds={selectedUserIds}
+        onClear={() => setSelectedUserIds([])}
+        onActivate={() => handleBulkStatusChange(true)}
+        onSuspend={() => handleBulkStatusChange(false)}
+        onDelete={handleBulkDelete}
+        label="Personnel"
+        showDelete={currentUser?.role === 'ADMIN'}
+      />
 
       {/* Modern Tab Navigation */}
       <div className="flex items-center gap-8 border-b border-slate-100 px-2 pb-px overflow-x-auto scrollbar-hide">
-        <button 
+        <button
           onClick={() => setActiveTab("directory")}
           className={`flex items-center gap-2 pb-4 px-1 text-[11px] font-black uppercase tracking-widest transition-all relative ${activeTab === "directory" ? "text-blue-600" : "text-slate-400 hover:text-slate-600"}`}
         >
@@ -312,7 +306,7 @@ export default function UserManagementView() {
           {activeTab === "directory" && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full" />}
         </button>
         {currentUser?.role === "ADMIN" && (
-          <button 
+          <button
             onClick={() => setActiveTab("audit")}
             className={`flex items-center gap-2 pb-4 px-1 text-[11px] font-black uppercase tracking-widest transition-all relative ${activeTab === "audit" ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"}`}
           >
@@ -334,31 +328,31 @@ export default function UserManagementView() {
           >
             {/* Quick Stats Dashboard */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-blue-100 transition-colors">
+              <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-blue-100 transition-colors">
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Users</p>
-                  <h3 className="text-2xl font-black text-slate-800">{stats.total}</h3>
+                  <h3 className="text-xl font-black text-slate-800">{stats.total}</h3>
                 </div>
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-all">
-                  <Users size={20} />
+                <div className="p-2.5 bg-blue-50 text-blue-600 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-all">
+                  <Users size={18} />
                 </div>
               </div>
-              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-emerald-100 transition-colors">
+              <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-emerald-100 transition-colors">
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Accounts</p>
-                  <h3 className="text-2xl font-black text-emerald-600">{stats.active}</h3>
+                  <h3 className="text-xl font-black text-emerald-600">{stats.active}</h3>
                 </div>
-                <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                  <Activity size={20} />
+                <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                  <Activity size={18} />
                 </div>
               </div>
-              <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-rose-100 transition-colors">
+              <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-rose-100 transition-colors">
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Suspended</p>
-                  <h3 className="text-2xl font-black text-rose-500">{stats.suspended}</h3>
+                  <h3 className="text-xl font-black text-rose-500">{stats.suspended}</h3>
                 </div>
-                <div className="p-3 bg-rose-50 text-rose-500 rounded-2xl group-hover:bg-rose-500 group-hover:text-white transition-all">
-                  <ShieldAlert size={20} />
+                <div className="p-2.5 bg-rose-50 text-rose-500 rounded-2xl group-hover:bg-rose-500 group-hover:text-white transition-all">
+                  <ShieldAlert size={18} />
                 </div>
               </div>
             </div>
@@ -376,6 +370,7 @@ export default function UserManagementView() {
               currentUserRole={currentUser?.role}
               selectedUserIds={selectedUserIds}
               onSelectionChange={setSelectedUserIds}
+              basePath="users"
             />
           </motion.div>
         ) : (
@@ -395,7 +390,7 @@ export default function UserManagementView() {
         onClose={handleCloseModal}
         onSave={handleSaveUser}
         userToEdit={editingUser}
-        roles={ROLES} 
+        roles={ROLES}
         departments={departments}
         isLoading={isLoading}
       />
@@ -431,6 +426,17 @@ export default function UserManagementView() {
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
         isLoading={isLoading}
+      />
+
+      <ConfirmationDialog
+        isOpen={isBulkConfirmOpen}
+        title="Bulk Deletion"
+        message={`Warning: You are about to permanently delete ${selectedUserIds.length} personnel accounts. This action cannot be reversed.`}
+        onConfirm={executeBulkDelete}
+        onCancel={() => setIsBulkConfirmOpen(false)}
+        isLoading={isLoading}
+        type="danger"
+        confirmText={`Delete ${selectedUserIds.length} Accounts`}
       />
 
       <ConfirmationDialog

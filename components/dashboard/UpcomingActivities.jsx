@@ -33,7 +33,7 @@ const UpcomingActivities = ({ assignmentsCount, examsCount }) => {
         <h3 className="text-md font-black text-slate-800 tracking-tight">Activities</h3>
         <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Next 7 Days</span>
       </div>
-      
+
       <div className="space-y-3">
         {activities.map((activity, idx) => (
           <motion.div
@@ -42,8 +42,9 @@ const UpcomingActivities = ({ assignmentsCount, examsCount }) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 * idx }}
           >
-            <Link 
+            <Link
               href={activity.href}
+              prefetch={false}
               className="group flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:bg-white hover:shadow-md transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -61,7 +62,7 @@ const UpcomingActivities = ({ assignmentsCount, examsCount }) => {
             </Link>
           </motion.div>
         ))}
-        
+
         {assignmentsCount === 0 && examsCount === 0 && (
           <div className="py-6 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
             <p className="text-[11px] text-slate-400 font-medium">All caught up! 🎉</p>

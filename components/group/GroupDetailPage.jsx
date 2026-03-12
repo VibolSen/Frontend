@@ -1,26 +1,36 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import ManageGroupMembersModal from "./ManageGroupMembersModal";
+import ManageGroupCoursesModal from "./ManageGroupCoursesModal";
 import GroupModal from "./GroupModal";
-import { 
-  ArrowLeft, 
-  Users, 
-  BookOpen, 
-  Edit3, 
-  UserPlus, 
-  MoreVertical 
+import {
+  ArrowLeft,
+  Users,
+  BookOpen,
+  Edit3,
+  UserPlus,
+  MoreVertical,
+  PlusCircle
 } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { apiClient } from "@/lib/api";
 
 export default function GroupDetailPage({ initialGroup, allStudents, role }) {
   const [group, setGroup] = useState(initialGroup);
+  const [allCourses, setAllCourses] = useState([]);
   const [isManageMembersModalOpen, setIsManageMembersModalOpen] =
+    useState(false);
+  const [isManageCoursesModalOpen, setIsManageCoursesModalOpen] =
     useState(false);
   const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // Fetch courses for the assign courses modal
+    apiClient.get("/courses").then(setAllCourses).catch(console.error);
+  }, []);
 
   const handleSaveMembers = async (studentIds) => {
     setIsLoading(true);
@@ -29,6 +39,21 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
       setGroup(data);
       console.log("Group members updated successfully!");
       handleCloseManageMembersModal();
+    } catch (err) {
+      console.error(err.message);
+    }
+    finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveCourses = async (courseIds) => {
+    setIsLoading(true);
+    try {
+      const data = await apiClient.put(`/groups/${group.id}`, { courseIds });
+      setGroup(data);
+      console.log("Group courses updated successfully!");
+      handleCloseManageCoursesModal();
     } catch (err) {
       console.error(err.message);
     }
@@ -54,17 +79,20 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
 
   const handleCloseManageMembersModal = () =>
     setIsManageMembersModalOpen(false);
+  const handleCloseManageCoursesModal = () =>
+    setIsManageCoursesModalOpen(false);
   const handleCloseEditGroupModal = () => setIsEditGroupModalOpen(false);
 
   return (
     <div className="min-h-screen bg-[#EBF4F6] p-6 lg:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
-        
+
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="space-y-1">
             <Link
               href={`/${role}/groups`}
+              prefetch={false}
               className="inline-flex items-center px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm text-[13px] font-bold mb-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -84,6 +112,13 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
               Edit Group
             </button>
             <button
+              onClick={() => setIsManageCoursesModalOpen(true)}
+              className="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:text-indigo-600 hover:border-indigo-200 rounded-xl text-[13px] font-bold shadow-sm transition-all flex items-center gap-2"
+            >
+              <PlusCircle className="w-3.5 h-3.5 text-indigo-500" />
+              Assign Course
+            </button>
+            <button
               onClick={() => setIsManageMembersModalOpen(true)}
               className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-[13px] font-bold shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2"
             >
@@ -95,7 +130,7 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
 
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
+
           {/* Left Column - Group Info */}
           <div className="lg:col-span-1 space-y-6">
             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
@@ -209,13 +244,24 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
           />
         )}
 
+        {isManageCoursesModalOpen && (
+          <ManageGroupCoursesModal
+            isOpen={isManageCoursesModalOpen}
+            onClose={handleCloseManageCoursesModal}
+            group={group}
+            allCourses={allCourses}
+            onSaveChanges={handleSaveCourses}
+            isLoading={isLoading}
+          />
+        )}
+
         {isEditGroupModalOpen && (
           <GroupModal
             isOpen={isEditGroupModalOpen}
             onClose={handleCloseEditGroupModal}
             onSave={handleSaveGroupDetails}
             groupToEdit={group}
-            courses={group.courses}
+            courses={allCourses}
             isLoading={isLoading}
           />
         )}
@@ -223,3 +269,4 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
     </div>
   );
 }
+
