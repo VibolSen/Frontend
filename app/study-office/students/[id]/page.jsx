@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useUser } from "@/context/UserContext";
 import { useParams } from "next/navigation";
 import ProfilePageContent from "@/components/ProfilePageContent";
-import Link from "next/link";
+import BackButton from "@/components/ui/BackButton";
 import FullPageLoading from "@/components/ui/FullPageLoading";
 import { apiClient } from "@/lib/api";
 
@@ -46,11 +46,7 @@ export default function StudentProfilePage() {
 
   return (
     <div>
-      <Link href="/study-office/students">
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-blue-700 transition mb-4">
-          Back to Student Management
-        </button>
-      </Link>
+      <BackButton href="/study-office/students" label="Back to Student Management" />
       <ProfilePageContent
         user={student}
         isCurrentUser={false}

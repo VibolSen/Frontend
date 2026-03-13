@@ -85,11 +85,49 @@ export default function SettingsView({ user }) {
   });
 
   // Mock Sessions
-  const [sessions, setSessions] = useState([
-    { id: 1, device: "Windows PC", browser: "Chrome", location: "Phnom Penh, KH", status: "active", current: true, icon: Monitor },
-    { id: 2, device: "iPhone 15 Pro", browser: "Safari", location: "Phnom Penh, KH", status: "Recent", current: false, icon: Smartphone },
-    { id: 3, device: "MacBook Air", browser: "Chrome", location: "Kandal, KH", status: "2 days ago", current: false, icon: Laptop },
-  ]);
+  const [sessions, setSessions] = useState([]);
+  const [isLoadingSessions, setIsLoadingSessions] = useState(false);
+
+  React.useEffect(() => {
+    if (activeTab === "privacy") {
+      fetchSessions();
+    }
+  }, [activeTab]);
+
+  const fetchSessions = async () => {
+    setIsLoadingSessions(true);
+    try {
+      // Use full path /api/auth/sessions if apiClient baseURL is correct
+      const data = await apiClient.get("/auth/sessions");
+      if (Array.isArray(data)) {
+        setSessions(data.map(s => ({
+          ...s,
+          icon: s.device === 'Mobile' ? Smartphone : s.device === 'Tablet' ? Laptop : Monitor,
+          current: s.id === user?.sessionId,
+          status: s.id === user?.sessionId ? 'active' : 'Recent'
+        })));
+      }
+    } catch (err) {
+      console.error("Failed to fetch sessions:", err);
+      // Don't toast on initial load to avoid noise, but log it
+    } finally {
+      setIsLoadingSessions(false);
+    }
+  };
+
+  const handleRevokeOtherSessions = async () => {
+    const confirm = window.confirm("Are you sure you want to sign out from all other devices?");
+    if (!confirm) return;
+
+    const loadingToast = toast.loading("Signing out other devices...");
+    try {
+      await apiClient.post("/auth/sessions/revoke-other");
+      toast.success("Other devices signed out successfully", { id: loadingToast });
+      fetchSessions();
+    } catch (err) {
+      toast.error("Failed to revoke other sessions", { id: loadingToast });
+    }
+  };
 
   const handleProfileChange = (e) => {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
@@ -693,10 +731,7 @@ export default function SettingsView({ user }) {
                           Active Sessions
                         </h3>
                         <button 
-                          onClick={() => {
-                            setSessions([sessions[0]]);
-                            toast.success("Other sessions ended");
-                          }}
+                          onClick={handleRevokeOtherSessions}
                           className="text-[11px] font-bold text-rose-500 hover:text-rose-600 tracking-tight"
                         >
                           Sign out other devices
@@ -704,32 +739,55 @@ export default function SettingsView({ user }) {
                       </div>
 
                       <div className="space-y-3">
-                        {sessions.map((sess) => {
-                          const Icon = sess.icon;
-                          return (
-                            <div key={sess.id} className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl group transition-all hover:bg-white hover:shadow-sm">
-                              <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white rounded-xl border border-slate-100 shadow-sm transition-transform group-hover:scale-110">
-                                   <Icon className="w-5 h-5 text-slate-600" />
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <p className="text-[13px] font-black text-slate-800">{sess.device}</p>
-                                    {sess.current && (
-                                      <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 text-[9px] font-black uppercase rounded border border-blue-100">This Device</span>
-                                    )}
+                        {isLoadingSessions ? (
+                          <div className="flex flex-col items-center justify-center py-10 gap-3">
+                            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Retrieving Sessions...</p>
+                          </div>
+                        ) : sessions.length > 0 ? (
+                          sessions.map((sess) => {
+                            const Icon = sess.icon;
+                            return (
+                              <div key={sess.id} className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl group transition-all hover:bg-white hover:shadow-sm">
+                                <div className="flex items-center gap-4">
+                                  <div className="p-3 bg-white rounded-xl border border-slate-100 shadow-sm transition-transform group-hover:scale-110">
+                                     <Icon className="w-5 h-5 text-slate-600" />
                                   </div>
-                                  <p className="text-[11px] font-medium text-slate-400">{sess.browser} • {sess.location} • <span className={sess.current ? "text-emerald-500" : ""}>{sess.status}</span></p>
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <p className="text-[13px] font-black text-slate-800">{sess.device}</p>
+                                      {sess.current && (
+                                        <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 text-[9px] font-black uppercase rounded border border-blue-100">This Device</span>
+                                      )}
+                                    </div>
+                                    <p className="text-[11px] font-medium text-slate-400">
+                                      {sess.browser} • {sess.location || 'Unknown'} • <span className={sess.current ? "text-emerald-500" : ""}>{sess.current ? 'Active Now' : `Logged in ${new Date(sess.createdAt).toLocaleDateString()}`}</span>
+                                    </p>
+                                  </div>
                                 </div>
+                                {!sess.current && (
+                                  <button 
+                                    onClick={async () => {
+                                      if(window.confirm("Sign out this device?")) {
+                                        try {
+                                          await apiClient.post(`/auth/sessions/revoke/${sess.id}`);
+                                          fetchSessions();
+                                        } catch(e) { toast.error("Failed to revoke session"); }
+                                      }
+                                    }}
+                                    className="p-2 text-slate-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                )}
                               </div>
-                              {!sess.current && (
-                                <button className="p-2 text-slate-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
-                                  <X className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })}
+                            );
+                          })
+                        ) : (
+                          <div className="py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                             <p className="text-[12px] font-medium text-slate-400">No active sessions found.</p>
+                          </div>
+                        )}
                       </div>
                     </div>
 

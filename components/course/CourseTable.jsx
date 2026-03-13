@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Edit, Trash2, Search, BookOpen, Layers, User } from "lucide-react";
+import { Edit, Trash2, Search, BookOpen, Layers, User, Eye } from "lucide-react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SortIndicator = ({ direction }) => {
@@ -20,6 +21,7 @@ export default function CoursesTable({
   onEdit,
   onDelete,
   isLoading,
+  baseUrl = "/admin/courses"
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [teacherFilter, setTeacherFilter] = useState("All");
@@ -161,7 +163,9 @@ export default function CoursesTable({
                       </div>
                       <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[13px] font-black text-slate-800 tracking-tight truncate max-w-[150px]">{course.name}</span>
+                          <Link href={`${baseUrl}/${course.id}`} className="hover:text-blue-600 transition-colors">
+                            <span className="text-[13px] font-black text-slate-800 tracking-tight truncate max-w-[150px]">{course.name}</span>
+                          </Link>
                         </div>
                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Academic Curriculum</span>
                       </div>
@@ -191,6 +195,13 @@ export default function CoursesTable({
                   </td>
                   <td className="px-5 py-3 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center gap-1">
+                      <Link
+                        href={`${baseUrl}/${course.id}`}
+                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                        title="View Course Details"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </Link>
                       <button
                         onClick={() => onEdit(course)}
                         className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"

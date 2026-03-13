@@ -105,7 +105,6 @@ const ADMIN_NAV_GROUPS = [
       { label: "Courses", icon: <Book />, href: "/admin/courses" },
       { label: "Groups", icon: <Hash />, href: "/admin/groups" },
       { label: "E-Library", icon: <Library />, href: "/admin/e-library" },
-      { label: "Campus Facilities", icon: <LayoutGrid />, href: "/admin/rooms" },
     ]
   },
   {
@@ -118,21 +117,31 @@ const ADMIN_NAV_GROUPS = [
     ]
   },
   {
-    group: "Insights",
+    group: "Financials",
     items: [
-      { label: "Course Analytics", icon: <BarChart3 />, href: "/admin/course-analytics" },
-      { label: "Student Performance", icon: <TrendingUp />, href: "/admin/student-performance" },
+      { label: "Invoices", icon: <FileText />, href: "/admin/finance/invoices" },
+      { label: "Payments", icon: <DollarSign />, href: "/admin/finance/payments" },
+      { label: "Fees Mgmt.", icon: <FileText />, href: "/admin/finance/fees" },
+      { label: "Expenses", icon: <BarChart3 />, href: "/admin/finance/expenses" },
+      { label: "Payrolls", icon: <UserIcon />, href: "/admin/payroll" },
+      { label: "Budgets", icon: <TrendingUp />, href: "/admin/budgets" },
     ]
   },
   {
     group: "Operations",
     items: [
-      { label: "Student Attendance", icon: <Calendar />, href: "/admin/attendance" },
-      { label: "Financial Mgmt.", icon: <DollarSign />, href: "/admin/finance" },
-      { label: "Payrolls", icon: <UserIcon />, href: "/admin/payroll" },
-      { label: "Budgets", icon: <BarChart3 />, href: "/admin/budgets" },
-      { label: "Staff Attendance", icon: <Clock />, href: "/admin/my-attendance" },
       { label: "Schedule", icon: <Calendar />, href: "/admin/schedule" },
+      { label: "Student Attendance", icon: <Calendar />, href: "/admin/attendance" },
+      { label: "Staff Attendance", icon: <Clock />, href: "/admin/my-attendance" },
+      { label: "Campus Facilities", icon: <LayoutGrid />, href: "/admin/rooms" },
+    ]
+  },
+  {
+    group: "Insights",
+    items: [
+      { label: "Course Analytics", icon: <BarChart3 />, href: "/admin/course-analytics" },
+      { label: "Student Performance", icon: <TrendingUp />, href: "/admin/student-performance" },
+      { label: "Financial Reports", icon: <FileText />, href: "/admin/reports" },
     ]
   },
   {

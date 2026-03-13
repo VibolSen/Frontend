@@ -25,6 +25,7 @@ const initialFormState = {
   semester: 1,
   generation: "",
   batchId: "",
+  degreeType: "BACHELOR",
 };
 
 export default function UserModal({
@@ -213,8 +214,8 @@ export default function UserModal({
                   </div>
 
                   {!isEditMode && (
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-700">Password</label>
+                    <div className="space-y-1.5 mt-4">
+                      <label className="text-xs font-semibold text-slate-700">Account Password</label>
                       <div className="relative">
                         <input
                           type={showPassword ? "text" : "password"}
@@ -229,44 +230,6 @@ export default function UserModal({
                       </div>
                       {errors.password && <p className="text-[10px] text-red-500">{errors.password}</p>}
                     </div>
-                  )}
-
-                  {formData.role === 'STUDENT' && (
-                    <motion.div 
-                      initial={{ opacity: 0, height: 0 }} 
-                      animate={{ opacity: 1, height: 'auto' }}
-                      className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100"
-                    >
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 ml-1">Degree Type</label>
-                        <select
-                          name="degreeType"
-                          value={formData.degreeType}
-                          onChange={handleChange}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm hover:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
-                        >
-                          <option value="BACHELOR">Bachelor Degree</option>
-                          <option value="DIPLOMA">Diploma Degree</option>
-                          <option value="ASSOCIATE">Associate Degree</option>
-                          <option value="SHORT_COURSE">Short Course</option>
-                        </select>
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-700 ml-1">Academic Year</label>
-                        <select
-                          name="academicLevel"
-                          value={formData.academicLevel}
-                          onChange={handleChange}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm hover:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
-                        >
-                          <option value="ENROLLMENT">Just Enrolment</option>
-                          <option value="YEAR_1">Year 1</option>
-                          <option value="YEAR_2">Year 2</option>
-                          <option value="YEAR_3">Year 3</option>
-                          <option value="YEAR_4">Year 4</option>
-                        </select>
-                      </div>
-                    </motion.div>
                   )}
                 </div>
 
@@ -316,7 +279,21 @@ export default function UserModal({
                       <h3 className="text-[10px] font-black uppercase tracking-widest text-indigo-500">Academic Placement</h3>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-700 ml-1">Degree Type</label>
+                        <select
+                          name="degreeType"
+                          value={formData.degreeType}
+                          onChange={handleChange}
+                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                        >
+                          <option value="BACHELOR">Bachelor Degree</option>
+                          <option value="DIPLOMA">Diploma Degree</option>
+                          <option value="ASSOCIATE">Associate Degree</option>
+                          <option value="SHORT_COURSE">Short Course</option>
+                        </select>
+                      </div>
                       <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-700">Academic Year</label>
                         <select name="academicYear" value={formData.academicYear}
