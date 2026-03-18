@@ -133,9 +133,17 @@ export default function InvoicesManagement() {
     let valA = a[sortConfig.key];
     let valB = b[sortConfig.key];
 
-    if (sortConfig.key === 'dueDate') {
-        valA = new Date(valA).getTime();
-        valB = new Date(valB).getTime();
+    if (sortConfig.key === 'dueDate' || sortConfig.key === 'paymentDate') {
+        const getVal = (item, key) => {
+          if (key === 'paymentDate') {
+            return item.payments && item.payments.length > 0 
+              ? Math.max(...item.payments.map(p => new Date(p.paymentDate).getTime())) 
+              : 0;
+          }
+          return new Date(item[key]).getTime();
+        };
+        valA = getVal(a, sortConfig.key);
+        valB = getVal(b, sortConfig.key);
     }
 
     if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
@@ -318,6 +326,15 @@ export default function InvoicesManagement() {
                     {sortConfig.key === 'dueDate' && (sortConfig.direction === 'asc' ? "↑" : "↓")}
                   </div>
                 </th>
+                <th 
+                  onClick={() => handleSort('paymentDate')}
+                  className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-900 transition-colors"
+                >
+                  <div className="flex items-center gap-2 justify-center">
+                    Latest Payment
+                    {sortConfig.key === 'paymentDate' && (sortConfig.direction === 'asc' ? "↑" : "↓")}
+                  </div>
+                </th>
                 <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Management</th>
               </tr>
             </thead>
@@ -392,6 +409,18 @@ export default function InvoicesManagement() {
                         <span className="text-[11px] font-bold text-slate-500 tabular-nums uppercase">
                           {new Date(inv.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </span>
+                      </td>
+                      <td className="px-5 py-3 whitespace-nowrap text-center">
+                        {inv.payments && inv.payments.length > 0 ? (
+                           <div className="flex flex-col items-center">
+                             <span className="text-[11px] font-black text-emerald-600 tabular-nums uppercase">
+                               {new Date(Math.max(...inv.payments.map(p => new Date(p.paymentDate).getTime()))).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                             </span>
+                             <span className="text-[8px] font-bold text-slate-400 uppercase">Confirmed</span>
+                           </div>
+                        ) : (
+                          <span className="text-[11px] font-bold text-slate-300 italic">--</span>
+                        )}
                       </td>
                       <td className="px-5 py-3 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-1">

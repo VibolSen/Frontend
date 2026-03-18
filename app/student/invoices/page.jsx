@@ -16,7 +16,11 @@ import StudentInvoicesList from "@/components/student/StudentInvoicesList";
 
 // Minimal Stat Component
 const StatCard = ({ title, value, icon: Icon, color, subtitle }) => (
-  <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+  <motion.div 
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow"
+  >
     <div className="flex justify-between items-start mb-2">
       <div className={`p-2.5 rounded-xl ${color} bg-opacity-10`}>
         <Icon className={`w-5 h-5 ${color.replace('bg-', 'text-')}`} />
@@ -27,7 +31,7 @@ const StatCard = ({ title, value, icon: Icon, color, subtitle }) => (
       <h3 className="text-xl font-black text-slate-900 tracking-tight">{value}</h3>
       <p className="text-[10px] font-medium text-slate-500 mt-1">{subtitle}</p>
     </div>
-  </div>
+  </motion.div>
 );
 
 // Wrapper for list item
@@ -42,32 +46,75 @@ const StudentInvoicesPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchInvoices = async () => {
-      try {
-        const data = await apiClient.get('/financial/invoices');
-        setInvoices(data || []);
-      } catch (e) {
-        console.error("Failed to fetch invoices:", e);
-        setError("Failed to load invoices. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchInvoices = async (isBackground = false) => {
+    if (!isBackground) setLoading(true);
+    try {
+      const data = await apiClient.get('/financial/invoices');
+      setInvoices(data || []);
+    } catch (e) {
+      console.error("Failed to fetch invoices:", e);
+      if (!isBackground) setError("Failed to load invoices. Please try again later.");
+    } finally {
+      if (!isBackground) setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchInvoices();
   }, []);
 
+  // Background refresh every 10 seconds if there are pending invoices
+  useEffect(() => {
+     let refreshInterval;
+     
+     const hasPending = invoices.some(inv => inv.status !== 'PAID' && inv.status !== 'CANCELLED');
+     
+     if (hasPending) {
+        refreshInterval = setInterval(() => {
+           fetchInvoices(true);
+        }, 10000); // 10s polling
+     }
+
+     return () => {
+        if (refreshInterval) clearInterval(refreshInterval);
+     };
+  }, [invoices.length, invoices.some(inv => inv.status === 'PAID')]);
+
   const stats = useMemo(() => {
-    const total = invoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
-    const paid = invoices.reduce((sum, inv) => {
+    // Separate by Currency
+    const totals = { USD: 0, KHR: 0 };
+    const paid = { USD: 0, KHR: 0 };
+    
+    invoices.forEach(inv => {
+      const curr = inv.currency || "USD";
+      totals[curr] += inv.totalAmount;
       const p = inv.payments ? inv.payments.reduce((s, pay) => s + pay.amount, 0) : 0;
-      return sum + p;
-    }, 0);
-    const outstanding = total - paid;
+      paid[curr] += p;
+    });
+
     const pendingCount = invoices.filter(inv => inv.status !== 'PAID' && inv.status !== 'CANCELLED').length;
 
-    return { total, paid, outstanding, pendingCount };
+    // Helper to format mixed display
+    const formatValue = (obj) => {
+       const parts = [];
+       if (obj.USD > 0 || (obj.USD === 0 && obj.KHR === 0)) {
+         parts.push(`$${obj.USD.toLocaleString(undefined, { minimumFractionDigits: 2 })}`);
+       }
+       if (obj.KHR > 0) {
+         parts.push(`៛${obj.KHR.toLocaleString()}`);
+       }
+       return parts.join(' / ');
+    };
+
+    return { 
+      total: formatValue(totals), 
+      paid: formatValue(paid), 
+      outstanding: formatValue({
+        USD: Math.max(0, totals.USD - paid.USD),
+        KHR: Math.max(0, totals.KHR - paid.KHR)
+      }),
+      pendingCount 
+    };
   }, [invoices]);
 
   if (loading) {
@@ -105,41 +152,41 @@ const StudentInvoicesPage = () => {
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">My Invoices</h1>
           <p className="text-slate-500 text-xs font-semibold">Financial summary and payment history</p>
         </div>
-        <div className="flex items-center gap-1.5 text-[9px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2.5 py-1.5 rounded-md border border-blue-100/50">
-          <Wallet className="w-3 h-3" />
-          Last Updated: {new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+        <div className="flex items-center gap-1.5 text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-2 rounded-xl border border-indigo-100/50 shadow-sm shadow-indigo-50">
+          <div className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
+          Live Network Monitoring Active
         </div>
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard 
           title="Total Billed" 
-          value={`$${stats.total.toLocaleString()}`} 
+          value={stats.total} 
           icon={Receipt} 
-          color="bg-blue-600"
-          subtitle="All academic charges"
+          color="bg-slate-900"
+          subtitle="Lifetime academic charges"
         />
         <StatCard 
-          title="Completed" 
-          value={`$${stats.paid.toLocaleString()}`} 
+          title="Settled Volume" 
+          value={stats.paid} 
           icon={TrendingDown} 
-          color="bg-emerald-500"
-          subtitle="Processed payments"
+          color="bg-emerald-600"
+          subtitle="Verified payments"
         />
         <StatCard 
           title="Outstanding" 
-          value={`$${stats.outstanding.toLocaleString()}`} 
+          value={stats.outstanding} 
           icon={TrendingUp} 
-          color="bg-orange-500"
-          subtitle="Balance to settle"
+          color="bg-indigo-600"
+          subtitle="Current balance"
         />
         <StatCard 
-          title="Pending" 
+          title="Pending Items" 
           value={stats.pendingCount} 
           icon={AlertCircle} 
           color="bg-rose-500"
-          subtitle="Requiring attention"
+          subtitle="Action required"
         />
       </div>
 

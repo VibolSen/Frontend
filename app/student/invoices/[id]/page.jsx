@@ -5,7 +5,7 @@ import { apiClient } from "@/lib/api";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Printer, Download, MapPin, Mail, Hash, Calendar, Clock, User, CreditCard, AlertCircle, QrCode, ShieldCheck, BadgeCheck } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { QRCodeCanvas } from "qrcode.react";
@@ -36,7 +36,9 @@ const InvoiceDetailPage = () => {
   const [qrString, setQrString] = useState("");
   const [md5Hash, setMd5Hash] = useState("");
   const [qrLoading, setQrLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
+  // Initial Data & QR Fetch
   useEffect(() => {
     if (!id) {
       setError("Invoice reference is missing.");
@@ -44,38 +46,20 @@ const InvoiceDetailPage = () => {
       return;
     }
 
-    const fetchInvoiceDetails = async (isSilent = false) => {
-      if (!isSilent) setLoading(true);
+    const fetchInitialData = async () => {
+      setLoading(true);
       try {
         const data = await apiClient.get(`/financial/invoices/${id}`);
-        
-        // Check if status changed from unpaid to PAID
-        if (invoice?.status !== 'PAID' && data.status === 'PAID') {
-           console.log("🚀 Status changed to PAID! Updating UI...");
-           setInvoice(data);
-           setLoading(false);
-           return;
-        }
-
         setInvoice(data);
         
-        // If not paid, generate QR
-        if (data.status !== 'PAID' && !qrString && !isSilent) {
+        if (data.status !== 'PAID') {
            fetchQR(data);
-        } else if (data.status !== 'PAID' && isSilent && md5Hash) {
-            // Check real Bakong status using MD5 during silent polling
-            const statusData = await apiClient.get(`/financial/bakong-status/${id}?md5=${md5Hash}`);
-            if (statusData.isPaid) {
-               console.log(" ✅ Payment Confirmed by Bank API! Refreshing data...");
-               const freshData = await apiClient.get(`/financial/invoices/${id}`);
-               setInvoice(freshData);
-            }
         }
       } catch (e) {
         console.error("Failed to fetch invoice details:", e);
-        if (!isSilent) setError("Failed to secure invoice information.");
+        setError("Failed to secure invoice information.");
       } finally {
-        if (!isSilent) setLoading(false);
+        setLoading(false);
       }
     };
 
@@ -96,20 +80,47 @@ const InvoiceDetailPage = () => {
         }
     };
 
-    fetchInvoiceDetails();
+    fetchInitialData();
+  }, [id]);
 
-    // Start Polling for Payment Status if not paid
+  // Background Polling for Auto-Verify via MD5
+  useEffect(() => {
     let pollingInterval;
-    if (invoice?.status !== 'PAID') {
-        pollingInterval = setInterval(() => {
-            fetchInvoiceDetails(true); // Silent update
-        }, 3000);
+
+    if (invoice && invoice.status !== 'PAID' && md5Hash) {
+        pollingInterval = setInterval(async () => {
+            try {
+                // Poll check status endpoint
+                const statusData = await apiClient.get(`/financial/bakong-status/${id}?md5=${md5Hash}`);
+                
+                if (statusData.paymentConfirmed || statusData.isPaid || statusData.status === 'PAID') {
+                    console.log(" ✅ Payment Confirmed by Bank API! Refreshing UI...");
+                    setIsSuccess(true);
+                    clearInterval(pollingInterval);
+                    
+                    const freshData = await apiClient.get(`/financial/invoices/${id}`);
+                    setInvoice(freshData);
+                    
+                    setTimeout(() => {
+                        setIsSuccess(false);
+                    }, 3500);
+                } else {
+                    // Update state silently if a partial payment arrived
+                    const currentData = await apiClient.get(`/financial/invoices/${id}`);
+                    if (currentData.status === 'PAID' || currentData.payments.length !== invoice.payments.length) {
+                        setInvoice(currentData);
+                    }
+                }
+            } catch (err) {
+                console.error("Polling check failed:", err);
+            }
+        }, 3000); // 3 seconds interval
     }
 
     return () => {
         if (pollingInterval) clearInterval(pollingInterval);
     };
-  }, [id, invoice?.status, md5Hash]);
+  }, [id, invoice?.status, invoice?.payments?.length, md5Hash]);
 
   if (loading) {
     return (
@@ -154,20 +165,95 @@ const InvoiceDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-100/50 py-10 px-6 font-sans">
+      <AnimatePresence>
+        {isSuccess && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="absolute inset-0 bg-slate-950/85 backdrop-blur-[12px]"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.85, y: -40 }}
+              transition={{ type: "spring", bounce: 0.5, duration: 0.8 }}
+              className="relative bg-slate-900/90 border border-slate-700/50 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] p-10 max-w-[360px] w-full text-center flex flex-col items-center overflow-hidden"
+            >
+              {/* Animated Background Glows */}
+              <div className="absolute -top-32 -left-32 w-[350px] h-[350px] bg-emerald-500/20 rounded-full blur-[80px] opacity-70 animate-pulse" style={{ animationDuration: '4s' }} />
+              <div className="absolute -bottom-32 -right-32 w-[350px] h-[350px] bg-blue-500/15 rounded-full blur-[80px]" />
+              
+              {/* Success Ring & Icon */}
+              <motion.div 
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", damping: 15, delay: 0.15 }}
+                className="relative flex items-center justify-center w-36 h-36 mb-6"
+              >
+                {/* Expanding outer ring */}
+                <motion.div 
+                   animate={{ scale: [1, 1.4, 1.2], opacity: [0.5, 0, 0] }}
+                   transition={{ duration: 1.5, repeat: Infinity, delay: 0.8 }}
+                   className="absolute inset-0 bg-emerald-500/40 rounded-full"
+                />
+                
+                {/* Glossy inner circle */}
+                <div className="relative w-28 h-28 bg-gradient-to-tr from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-[0_0_50px_-5px_rgba(52,211,153,0.6)] border-4 border-emerald-300/30 overflow-hidden">
+                   <div className="absolute inset-0 bg-gradient-to-b from-white/30 to-transparent w-full h-[50%] rounded-t-full" />
+                   <BadgeCheck size={56} fill="white" stroke="none" className="drop-shadow-lg" />
+                   <motion.div 
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.6, type: "spring" }}
+                      className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                   >
+                      <ShieldCheck className="w-9 h-9 text-emerald-800 drop-shadow-md translate-y-[2px]" strokeWidth={2.5} />
+                   </motion.div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="z-10"
+              >
+                <h2 className="text-3xl font-black text-white tracking-tight mb-2 drop-shadow-sm">Payment Verified!</h2>
+                <p className="text-sm font-medium text-slate-300 mb-8 leading-relaxed">
+                   Your transaction has been securely confirmed via the <span className="text-emerald-400 font-bold tracking-tight">Bakong Network</span>.
+                </p>
+                
+                <div className="mx-auto flex items-center w-fit gap-3 bg-slate-950/60 pr-5 pl-2 py-2 rounded-full border border-slate-700/50 shadow-[rgba(0,0,0,0.3)_0px_3px_8px] backdrop-blur-md">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                       <div className="w-4 h-4 border-[2.5px] border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin" />
+                    </div>
+                    <p className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em]">Updating Ledger...</p>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-4xl mx-auto mb-6 flex items-center justify-between">
         <Link 
           href="/student/invoices" 
-          className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-blue-900 transition-colors bg-white px-3 py-2 rounded-lg border border-slate-200 shadow-sm"
+          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-600 transition-colors bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm group"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <div className="w-5 h-5 bg-indigo-50 rounded-full flex items-center justify-center group-hover:-translate-x-0.5 transition-transform">
+            <ArrowLeft className="w-3 h-3 text-indigo-600" />
+          </div>
           Back to Invoices
         </Link>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-all font-bold text-xs shadow-sm">
+          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-black text-[10px] uppercase tracking-widest shadow-sm">
             <Printer className="w-4 h-4" />
             Print
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-all font-bold text-xs shadow-sm">
+          <button className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all font-black text-[10px] uppercase tracking-widest shadow-md shadow-indigo-100">
             <Download className="w-4 h-4" />
             PDF
           </button>
@@ -238,7 +324,10 @@ const InvoiceDetailPage = () => {
              <div className="space-y-2 mt-2">
                 <div className="flex items-center justify-between md:justify-end gap-4">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Billed:</span>
-                  <span className="text-sm font-black text-slate-900">{invoice.currency === "USD" ? "$" : "៛"}{invoice.totalAmount.toLocaleString()}</span>
+                  <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                    <span className="text-indigo-600 mr-2">{invoice.currency === 'USD' ? '$' : '៛'}</span>
+                    {invoice.totalAmount.toLocaleString(undefined, { minimumFractionDigits: invoice.currency === 'USD' ? 2 : 0 })}
+                  </h2>
                 </div>
                 <div className="flex items-center justify-between md:justify-end gap-4">
                   <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">TOTAL CREDITS:</span>
@@ -346,7 +435,9 @@ const InvoiceDetailPage = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-black text-blue-600 leading-none">+{payment.currency === "USD" ? "$" : "៛"}{payment.amount.toLocaleString()}</p>
+                      <span className="text-[11px] font-black text-emerald-600 tabular-nums uppercase">
+                        {payment.currency === 'USD' ? '$' : '៛'} {payment.amount.toLocaleString(undefined, { minimumFractionDigits: payment.currency === 'USD' ? 2 : 0 })}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -382,12 +473,6 @@ const InvoiceDetailPage = () => {
                </div>
                
                <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-6 text-[9px] font-black uppercase tracking-widest text-slate-400">
-                     <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> End-to-End Secure</span>
-                     <span className="flex items-center gap-1.5"><BadgeCheck className="w-3.5 h-3.5 text-blue-600" /> Bank Integrated</span>
-                     <span className="text-red-700 underline decoration-red-200">No Transaction Fees</span>
-                  </div>
-                  
                   <div className="flex items-center gap-6 text-[9px] font-black uppercase tracking-widest text-slate-400">
                      <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> End-to-End Secure</span>
                      <span className="flex items-center gap-1.5"><BadgeCheck className="w-3.5 h-3.5 text-blue-600" /> Bank Integrated</span>
@@ -454,7 +539,6 @@ const InvoiceDetailPage = () => {
       <div className="max-w-4xl mx-auto mt-8 flex justify-center text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">
         &copy; {new Date().getFullYear()} Step Academy Finance &bull; Internal Records
       </div>
-
     </div>
   );
 };

@@ -51,17 +51,17 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
   useEffect(() => {
     let pollInterval;
     
-    if (isOpen && invoice && qrString && !isSuccess) {
+    if (isOpen && invoice && qrString && md5 && !isSuccess) {
       pollInterval = setInterval(async () => {
         try {
-          const params = new URLSearchParams();
-          if (md5) params.append("md5", md5);
+          // Poll check status endpoint using md5
+          const statusData = await apiClient.get(`/financial/bakong-status/${invoice.id}?md5=${md5}`);
           
-          const response = await apiClient.get(`/financial/bakong-status/${invoice.id}?${params.toString()}`);
-          if (response.isPaid) {
+          if (statusData.paymentConfirmed || statusData.isPaid || statusData.status === 'PAID') {
             setIsSuccess(true);
             clearInterval(pollInterval);
-            // Optionally auto-close after a few seconds
+            
+            // Auto close & reload to display updated parent UI
             setTimeout(() => {
               onClose();
               window.location.reload();
@@ -76,7 +76,7 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
     return () => {
       if (pollInterval) clearInterval(pollInterval);
     };
-  }, [isOpen, invoice, qrString, isSuccess, onClose]);
+  }, [isOpen, invoice, qrString, md5, isSuccess, onClose]);
 
   const generateQR = async () => {
     if (!invoice) return;
@@ -170,8 +170,8 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
                         </div>
                     ) : isLoading ? (
                         <div className="w-[140px] h-[140px] flex flex-col items-center justify-center gap-2">
-                             <div className="w-8 h-8 border-3 border-red-600/20 border-t-red-600 rounded-full animate-spin"></div>
-                             <p className="text-[8px] font-black text-slate-400 uppercase">Encoding...</p>
+                             <div className="w-8 h-8 border-3 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
+                             <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Encoding...</p>
                         </div>
                     ) : error ? (
                         <div className="w-[140px] h-[140px] flex flex-col items-center justify-center text-center p-3">
@@ -201,7 +201,7 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
                 <div className="text-center mb-3 shrink-0">
                     <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">Payment Amount</p>
                     <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-base font-black text-red-600">{currency === "USD" ? "$" : "៛"}</span>
+                        <span className="text-base font-black text-indigo-600">{currency === "USD" ? "$" : "៛"}</span>
                         <span className="text-3xl font-black text-slate-900 tracking-tighter">
                             {(() => {
                                 const baseAmount = invoice?.totalAmount || 0;
@@ -236,13 +236,13 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
                       <div className="flex bg-slate-100/80 p-0.5 rounded-lg w-fit mx-auto border border-slate-200">
                           <button 
                               onClick={() => setCurrency("USD")}
-                              className={`px-4 py-1.5 rounded-md text-[9px] font-black tracking-widest transition-all ${currency === "USD" ? "bg-white text-red-600 shadow-sm border border-slate-200" : "text-slate-400"}`}
+                              className={`px-4 py-1.5 rounded-md text-[9px] font-black tracking-widest transition-all ${currency === "USD" ? "bg-white text-indigo-600 shadow-sm border border-slate-200" : "text-slate-400"}`}
                           >
                               USD
                           </button>
                           <button 
                               onClick={() => setCurrency("KHR")}
-                              className={`px-4 py-1.5 rounded-md text-[9px] font-black tracking-widest transition-all ${currency === "KHR" ? "bg-white text-red-600 shadow-sm border border-slate-200" : "text-slate-400"}`}
+                              className={`px-4 py-1.5 rounded-md text-[9px] font-black tracking-widest transition-all ${currency === "KHR" ? "bg-white text-indigo-600 shadow-sm border border-slate-200" : "text-slate-400"}`}
                           >
                               KHR
                           </button>
@@ -264,7 +264,7 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
                           <span className="text-[9px] font-black tracking-widest text-[#D82C26]">BAKONG</span>
                         )}
                         <div className="h-2 w-[1px] bg-slate-300" />
-                        <span className="text-[8px] font-black uppercase tracking-widest underline decoration-red-600 decoration-2 underline-offset-4">Powered by Bakong</span>
+                        <span className="text-[8px] font-black uppercase tracking-widest underline decoration-indigo-600 decoration-2 underline-offset-4">Powered by Bakong</span>
                     </div>
                     
                     {isSuccess ? (

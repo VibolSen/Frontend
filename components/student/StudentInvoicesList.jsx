@@ -38,6 +38,9 @@ const StudentInvoicesList = ({ invoices }) => {
                 Due Date
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Payment Date
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -51,10 +54,10 @@ const StudentInvoicesList = ({ invoices }) => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {invoice.id.substring(0, 8)}...
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
                   <div className="flex items-center">
-                    <FiDollarSign className="text-green-500 mr-1" />
-                    {invoice.totalAmount ? invoice.totalAmount.toFixed(2) : "N/A"}
+                    <span className="text-indigo-600 mr-1.5 font-black">{invoice.currency === 'USD' ? '$' : '៛'}</span>
+                    {invoice.totalAmount ? invoice.totalAmount.toLocaleString(undefined, { minimumFractionDigits: invoice.currency === 'USD' ? 2 : 0 }) : "N/A"}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -62,6 +65,16 @@ const StudentInvoicesList = ({ invoices }) => {
                     <FiCalendar className="text-blue-500 mr-1" />
                     {invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : "N/A"}
                   </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {invoice.payments && invoice.payments.length > 0 ? (
+                    <div className="flex items-center">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>
+                      {new Date(Math.max(...invoice.payments.map(p => new Date(p.paymentDate)))).toLocaleDateString()}
+                    </div>
+                  ) : (
+                    <span className="text-gray-400 font-medium italic">--</span>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <span
@@ -86,9 +99,10 @@ const StudentInvoicesList = ({ invoices }) => {
                   {invoice.status !== "PAID" && (
                     <button
                       onClick={() => handlePayClick(invoice)}
-                      className="text-red-600 hover:text-red-800 flex items-center font-bold"
+                      className="px-4 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white border border-indigo-100/50 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest flex items-center gap-2 group shadow-sm active:scale-95"
                     >
-                      <QrCode className="w-4 h-4 mr-1" /> Pay
+                      <QrCode className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" /> 
+                      Pay Now
                     </button>
                   )}
                 </td>
