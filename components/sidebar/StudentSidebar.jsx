@@ -18,7 +18,8 @@ import {
   Award,
   DollarSign,
   LogOut,
-  GraduationCap
+  GraduationCap,
+  Users
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useUser } from "@/context/UserContext";
@@ -84,8 +85,8 @@ const STUDENT_NAV_GROUPS = [
     group: "Academics",
     items: [
       { label: "My Schedules", icon: <Calendar />, href: "/student/schedule" },
+      { label: "My Group", icon: <Users />, href: "/student/group" },
       { label: "Courses", icon: <Book />, href: "/student/courses" },
-      { label: "Registration", icon: <ClipboardCheck />, href: "/student/course-registration" },
       { label: "E-Library", icon: <BookOpen />, href: "/student/e-library" },
     ]
   },

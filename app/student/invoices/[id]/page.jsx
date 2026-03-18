@@ -36,10 +36,6 @@ const InvoiceDetailPage = () => {
   const [qrString, setQrString] = useState("");
   const [md5Hash, setMd5Hash] = useState("");
   const [qrLoading, setQrLoading] = useState(false);
-  const [showSimModal, setShowSimModal] = useState(false);
-  const [simName, setSimName] = useState("");
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [simSuccess, setSimSuccess] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -88,7 +84,7 @@ const InvoiceDetailPage = () => {
         try {
             const response = await apiClient.post("/financial/bakong-qr", {
                 amount: invoiceData.totalAmount,
-                currency: "USD",
+                currency: invoiceData.currency || "USD",
                 invoiceId: invoiceData.id
             });
             setQrString(response.qrString);
@@ -145,7 +141,15 @@ const InvoiceDetailPage = () => {
     );
   }
 
-  const totalPaid = invoice.payments ? invoice.payments.reduce((sum, payment) => sum + payment.amount, 0) : 0;
+  const totalPaid = (invoice.payments || []).reduce((sum, payment) => {
+    let normalizedAmount = payment.amount;
+    if (payment.currency === "KHR" && invoice.currency === "USD") {
+      normalizedAmount = normalizedAmount / 4100;
+    } else if (payment.currency === "USD" && invoice.currency === "KHR") {
+      normalizedAmount = normalizedAmount * 4100;
+    }
+    return sum + normalizedAmount;
+  }, 0);
   const outstandingAmount = invoice.totalAmount - totalPaid;
 
   return (
@@ -234,15 +238,15 @@ const InvoiceDetailPage = () => {
              <div className="space-y-2 mt-2">
                 <div className="flex items-center justify-between md:justify-end gap-4">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Billed:</span>
-                  <span className="text-sm font-black text-slate-900">${invoice.totalAmount.toLocaleString()}</span>
+                  <span className="text-sm font-black text-slate-900">{invoice.currency === "USD" ? "$" : "៛"}{invoice.totalAmount.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between md:justify-end gap-4">
                   <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">TOTAL CREDITS:</span>
-                  <span className="text-sm font-black text-blue-600">-${totalPaid.toLocaleString()}</span>
+                  <span className="text-sm font-black text-blue-600">-{invoice.currency === "USD" ? "$" : "៛"}{totalPaid.toLocaleString()}</span>
                 </div>
                 <div className="pt-2 border-t border-slate-200 flex items-center justify-between md:justify-end gap-4">
                   <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Balance Due:</span>
-                  <span className="text-xl font-black text-blue-900">${outstandingAmount.toLocaleString()}</span>
+                  <span className="text-xl font-black text-blue-900">{invoice.currency === "USD" ? "$" : "៛"}{outstandingAmount.toLocaleString()}</span>
                 </div>
              </div>
           </div>
@@ -257,7 +261,7 @@ const InvoiceDetailPage = () => {
                 <tr className="border-b border-slate-900">
                   <th className="px-2 py-4 text-[10px] font-black uppercase tracking-widest text-slate-900 w-16 italic">REF</th>
                   <th className="px-2 py-4 text-[10px] font-black uppercase tracking-widest text-slate-900">Description / Fee Category</th>
-                  <th className="px-2 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-900">Amount (USD)</th>
+                  <th className="px-2 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-900">Amount ({invoice.currency})</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -269,7 +273,7 @@ const InvoiceDetailPage = () => {
                       <p className="text-[11px] text-slate-400 font-medium leading-relaxed mt-1 uppercase italic tracking-wide">{item.description || 'Academic service fee'}</p>
                     </td>
                     <td className="px-2 py-5 text-right font-black text-slate-900 text-sm">
-                      ${item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      {invoice.currency === "USD" ? "$" : "៛"}{item.amount.toLocaleString(undefined, { minimumFractionDigits: invoice.currency === "USD" ? 2 : 0 })}
                     </td>
                   </tr>
                 ))}
@@ -277,7 +281,7 @@ const InvoiceDetailPage = () => {
               <tfoot>
                 <tr>
                   <td colSpan="2" className="px-2 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest pt-8">Grand Total</td>
-                  <td className="px-2 py-6 text-right text-xl font-black text-blue-900 pt-8">${invoice.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="px-2 py-6 text-right text-xl font-black text-blue-900 pt-8">{invoice.currency === "USD" ? "$" : "៛"}{invoice.totalAmount.toLocaleString(undefined, { minimumFractionDigits: invoice.currency === "USD" ? 2 : 0 })}</td>
                 </tr>
               </tfoot>
             </table>
@@ -317,7 +321,7 @@ const InvoiceDetailPage = () => {
                           </div>
                           <div className="space-y-1">
                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Currency & Amount</p>
-                            <p className="text-[11px] font-bold text-slate-800 tracking-tight leading-none uppercase">{payment.currency || 'USD'} ${payment.amount.toFixed(2)}</p>
+                            <p className="text-[11px] font-bold text-slate-800 tracking-tight leading-none uppercase">{payment.currency || 'USD'} {payment.currency === 'USD' ? '$' : '៛'}{payment.amount.toLocaleString()}</p>
                             <p className="text-[10px] text-slate-500 font-medium">Conversion: Verified</p>
                           </div>
                           <div className="space-y-1">
@@ -342,7 +346,7 @@ const InvoiceDetailPage = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-black text-blue-600 leading-none">+${payment.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                      <p className="text-lg font-black text-blue-600 leading-none">+{payment.currency === "USD" ? "$" : "៛"}{payment.amount.toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
@@ -384,17 +388,11 @@ const InvoiceDetailPage = () => {
                      <span className="text-red-700 underline decoration-red-200">No Transaction Fees</span>
                   </div>
                   
-                  <button 
-                    onClick={() => {
-                      setSimName(`${invoice.student.firstName} ${invoice.student.lastName}`.toUpperCase());
-                      setShowSimModal(true);
-                      setSimSuccess(false);
-                    }}
-                    className="w-fit px-5 py-2.5 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-[0.15em] hover:bg-slate-800 transition-all flex items-center gap-2 shadow-lg shadow-slate-900/10 group"
-                  >
-                     <CreditCard size={12} className="group-hover:rotate-12 transition-transform" />
-                     Pro-Demo Sandbox
-                  </button>
+                  <div className="flex items-center gap-6 text-[9px] font-black uppercase tracking-widest text-slate-400">
+                     <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> End-to-End Secure</span>
+                     <span className="flex items-center gap-1.5"><BadgeCheck className="w-3.5 h-3.5 text-blue-600" /> Bank Integrated</span>
+                     <span className="text-red-700 underline decoration-red-200">No Transaction Fees</span>
+                  </div>
                </div>
             </div>
             
@@ -457,103 +455,6 @@ const InvoiceDetailPage = () => {
         &copy; {new Date().getFullYear()} Step Academy Finance &bull; Internal Records
       </div>
 
-      {/* Premium Simulation Modal */}
-      {showSimModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm"
-            onClick={() => !isSimulating && setShowSimModal(false)}
-          />
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100"
-          >
-            <div className="bg-slate-950 p-6 text-center relative">
-               <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 rotate-3 shadow-lg shadow-blue-500/30">
-                  <CreditCard className="text-white w-6 h-6" />
-               </div>
-               <h3 className="text-white text-sm font-black uppercase tracking-widest">Demo Sandbox</h3>
-               <p className="text-blue-400 text-[9px] font-bold uppercase tracking-widest mt-1 opacity-60">Payment Simulation Engine</p>
-            </div>
-
-            <div className="p-8 space-y-6">
-               {!simSuccess ? (
-                 <>
-                   <div className="space-y-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Payer Identity (Simulation)</label>
-                        <input 
-                          type="text" 
-                          value={simName}
-                          onChange={(e) => setSimName(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                          placeholder="e.g. VIBOL SEN"
-                        />
-                      </div>
-                      <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
-                         <div className="flex justify-between items-center mb-1">
-                            <span className="text-[9px] font-black text-blue-400 uppercase">Amount</span>
-                            <span className="text-xs font-black text-blue-700">${invoice.totalAmount.toFixed(2)}</span>
-                         </div>
-                         <div className="flex justify-between items-center">
-                            <span className="text-[9px] font-black text-blue-400 uppercase">Status</span>
-                            <span className="text-[9px] font-black text-amber-600 uppercase flex items-center gap-1 animate-pulse"><Clock size={10} /> Pending Confirmation</span>
-                         </div>
-                      </div>
-                   </div>
-
-                   <div className="flex gap-2 pt-2">
-                     <button 
-                        onClick={() => setShowSimModal(false)}
-                        disabled={isSimulating}
-                        className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 transition-all font-mono"
-                     >
-                        Cancel
-                     </button>
-                     <button 
-                        onClick={async () => {
-                          setIsSimulating(true);
-                          try {
-                            await apiClient.post("/financial/bakong-callback", {
-                              invoiceId: invoice.id,
-                              amount: invoice.totalAmount,
-                              currency: "USD",
-                              md5: `sim_${Date.now()}`,
-                              transactionId: `SIM-${Date.now()}`,
-                              senderName: simName.toUpperCase() || "DEMO_USER",
-                              senderAccount: "003 128 656",
-                              receiverAccount: "vibol_sen@bkrt"
-                            });
-                            setSimSuccess(true);
-                            setTimeout(() => setShowSimModal(false), 2000);
-                          } catch (e) { console.error(e); }
-                          finally { setIsSimulating(false); }
-                        }}
-                        disabled={isSimulating}
-                        className="flex-[2] bg-blue-600 text-white rounded-xl px-4 py-3 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
-                     >
-                        {isSimulating ? <div className="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <ShieldCheck size={14} />}
-                        Confirm Simulation
-                     </button>
-                   </div>
-                 </>
-               ) : (
-                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="py-8 text-center space-y-4">
-                    <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
-                       <BadgeCheck className="text-white w-8 h-8" />
-                    </div>
-                    <div className="space-y-1">
-                      <h4 className="text-slate-900 font-black uppercase text-sm tracking-tight">Signal Verified</h4>
-                      <p className="text-slate-400 text-[9px] font-bold tracking-widest uppercase">Invoice UI will update instantly</p>
-                    </div>
-                 </motion.div>
-               )}
-            </div>
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 };

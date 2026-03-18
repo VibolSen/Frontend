@@ -136,9 +136,10 @@ const TeacherDashboard = ({ loggedInUser }) => {
         </motion.header>
 
         {/* Stats Grid */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {[
             { title: "My Students", val: dashboardData.totalStudents, icon: Users, color: "blue", darkBg: "dark:bg-blue-900/20", darkText: "dark:text-blue-400" },
+            { title: "My Groups", val: dashboardData.groups, icon: ClipboardList, color: "emerald", darkBg: "dark:bg-emerald-900/20", darkText: "dark:text-emerald-400" },
             { title: "My Courses", val: dashboardData.totalCourses, icon: Library, color: "indigo", darkBg: "dark:bg-indigo-900/20", darkText: "dark:text-indigo-400" },
             { title: "Avg Grade", val: `${dashboardData.averageGrade}%`, icon: Award, color: "violet", darkBg: "dark:bg-violet-900/20", darkText: "dark:text-violet-400" },
           ].map((stat) => (
@@ -170,11 +171,12 @@ const TeacherDashboard = ({ loggedInUser }) => {
                   { label: "Grades", icon: Award, href: "/teacher/gradebook", bg: "bg-indigo-50", text: "text-indigo-600" },
                   { label: "Schedule", icon: Calendar, href: "/teacher/schedule", bg: "bg-sky-50", text: "text-sky-600" },
                   { label: "Students", icon: Users, href: "/teacher/students", bg: "bg-violet-50", text: "text-violet-600" },
+                  { label: "Groups", icon: ClipboardList, href: "/teacher/groups", bg: "bg-emerald-50", text: "text-emerald-600" },
                   { label: "Courses", icon: Library, href: "/teacher/courses", bg: "bg-slate-50", text: "text-slate-600" },
                   { label: "Exams", icon: FileText, href: "/teacher/exam", bg: "bg-purple-50", text: "text-purple-600" },
                   { label: "Stats", icon: TrendingUp, href: "/teacher/student-performance", bg: "bg-cyan-50", text: "text-cyan-600" },
                   { label: "Leave", icon: Calendar, href: "/teacher/my-absence", bg: "bg-orange-50", text: "text-orange-600" },
-                  { label: "E-Library", icon: Library, href: "/teacher/e-library", bg: "bg-emerald-50", text: "text-emerald-600" },
+                  { label: "E-Library", icon: Library, href: "/teacher/e-library", bg: "bg-amber-50", text: "text-amber-600" },
                 ].map((action) => (
                   <Link
                     href={action.href}
@@ -309,6 +311,11 @@ const TeacherDashboard = ({ loggedInUser }) => {
                 <div className="text-center">
                   <p className="text-[11px] font-black text-slate-900 dark:text-white leading-none">{dashboardData.totalCourses}</p>
                   <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Courses</p>
+                </div>
+                <div className="h-4 w-px bg-slate-100 dark:bg-slate-800" />
+                <div className="text-center">
+                  <p className="text-[11px] font-black text-slate-900 dark:text-white leading-none">{dashboardData.groups}</p>
+                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Groups</p>
                 </div>
                 <div className="h-4 w-px bg-slate-100 dark:bg-slate-800" />
                 <div className="text-center">

@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, MapPin } from "lucide-react";
+import { Plus, Edit, Trash2, MapPin, ExternalLink } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 export default function RoomsManagementView() {
   const [rooms, setRooms] = useState([]);
@@ -145,6 +146,9 @@ export default function RoomsManagementView() {
                     <button onClick={() => handleDeleteClick(room)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                         <Trash2 size={14} />
                     </button>
+                    <Link href={`/study-office/rooms/${room.id}`} className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                        <ExternalLink size={14} />
+                    </Link>
                 </div>
             </div>
             
@@ -162,6 +166,15 @@ export default function RoomsManagementView() {
                         ))}
                     </div>
                 )}
+            </div>
+            <div className="mt-4 pt-4 border-t border-slate-50 flex justify-end">
+                <Link 
+                    href={`/study-office/rooms/${room.id}`}
+                    className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 flex items-center gap-1.5"
+                >
+                    View Details
+                    <ExternalLink size={12} />
+                </Link>
             </div>
           </div>
         ))}

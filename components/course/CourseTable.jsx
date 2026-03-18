@@ -21,8 +21,10 @@ export default function CoursesTable({
   onEdit,
   onDelete,
   isLoading,
-  baseUrl = "/admin/courses"
+  role = "admin",
+  baseUrl
 }) {
+  const dynamicBaseUrl = baseUrl || `/${role}/courses`;
   const [searchTerm, setSearchTerm] = useState("");
   const [teacherFilter, setTeacherFilter] = useState("All");
   const [sortConfig, setSortConfig] = useState({
@@ -163,7 +165,7 @@ export default function CoursesTable({
                       </div>
                       <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <Link href={`${baseUrl}/${course.id}`} className="hover:text-blue-600 transition-colors">
+                          <Link href={`${dynamicBaseUrl}/${course.id}`} className="hover:text-blue-600 transition-colors">
                             <span className="text-[13px] font-black text-slate-800 tracking-tight truncate max-w-[150px]">{course.name}</span>
                           </Link>
                         </div>
@@ -196,7 +198,7 @@ export default function CoursesTable({
                   <td className="px-5 py-3 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center gap-1">
                       <Link
-                        href={`${baseUrl}/${course.id}`}
+                        href={`${dynamicBaseUrl}/${course.id}`}
                         className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                         title="View Course Details"
                       >

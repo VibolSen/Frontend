@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 
 import { apiClient } from '@/lib/api';
 
-export default function CourseManagementView() {
+export default function CourseManagementView({ role = "admin" }) {
   const [courses, setCourses] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [teachers, setTeachers] = useState([]);
@@ -156,6 +156,7 @@ export default function CourseManagementView() {
           onEdit={handleEditClick}
           onDelete={handleDeleteRequest}
           isLoading={isLoading}
+          role={role}
         />
       </motion.div>
 

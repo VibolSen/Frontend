@@ -199,7 +199,6 @@ const StudentDashboard = ({ loggedInUser }) => {
                   { label: "Finance", icon: FileText, href: "/student/invoices", color: "text-slate-500", bg: "bg-slate-50" },
                   { label: "Points", icon: TrendingUp, href: "/student/points", color: "text-violet-500", bg: "bg-violet-50" },
                   { label: "Transcript", icon: ScrollText, href: "/student/transcript", color: "text-emerald-600", bg: "bg-emerald-50" },
-                  { label: "Register", icon: ClipboardCheck, href: "/student/course-registration", color: "text-amber-600", bg: "bg-amber-50" },
                 ].map((action) => (
                   <Link
                     href={action.href}

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { Search, UserPlus, UserMinus, ArrowRightLeft, CheckCircle2, User } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function ManageGroupMembers({
   initialGroup,
@@ -15,24 +16,76 @@ export default function ManageGroupMembers({
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [showAll, setShowAll] = useState(false);
+  
+  // New UI Filters
+  const [selectedDeptId, setSelectedDeptId] = useState("ALL");
+  const [selectedBatchId, setSelectedBatchId] = useState("ALL");
+  const [selectedYear, setSelectedYear] = useState("ALL");
+
+  // Derive filter options from allStudents
+  const { departments, batches, academicYears } = useMemo(() => {
+    const deps = new Map();
+    const bats = new Map();
+    const years = new Set();
+    
+    allStudents.forEach(s => {
+      if (s.department) {
+        deps.set(s.departmentId, s.department.name);
+      }
+      if (s.profile?.batchId) {
+        // Find batch name by searching within another list or we extract from existing data.
+        // Assuming batch name might not be populated in s.profile, we use the ID as a fallback, or if it is populated, we use it. 
+        // We'll use ID here since we only have student data directly. To keep it simple we just use ID as name if name isn't available elsewhere.
+        bats.set(s.profile.batchId, s.profile.batchId); 
+      }
+      if (s.profile?.academicYear) {
+        years.add(s.profile.academicYear);
+      }
+    });
+    
+    return {
+      departments: Array.from(deps.entries()).map(([id, name]) => ({ id, name })),
+      batches: Array.from(bats.keys()),
+      academicYears: Array.from(years).sort((a,b) => a - b)
+    };
+  }, [allStudents]);
+
 
   const { enrolledStudents, availableStudents } = useMemo(() => {
     const enrolledSet = new Set(enrolledStudentIds);
     const batchDeptId = initialGroup.batch?.departmentId || null;
+    
+    // Parse the group's academic year (e.g., "Year 1" -> 1)
+    const grpYearMatch = initialGroup.academicYear ? initialGroup.academicYear.match(/\d+/) : null;
+    const groupAcademicYearInt = grpYearMatch ? parseInt(grpYearMatch[0], 10) : null;
 
     const filtered = allStudents.filter(s => {
       const matchesSearch = `${s.firstName} ${s.lastName} ${s.email}`.toLowerCase().includes(searchTerm.toLowerCase());
-      // When filtered mode: must match both generation AND department
-      const matchesBatch = showAll || !initialGroup.batchId || s.profile?.batchId === initialGroup.batchId;
-      const matchesDept = showAll || !batchDeptId || s.departmentId === batchDeptId;
-      return matchesSearch && matchesBatch && matchesDept;
+      
+      if (showAll) {
+        // UI Filters apply when showing all (or exploring)
+        const uiMatchesDept = selectedDeptId === "ALL" || s.departmentId === selectedDeptId;
+        const uiMatchesBatch = selectedBatchId === "ALL" || s.profile?.batchId === selectedBatchId;
+        const uiMatchesYear = selectedYear === "ALL" || String(s.profile?.academicYear) === selectedYear;
+        return matchesSearch && uiMatchesDept && uiMatchesBatch && uiMatchesYear;
+      }
+
+      // Strict mode: Only show constraints matching the group's properties
+      const sBatchId = s.profile?.batchId || null;
+      const sYear = s.profile?.academicYear || null;
+
+      const matchesBatch = !initialGroup.batchId || sBatchId === initialGroup.batchId;
+      const matchesDept = !batchDeptId || s.departmentId === batchDeptId;
+      const matchesYear = !groupAcademicYearInt || sYear === groupAcademicYearInt;
+
+      return matchesSearch && matchesBatch && matchesDept && matchesYear;
     });
 
     const enrolled = allStudents.filter(s => enrolledSet.has(s.id));
     const available = filtered.filter(s => !enrolledSet.has(s.id));
 
     return { enrolledStudents: enrolled, availableStudents: available };
-  }, [allStudents, enrolledStudentIds, searchTerm, showAll, initialGroup.batchId, initialGroup.batch]);
+  }, [allStudents, enrolledStudentIds, searchTerm, showAll, initialGroup.batchId, initialGroup.batch, initialGroup.academicYear, selectedDeptId, selectedBatchId, selectedYear]);
 
   const handleAddStudent = (studentId) => {
     setEnrolledStudentIds((prev) => [...prev, studentId]);
@@ -50,15 +103,19 @@ export default function ManageGroupMembers({
     <div className="group flex items-center justify-between p-3 bg-white border border-slate-100 rounded-2xl hover:border-blue-200 hover:shadow-md hover:shadow-blue-500/5 transition-all mb-2">
       <div className="flex items-center gap-3">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm ${type === 'enrolled' ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-400'}`}>
-          {student.profile?.image ? (
-            <img src={student.profile.image} alt="" className="w-full h-full object-cover rounded-xl" />
+          {student.profile?.avatar ? (
+            <img src={student.profile.avatar} alt="" className="w-full h-full object-cover rounded-xl" />
           ) : (
             <User size={18} />
           )}
         </div>
         <div>
           <p className="text-sm font-bold text-slate-800 tracking-tight">{`${student.firstName} ${student.lastName}`}</p>
-          <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">{student.email}</p>
+          <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+            {student.email} 
+            {student.department && <span className="ml-1 text-slate-300"> • {student.department.name}</span>}
+            {student.profile?.academicYear && <span className="ml-1 text-slate-300"> • Year {student.profile.academicYear}</span>}
+          </p>
         </div>
       </div>
       <button
@@ -75,18 +132,49 @@ export default function ManageGroupMembers({
 
   return (
     <div className="space-y-6">
-      {/* Search Bar */}
-      <div className="relative group max-w-md mx-auto">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
-          <Search size={18} />
+      {/* Search & Filters */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4 max-w-2xl mx-auto">
+        <div className="relative group">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+            <Search size={18} />
+          </div>
+          <input
+            type="text"
+            placeholder="Search roster by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+          />
         </div>
-        <input
-          type="text"
-          placeholder="Filter personnel by name or email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
-        />
+
+        {showAll && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+             <select 
+               value={selectedDeptId} 
+               onChange={(e) => setSelectedDeptId(e.target.value)}
+               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-600"
+             >
+               <option value="ALL">All Departments</option>
+               {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+             </select>
+             <select 
+               value={selectedBatchId} 
+               onChange={(e) => setSelectedBatchId(e.target.value)}
+               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-600"
+             >
+               <option value="ALL">All Generations</option>
+               {batches.map(b => <option key={b} value={b}>Batch ID: {b.substring(0,6)}...</option>)}
+             </select>
+             <select 
+               value={selectedYear} 
+               onChange={(e) => setSelectedYear(e.target.value)}
+               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-600"
+             >
+               <option value="ALL">All Years</option>
+               {academicYears.map(y => <option key={y} value={String(y)}>Year {y}</option>)}
+             </select>
+          </motion.div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
@@ -96,13 +184,20 @@ export default function ManageGroupMembers({
             <div className="flex items-center gap-3">
               <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">Available Pool</span>
               <button
-                onClick={() => setShowAll(!showAll)}
-                className={`text-[9px] font-bold px-2 py-0.5 rounded-full transition-all border ${showAll
-                  ? "bg-slate-900 text-white border-slate-900"
-                  : "bg-white text-slate-400 border-slate-200 hover:border-slate-400"
+                onClick={() => {
+                   setShowAll(!showAll)
+                   if (showAll) {
+                     setSelectedDeptId("ALL");
+                     setSelectedBatchId("ALL");
+                     setSelectedYear("ALL");
+                   }
+                }}
+                className={`text-[9px] font-bold px-3 py-1 rounded-full transition-all border shadow-sm ${showAll
+                  ? "bg-indigo-600 text-white border-indigo-600"
+                  : "bg-white text-slate-500 border-slate-200 hover:border-slate-400 hover:bg-slate-50"
                   }`}
               >
-                {showAll ? "Showing All System Users" : "Filtered by Generation"}
+                {showAll ? "Custom Filtering Active" : "Strict Filter: Dept, Gen, & Year"}
               </button>
               <span className="bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">{availableStudents.length}</span>
             </div>

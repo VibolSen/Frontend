@@ -26,9 +26,8 @@ export default function InvoicesManagement() {
   const [errorMessage, setErrorMessage] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
   const [stats, setStats] = useState({
-    totalValuation: 0,
-    settledVolume: 0,
-    outstandingExposure: 0,
+    usd: { totalValuation: 0, settledVolume: 0, outstandingExposure: 0 },
+    khr: { totalValuation: 0, settledVolume: 0, outstandingExposure: 0 },
     overdueCount: 0
   });
 
@@ -65,12 +64,19 @@ export default function InvoicesManagement() {
       
       // Calculate Stats
       const statsObj = invoiceData.reduce((acc, inv) => {
-        acc.totalValuation += inv.totalAmount;
-        if (inv.status === "PAID") acc.settledVolume += inv.totalAmount;
-        else acc.outstandingExposure += inv.totalAmount;
+        const curr = (inv.currency || "USD").toLowerCase();
+        if (acc[curr]) {
+            acc[curr].totalValuation += inv.totalAmount;
+            if (inv.status === "PAID") acc[curr].settledVolume += inv.totalAmount;
+            else acc[curr].outstandingExposure += inv.totalAmount;
+        }
         if (inv.status === "OVERDUE") acc.overdueCount++;
         return acc;
-      }, { totalValuation: 0, settledVolume: 0, outstandingExposure: 0, overdueCount: 0 });
+      }, { 
+        usd: { totalValuation: 0, settledVolume: 0, outstandingExposure: 0 },
+        khr: { totalValuation: 0, settledVolume: 0, outstandingExposure: 0 },
+        overdueCount: 0 
+      });
       
       setStats(statsObj);
     } catch (error) {
@@ -178,9 +184,9 @@ export default function InvoicesManagement() {
       {/* Financial Intelligence Dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Valuation", value: stats.totalValuation, icon: FileText, color: "blue" },
-          { label: "Settled Volume", value: stats.settledVolume, icon: RefreshCcw, color: "emerald" },
-          { label: "Outstanding Exposure", value: stats.outstandingExposure, icon: Eye, color: "amber" },
+          { label: "Total Valuation", key: "totalValuation", icon: FileText, color: "blue" },
+          { label: "Settled Volume", key: "settledVolume", icon: RefreshCcw, color: "emerald" },
+          { label: "Outstanding Exposure", key: "outstandingExposure", icon: Eye, color: "amber" },
           { label: "Overdue Registry", value: stats.overdueCount, variant: "count", icon: Trash2, color: "rose" }
         ].map((stat, i) => (
           <motion.div
@@ -199,7 +205,14 @@ export default function InvoicesManagement() {
             <div className="mt-4">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{stat.label}</p>
               <h3 className="text-2xl font-black text-slate-900 tracking-tighter mt-1.5 tabular-nums">
-                {stat.variant === "count" ? stat.value : `$${stat.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                {stat.variant === "count" ? (
+                    stat.value
+                ) : (
+                    <div className="flex flex-col">
+                        <span className="text-lg">${stats.usd[stat.key].toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        <span className="text-[10px] text-slate-400 font-bold tracking-tight">៛{stats.khr[stat.key].toLocaleString(undefined, { minimumFractionDigits: 0 })}</span>
+                    </div>
+                )}
               </h3>
             </div>
           </motion.div>
@@ -270,6 +283,15 @@ export default function InvoicesManagement() {
                   </div>
                 </th>
                 <th 
+                  onClick={() => handleSort('period')}
+                  className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-900 transition-colors"
+                >
+                  <div className="flex items-center gap-2 justify-center">
+                    Billing Cycle
+                    {sortConfig.key === 'period' && (sortConfig.direction === 'asc' ? "↑" : "↓")}
+                  </div>
+                </th>
+                <th 
                   onClick={() => handleSort('totalAmount')}
                   className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-900 transition-colors"
                 >
@@ -303,7 +325,7 @@ export default function InvoicesManagement() {
               <AnimatePresence mode="popLayout">
                 {isLoading && filteredInvoices.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-20 text-center">
+                    <td colSpan={7} className="py-20 text-center">
                        <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                         <div className="h-6 w-6 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Retrieving Accounts...</span>
@@ -312,7 +334,7 @@ export default function InvoicesManagement() {
                   </tr>
                 ) : filteredInvoices.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-20 text-center">
+                    <td colSpan={7} className="py-20 text-center">
                        <FileText size={32} className="mx-auto text-blue-200 mb-3" />
                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">No Invoices found</h3>
                        <p className="text-slate-500 text-[10px] uppercase tracking-widest mt-1">Registry is complete but currently empty</p>
@@ -345,8 +367,20 @@ export default function InvoicesManagement() {
                         </div>
                       </td>
                       <td className="px-5 py-3 whitespace-nowrap text-center">
+                        <div className="flex flex-col items-center">
+                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${inv.period === 'YEAR' ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-100 text-slate-600'}`}>
+                            {inv.period}
+                          </span>
+                          {inv.academicYear && (
+                            <span className="text-[8px] font-bold text-slate-400 uppercase mt-1">
+                              Year {inv.academicYear} {inv.semester ? `| Sem ${inv.semester}` : ''}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 whitespace-nowrap text-center">
                         <span className="text-xs font-black text-slate-900 tabular-nums">
-                          ${inv.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          {inv.currency === "USD" ? "$" : "៛"}{inv.totalAmount.toLocaleString(undefined, { minimumFractionDigits: inv.currency === "USD" ? 2 : 0 })}
                         </span>
                       </td>
                       <td className="px-5 py-3 whitespace-nowrap text-center">

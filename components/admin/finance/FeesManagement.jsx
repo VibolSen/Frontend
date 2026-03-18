@@ -182,7 +182,7 @@ export default function FeesManagement() {
                       <td className="px-5 py-3 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-lg bg-blue-50 text-indigo-600 flex items-center justify-center font-black text-[10px] shrink-0 border border-blue-100">
-                             $
+                             {fee.currency === "USD" ? "$" : "៛"}
                           </div>
                           <span className="text-xs font-black text-slate-800 tracking-tight">{fee.name}</span>
                         </div>
@@ -194,7 +194,7 @@ export default function FeesManagement() {
                       </td>
                       <td className="px-5 py-3 whitespace-nowrap text-center">
                         <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-[10px] font-black border border-emerald-100 shadow-sm">
-                           ${fee.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                           {fee.currency === "USD" ? "$" : "៛"}{fee.amount.toLocaleString(undefined, { minimumFractionDigits: fee.currency === "USD" ? 2 : 0 })}
                         </span>
                       </td>
                       <td className="px-5 py-3 whitespace-nowrap text-center">

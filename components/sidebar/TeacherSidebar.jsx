@@ -84,6 +84,7 @@ const TEACHER_NAV_GROUPS = [
     group: "Classroom",
     items: [
       { label: "My Students", icon: <Users />, href: "/teacher/students" },
+      { label: "My Groups", icon: <ClipboardList />, href: "/teacher/groups" },
       { label: "My Courses", icon: <Book />, href: "/teacher/courses" },
       { label: "E-Library", icon: <BookOpen />, href: "/teacher/e-library" },
     ]

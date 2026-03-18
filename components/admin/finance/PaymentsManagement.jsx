@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import PaymentModal from "./PaymentModal";
 import Link from "next/link";
-import { Plus, Edit, Trash2, CreditCard, Search, RefreshCcw, ArrowRight } from "lucide-react";
+import { Plus, Edit, Trash2, CreditCard, Search, RefreshCcw, ArrowRight, Copy, Check } from "lucide-react";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -196,7 +196,7 @@ export default function PaymentsManagement() {
                       </td>
                       <td className="px-5 py-3 whitespace-nowrap text-center">
                         <span className="text-xs font-black text-slate-900 tabular-nums">
-                          ${payment.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          {payment.currency === "USD" ? "$" : "៛"}{payment.amount.toLocaleString(undefined, { minimumFractionDigits: payment.currency === "USD" ? 2 : 0 })}
                         </span>
                       </td>
                       <td className="px-5 py-3 whitespace-nowrap text-center">
@@ -205,9 +205,29 @@ export default function PaymentsManagement() {
                         </span>
                       </td>
                       <td className="px-5 py-3 whitespace-nowrap text-center">
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-widest border border-slate-200 inline-block shadow-sm">
-                          {payment.paymentMethod}
-                        </span>
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-widest border border-slate-200 inline-block shadow-sm">
+                            {payment.paymentMethod}
+                          </span>
+                          {payment.paymentMethod === "BANK_TRANSFER" && (
+                            <div className="flex flex-col items-center">
+                              <span className="text-[8px] text-slate-400 font-bold tracking-tighter uppercase whitespace-nowrap">
+                                {payment.senderAccount ? `ID: ${payment.senderAccount.substring(0, 10)}...` : payment.transactionId ? `HASH: ${payment.transactionId.substring(0, 10)}...` : 'N/A'}
+                              </span>
+                              {payment.transactionId && (
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(payment.transactionId);
+                                  }}
+                                  className="text-[7px] text-blue-400 hover:text-blue-600 uppercase font-black tracking-[0.2em] mt-0.5 flex items-center gap-0.5"
+                                >
+                                  COPY HASH <Copy size={6} />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="px-5 py-3 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-1">

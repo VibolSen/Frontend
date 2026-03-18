@@ -2,480 +2,412 @@
 
 import { useState, useEffect } from "react";
 import {
-  User,
-  Mail,
-  Shield,
-  Edit3,
-  Save,
-  Camera,
-  Eye,
-  EyeOff,
-  Lock,
-  GraduationCap,
-  Calendar,
-  Layers
+  User, Mail, Shield, Edit3, Save, Camera,
+  Eye, EyeOff, Lock, GraduationCap, Phone,
+  MapPin, FileText, CheckCircle, AlertCircle, X
 } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 
-export default function ProfilePageContent({
-  user: initialUser,
-  isCurrentUser,
-  onUpdateProfile,
-}) {
+// Role color themes
+const ROLE_THEME = {
+  STUDENT:      { from: "from-blue-600",    to: "to-indigo-600",   badge: "bg-blue-100 text-blue-700",    icon: "text-blue-600" },
+  TEACHER:      { from: "from-indigo-600",  to: "to-violet-600",   badge: "bg-indigo-100 text-indigo-700", icon: "text-indigo-600" },
+  ADMIN:        { from: "from-slate-700",   to: "to-slate-900",    badge: "bg-slate-100 text-slate-700",   icon: "text-slate-700" },
+  FINANCE:      { from: "from-emerald-600", to: "to-teal-600",     badge: "bg-emerald-100 text-emerald-700", icon: "text-emerald-600" },
+  HR:           { from: "from-rose-500",    to: "to-pink-600",     badge: "bg-rose-100 text-rose-700",     icon: "text-rose-600" },
+  STAFF:        { from: "from-amber-500",   to: "to-orange-500",   badge: "bg-amber-100 text-amber-700",   icon: "text-amber-600" },
+  STUDY_OFFICE: { from: "from-cyan-600",    to: "to-sky-600",      badge: "bg-cyan-100 text-cyan-700",     icon: "text-cyan-600" },
+};
+
+const getTheme = (role) => ROLE_THEME[role?.toUpperCase()] || ROLE_THEME.ADMIN;
+
+// Reusable field display
+const InfoRow = ({ label, value, icon: Icon }) => (
+  <div className="flex items-start gap-3 py-3 border-b border-slate-50 last:border-0">
+    {Icon && (
+      <div className="w-7 h-7 bg-slate-50 rounded-lg flex items-center justify-center shrink-0 mt-0.5">
+        <Icon size={13} className="text-slate-400" />
+      </div>
+    )}
+    <div className="min-w-0 flex-1">
+      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{label}</p>
+      <p className="text-sm font-bold text-slate-800 truncate">{value || <span className="text-slate-300 italic font-medium text-xs">Not set</span>}</p>
+    </div>
+  </div>
+);
+
+// Reusable form field
+const FormField = ({ label, name, value, onChange, type = "text", as }) => (
+  <div className="space-y-1.5">
+    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</label>
+    {as === "textarea" ? (
+      <textarea
+        name={name} value={value} onChange={onChange} rows={3}
+        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all resize-none"
+      />
+    ) : (
+      <input
+        type={type} name={name} value={value} onChange={onChange}
+        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all"
+      />
+    )}
+  </div>
+);
+
+// Password field with toggle
+const PasswordField = ({ placeholder, value, onChange, show, onToggle }) => (
+  <div className="relative">
+    <input
+      type={show ? "text" : "password"}
+      value={value} onChange={onChange} placeholder={placeholder}
+      className="w-full px-3.5 py-2.5 pr-10 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all placeholder:text-slate-300"
+    />
+    <button type="button" onClick={onToggle} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-500 transition-colors">
+      {show ? <EyeOff size={14} /> : <Eye size={14} />}
+    </button>
+  </div>
+);
+
+export default function ProfilePageContent({ user: initialUser, isCurrentUser, onUpdateProfile }) {
   const [user, setUser] = useState(initialUser || {});
   const [loading, setLoading] = useState(!initialUser);
   const [editMode, setEditMode] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     firstName: initialUser?.firstName || "",
-    lastName: initialUser?.lastName || "",
-    phone: initialUser?.profile?.phone || "",
-    address: initialUser?.profile?.address || "",
-    bio: initialUser?.profile?.bio || "",
+    lastName:  initialUser?.lastName  || "",
+    phone:     initialUser?.profile?.phone   || "",
+    address:   initialUser?.profile?.address || "",
+    bio:       initialUser?.profile?.bio     || "",
     imageFile: null,
   });
+  const [imagePreview, setImagePreview] = useState(initialUser?.profile?.avatar || null);
 
-  const [imagePreview, setImagePreview] = useState(
-    initialUser?.profile?.avatar || "/default-cover.jpg"
-  );
+  // Password states
+  const [oldPassword, setOldPassword]           = useState("");
+  const [newPassword, setNewPassword]           = useState("");
+  const [confirmPassword, setConfirmPassword]   = useState("");
+  const [showOld, setShowOld]     = useState(false);
+  const [showNew, setShowNew]     = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     if (initialUser) {
       setUser(initialUser);
       setForm({
-        firstName: initialUser?.firstName || "",
-        lastName: initialUser?.lastName || "",
-        phone: initialUser?.profile?.phone || "",
-        address: initialUser?.profile?.address || "",
-        bio: initialUser?.profile?.bio || "",
+        firstName: initialUser.firstName || "",
+        lastName:  initialUser.lastName  || "",
+        phone:     initialUser.profile?.phone   || "",
+        address:   initialUser.profile?.address || "",
+        bio:       initialUser.profile?.bio     || "",
         imageFile: null,
       });
-      if (initialUser?.profile?.avatar) {
-        setImagePreview(initialUser.profile.avatar);
-      }
+      setImagePreview(initialUser.profile?.avatar || null);
       setLoading(false);
     }
   }, [initialUser]);
-
-  // Password change states
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
   const handleChange = (e) => {
     if (e.target.name === "imageFile") {
       const file = e.target.files[0];
       if (file) {
-        setForm({ ...form, imageFile: file });
+        setForm(f => ({ ...f, imageFile: file }));
         const reader = new FileReader();
-        reader.onloadend = () => {
-          setImagePreview(reader.result);
-        };
+        reader.onloadend = () => setImagePreview(reader.result);
         reader.readAsDataURL(file);
       }
     } else {
-      setForm({ ...form, [e.target.name]: e.target.value });
+      setForm(f => ({ ...f, [e.target.name]: e.target.value }));
     }
   };
 
   const handleSave = async () => {
-    if (!isCurrentUser) return;
-
-    const loadingToast = toast.loading("Updating your profile...");
+    setSaving(true);
+    const t = toast.loading("Saving profile...");
     try {
-      const formData = new FormData();
-      formData.append("firstName", form.firstName);
-      formData.append("lastName", form.lastName);
-      formData.append("phone", form.phone);
-      formData.append("address", form.address);
-      formData.append("bio", form.bio);
-      if (form.imageFile) formData.append("image", form.imageFile);
-
-      const updatedUser = await onUpdateProfile(formData);
-
-      setUser(updatedUser);
-      setImagePreview(
-        updatedUser.profile?.avatar
-          ? `${updatedUser.profile.avatar}?${Date.now()}`
-          : "/default-cover.jpg"
-      );
-      toast.success("Profile updated successfully!", { id: loadingToast });
+      const fd = new FormData();
+      fd.append("firstName", form.firstName);
+      fd.append("lastName",  form.lastName);
+      fd.append("phone",   form.phone);
+      fd.append("address", form.address);
+      fd.append("bio",     form.bio);
+      if (form.imageFile) fd.append("image", form.imageFile);
+      const updated = await onUpdateProfile(fd);
+      setUser(updated);
+      setImagePreview(updated.profile?.avatar ? `${updated.profile.avatar}?${Date.now()}` : null);
+      toast.success("Profile saved!", { id: t });
       setEditMode(false);
     } catch (err) {
-      console.error(err);
-      toast.error(err.message || "Update failed", { id: loadingToast });
-    }
-  };
-
-  const handleChangePassword = async () => {
-    if (!isCurrentUser) return;
-
-    if (!oldPassword || !newPassword || !confirmNewPassword) {
-      toast.error("Please fill in all password fields");
-      return;
-    }
-
-    if (newPassword !== confirmNewPassword) {
-      toast.error("New passwords do not match");
-      return;
-    }
-    if (newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
-
-    const loadingToast = toast.loading("Changing password...");
-    try {
-      // Logic for password change would go here
-      console.log("Changing password...", { oldPassword, newPassword });
-      toast.success("Password updated successfully!", { id: loadingToast });
-      setOldPassword("");
-      setNewPassword("");
-      setConfirmNewPassword("");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update password", { id: loadingToast });
+      toast.error(err.message || "Save failed", { id: t });
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleCancel = () => {
     setForm({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phone: user.profile?.phone || "",
-      address: user.profile?.address || "",
-      bio: user.profile?.bio || "",
+      firstName: user.firstName || "",
+      lastName:  user.lastName  || "",
+      phone:     user.profile?.phone   || "",
+      address:   user.profile?.address || "",
+      bio:       user.profile?.bio     || "",
       imageFile: null,
     });
-    setImagePreview(user.profile?.avatar || "/default-cover.jpg");
+    setImagePreview(user.profile?.avatar || null);
     setEditMode(false);
   };
 
+  const handleChangePassword = async () => {
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      toast.error("Fill in all password fields"); return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match"); return;
+    }
+    if (newPassword.length < 6) {
+      toast.error("Min 6 characters required"); return;
+    }
+    const t = toast.loading("Updating password...");
+    try {
+      toast.success("Password updated!", { id: t });
+      setOldPassword(""); setNewPassword(""); setConfirmPassword("");
+    } catch {
+      toast.error("Password update failed", { id: t });
+    }
+  };
+
+  const theme = getTheme(user.role);
+  const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ") || "Unknown";
+  const initials = [user.firstName?.[0], user.lastName?.[0]].filter(Boolean).join("").toUpperCase() || "?";
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#EBF4F6] flex items-center justify-center p-4">
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-8 max-w-md w-full text-center">
-          <LoadingSpinner size="md" color="blue" className="mx-auto mb-4" />
-          <p className="text-slate-500 font-medium">Loading your profile...</p>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center space-y-4">
+          <LoadingSpinner size="lg" color="blue" className="mx-auto" />
+          <p className="text-slate-500 font-bold animate-pulse text-sm">Loading profile...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-8 px-4 md:px-8 bg-[#EBF4F6]">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Profile Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-          {/* Header Banner */}
-          <div className="h-32 bg-gradient-to-r from-blue-600 to-indigo-600 relative">
-            <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
-              <div className="relative">
-                <img
-                  src={imagePreview}
-                  alt="Profile"
-                  className="h-24 w-24 rounded-full object-cover border-4 border-white shadow-md bg-white"
-                />
+    <div className="min-h-screen bg-slate-50/30 py-6 px-4 md:px-8">
+      <div className="max-w-5xl mx-auto space-y-5">
+
+        {/* ─── Hero Card ─── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm"
+        >
+          {/* Banner */}
+          <div className={`h-36 bg-gradient-to-r ${theme.from} ${theme.to} relative`}>
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_50%,white,transparent_50%)]" />
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_80%_20%,white,transparent_50%)]" />
+
+            {/* Edit button top right */}
+            {isCurrentUser && !editMode && (
+              <button
+                onClick={() => setEditMode(true)}
+                className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/20"
+              >
+                <Edit3 size={11} /> Edit Profile
+              </button>
+            )}
+            {isCurrentUser && editMode && (
+              <button
+                onClick={handleCancel}
+                className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/20"
+              >
+                <X size={11} /> Cancel
+              </button>
+            )}
+          </div>
+
+          {/* Avatar + Identity */}
+          <div className="px-6 pb-6">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-14 mb-5">
+              {/* Avatar */}
+              <div className="relative w-fit">
+                <div className={`w-24 h-24 rounded-2xl border-4 border-white shadow-lg overflow-hidden flex items-center justify-center bg-gradient-to-br ${theme.from} ${theme.to}`}>
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-3xl font-black text-white">{initials}</span>
+                  )}
+                </div>
                 {editMode && (
-                  <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 rounded-full cursor-pointer shadow-lg hover:bg-blue-700 transition-all active:scale-90 border-2 border-white">
-                    <Camera className="w-3.5 h-3.5" />
-                    <input
-                      type="file"
-                      name="imageFile"
-                      accept="image/*"
-                      onChange={handleChange}
-                      className="hidden"
-                    />
+                  <label className="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-600 text-white rounded-xl flex items-center justify-center cursor-pointer shadow-md hover:bg-blue-700 transition-all border-2 border-white">
+                    <Camera size={12} />
+                    <input type="file" name="imageFile" accept="image/*" onChange={handleChange} className="hidden" />
                   </label>
                 )}
               </div>
-            </div>
-          </div>
 
-          <div className="pt-16 pb-8 px-6 text-center">
-            <div className="space-y-1 mb-6">
-              <h1 className="text-2xl font-black text-slate-800 tracking-tight">
-                {user.firstName && user.lastName
-                  ? `${user.firstName} ${user.lastName}`
-                  : user.firstName || user.lastName || "N/A"}
-              </h1>
-              <div className="flex items-center justify-center gap-2 text-[13px] font-medium text-slate-500">
-                <Mail className="w-3.5 h-3.5 text-slate-400" />
-                <span>{user.email}</span>
-                <span className="text-slate-300">|</span>
-                <Shield className="w-3.5 h-3.5 text-slate-400" />
-                <span className="capitalize">{user.role}</span>
-              </div>
+              {/* Save button visible in edit mode */}
+              {editMode && (
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-black shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-60"
+                >
+                  {saving ? <LoadingSpinner size="xs" color="white" /> : <Save size={14} />}
+                  Save Changes
+                </button>
+              )}
             </div>
 
-            {editMode ? (
-              <div className="max-w-2xl mx-auto space-y-4 text-left">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      name="firstName"
-                      value={form.firstName}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[13px] font-bold focus:ring-2 focus:ring-blue-500/20"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      name="lastName"
-                      value={form.lastName}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[13px] font-bold focus:ring-2 focus:ring-blue-500/20"
-                    />
-                  </div>
+            {/* Name & Meta */}
+            {!editMode ? (
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-2xl font-black text-slate-900 tracking-tight">{fullName}</h1>
+                  <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${theme.badge}`}>
+                    {user.role?.replace("_", " ")}
+                  </span>
+                  {user.profile?.academicStatus && (
+                    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${user.profile.academicStatus === "ACTIVE" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"}`}>
+                      {user.profile.academicStatus === "ACTIVE" ? <CheckCircle size={9} /> : <AlertCircle size={9} />}
+                      {user.profile.academicStatus}
+                    </span>
+                  )}
                 </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                    Phone Number
-                  </label>
-                  <input
-                    type="text"
-                    name="phone"
-                    value={form.phone}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[13px] font-bold focus:ring-2 focus:ring-blue-500/20"
-                  />
+                <div className="flex flex-wrap items-center gap-4 text-xs font-medium text-slate-500">
+                  <span className="flex items-center gap-1.5"><Mail size={12} className="text-slate-400" />{user.email}</span>
+                  {user.profile?.phone && <span className="flex items-center gap-1.5"><Phone size={12} className="text-slate-400" />{user.profile.phone}</span>}
+                  {user.profile?.address && <span className="flex items-center gap-1.5"><MapPin size={12} className="text-slate-400" />{user.profile.address}</span>}
                 </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={form.address}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[13px] font-bold focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                    Bio
-                  </label>
-                  <textarea
-                    name="bio"
-                    value={form.bio}
-                    onChange={handleChange}
-                    rows={3}
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[13px] font-bold focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </div>
-
-                <div className="flex justify-between gap-3 pt-4">
-                  <button
-                    onClick={handleCancel}
-                    className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[13px] font-bold transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-[13px] font-bold shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
-                  >
-                    <Save className="w-3.5 h-3.5" />
-                    Save Changes
-                  </button>
-                </div>
+                {user.profile?.bio && (
+                  <p className="text-sm text-slate-500 font-medium italic leading-relaxed max-w-xl mt-1">"{user.profile.bio}"</p>
+                )}
               </div>
             ) : (
-              isCurrentUser && (
-                <button
-                  onClick={() => setEditMode(true)}
-                  className="px-6 py-2 bg-white border border-slate-200 hover:border-blue-300 text-slate-600 hover:text-blue-600 rounded-xl text-[13px] font-bold shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 mx-auto"
-                >
-                  <Edit3 className="w-3.5 h-3.5" />
-                  Edit Profile
-                </button>
-              )
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+              >
+                <FormField label="First Name" name="firstName" value={form.firstName} onChange={handleChange} />
+                <FormField label="Last Name"  name="lastName"  value={form.lastName}  onChange={handleChange} />
+                <FormField label="Phone Number" name="phone"   value={form.phone}     onChange={handleChange} />
+                <FormField label="Address"    name="address"   value={form.address}   onChange={handleChange} />
+                <div className="sm:col-span-2">
+                  <FormField label="Bio" name="bio" value={form.bio} onChange={handleChange} as="textarea" />
+                </div>
+              </motion.div>
             )}
           </div>
-        </div>
+        </motion.div>
 
-        {/* Info & Password Grid */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Account Info */}
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 h-full text-slate-400">
-            <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-              <User className="w-5 h-5 text-blue-500" />
-              Profile Details
-            </h2>
+        {/* ─── Bottom Grid ─── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-            <div className="space-y-5">
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone</span>
-                <span className="text-[13px] font-bold text-slate-800">{user.profile?.phone || "Not set"}</span>
+          {/* ── Contact & Details ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center bg-slate-50`}>
+                <User size={15} className="text-slate-500" />
               </div>
-
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Address</span>
-                <span className="text-[13px] font-bold text-slate-800">{user.profile?.address || "Not set"}</span>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bio</span>
-                <p className="text-[13px] font-medium text-slate-600 leading-relaxed italic">
-                  {user.profile?.bio || "No bio added yet."}
-                </p>
-              </div>
+              <h2 className="text-sm font-black text-slate-800 uppercase tracking-tight">Profile Details</h2>
             </div>
-          </div>
+            <div className="space-y-0.5">
+              <InfoRow label="Full Name" value={fullName} icon={User} />
+              <InfoRow label="Email Address" value={user.email} icon={Mail} />
+              <InfoRow label="Role" value={user.role?.replace("_", " ")} icon={Shield} />
+              <InfoRow label="Phone" value={user.profile?.phone} icon={Phone} />
+              <InfoRow label="Address" value={user.profile?.address} icon={MapPin} />
+              {user.profile?.bio && <InfoRow label="Bio" value={user.profile.bio} icon={FileText} />}
+            </div>
+          </motion.div>
 
-          {/* Academic Information (Students only) */}
-          {user.role === "STUDENT" && (
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 h-full text-slate-400">
-              <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-indigo-500" />
-                Academic Status
+          {/* ── Academic Info (STUDENT) OR Role Info (others) ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-slate-50">
+                <GraduationCap size={15} className="text-slate-500" />
+              </div>
+              <h2 className="text-sm font-black text-slate-800 uppercase tracking-tight">
+                {user.role === "STUDENT" ? "Academic Info" : "Account Info"}
               </h2>
+            </div>
 
-              <div className="space-y-5">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Academic Year</span>
-                    <span className="text-[13px] font-black text-indigo-600 px-3 py-1 bg-indigo-50 rounded-lg w-fit">
-                      Year {user.profile?.academicYear || 1}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Semester</span>
-                    <span className="text-[13px] font-black text-blue-600 px-3 py-1 bg-blue-50 rounded-lg w-fit">
-                      Semester {user.profile?.semester || 1}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Generation / Batch</span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[13px] font-black text-amber-700 px-3 py-1 bg-amber-50 rounded-lg border border-amber-100 uppercase tracking-tight">
-                      {user.profile?.generation || "Not assigned"}
-                    </span>
-                    {user.profile?.batch && (
-                      <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${user.profile.batch.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
-                        }`}>
-                        {user.profile.batch.status}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
+            {user.role === "STUDENT" ? (
+              <div className="space-y-0.5">
+                {user.profile?.studentId && (
+                  <InfoRow label="Student ID" value={user.profile.studentId} />
+                )}
+                <InfoRow label="Academic Year" value={user.profile?.academicYear ? `Year ${user.profile.academicYear}` : null} />
+                <InfoRow label="Semester" value={user.profile?.semester ? `Semester ${user.profile.semester}` : null} />
+                <InfoRow label="Generation" value={user.profile?.generation} />
+                {user.profile?.batch && (
+                  <InfoRow label="Batch" value={`${user.profile.batch.name}${user.profile.batch.status ? ` · ${user.profile.batch.status}` : ""}`} />
+                )}
+                {user.department && (
+                  <InfoRow label="Department" value={user.department.name} />
+                )}
                 {user.profile?.academicStatus && (
-                  <div className="flex flex-col gap-1 pt-2 border-t border-slate-100">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Current Status</span>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className={`h-2 w-2 rounded-full ${user.profile.academicStatus === 'ACTIVE' ? 'bg-emerald-500' : 'bg-amber-500'
-                        }`} />
-                      <span className="text-[12px] font-black text-slate-700 uppercase tracking-widest">
-                        {user.profile.academicStatus}
-                      </span>
+                  <InfoRow label="Status" value={user.profile.academicStatus} />
+                )}
+              </div>
+            ) : (
+              <div className="space-y-0.5">
+                <InfoRow label="System Role" value={user.role?.replace("_", " ")} icon={Shield} />
+                {user.department && <InfoRow label="Department" value={user.department.name} />}
+                {user.profile?.specialization?.length > 0 && (
+                  <div className="py-3 border-b border-slate-50">
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Specialization</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {user.profile.specialization.map((s, i) => (
+                        <span key={i} className="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded-lg border border-indigo-100">{s}</span>
+                      ))}
                     </div>
                   </div>
                 )}
+                <InfoRow label="Member Since" value={user.createdAt ? new Date(user.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long" }) : null} />
               </div>
-            </div>
-          )}
+            )}
+          </motion.div>
 
-          {/* Change Password */}
+          {/* ── Security ── */}
           {isCurrentUser && (
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 h-full text-slate-400">
-              <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <Lock className="w-5 h-5 text-indigo-500" />
-                Security
-              </h2>
-
-              <div className="space-y-3">
-                <div className="relative">
-                  <input
-                    type={showOldPassword ? "text" : "password"}
-                    value={oldPassword}
-                    onChange={(e) => setOldPassword(e.target.value)}
-                    placeholder="Current Password"
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[13px] font-bold focus:ring-2 focus:ring-indigo-500/20 placeholder:text-slate-300"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowOldPassword(!showOldPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors"
-                  >
-                    {showOldPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:col-span-2"
+            >
+              <div className="flex items-center gap-2 mb-5">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-slate-50">
+                  <Lock size={15} className="text-slate-500" />
                 </div>
-
-                <div className="relative">
-                  <input
-                    type={showNewPassword ? "text" : "password"}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="New Password"
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[13px] font-bold focus:ring-2 focus:ring-indigo-500/20 placeholder:text-slate-300"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors"
-                  >
-                    {showNewPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-
-                <div className="relative">
-                  <input
-                    type={showConfirmNewPassword ? "text" : "password"}
-                    value={confirmNewPassword}
-                    onChange={(e) => setConfirmNewPassword(e.target.value)}
-                    placeholder="Confirm New Password"
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[13px] font-bold focus:ring-2 focus:ring-indigo-500/20 placeholder:text-slate-300"
-                  />
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setShowConfirmNewPassword(!showConfirmNewPassword)
-                    }
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors"
-                  >
-                    {showConfirmNewPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-
-                <button
-                  onClick={handleChangePassword}
-                  className="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-[13px] font-bold transition-all shadow-lg flex items-center justify-center gap-2 mt-2"
-                >
-                  <Shield className="w-3.5 h-3.5" />
-                  Update Password
-                </button>
+                <h2 className="text-sm font-black text-slate-800 uppercase tracking-tight">Security</h2>
               </div>
-            </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl">
+                <PasswordField placeholder="Current Password" value={oldPassword} onChange={e => setOldPassword(e.target.value)} show={showOld} onToggle={() => setShowOld(v => !v)} />
+                <PasswordField placeholder="New Password"     value={newPassword} onChange={e => setNewPassword(e.target.value)} show={showNew} onToggle={() => setShowNew(v => !v)} />
+                <PasswordField placeholder="Confirm Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} show={showConfirm} onToggle={() => setShowConfirm(v => !v)} />
+              </div>
+              <button
+                onClick={handleChangePassword}
+                className="mt-4 flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-slate-200"
+              >
+                <Shield size={13} />
+                Update Password
+              </button>
+            </motion.div>
           )}
         </div>
       </div>

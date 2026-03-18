@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { Edit, Eye, Trash2, UserPlus, Search, Filter, Users } from "lucide-react";
+import { Edit, Eye, Trash2, UserPlus, Search, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SortIndicator = ({ direction }) => {
@@ -25,7 +25,6 @@ export default function GroupsTable({
   role,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [courseFilter, setCourseFilter] = useState("All");
   const [sortConfig, setSortConfig] = useState({
     key: "name",
     direction: "ascending",
@@ -34,22 +33,14 @@ export default function GroupsTable({
   const processedGroups = useMemo(() => {
     const filtered = groups.filter((group) => {
       const matchesSearch =
-        group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        group.courses?.some(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesCourse =
-        courseFilter === "All" || group.courses?.some(c => c.id === courseFilter);
-      return matchesSearch && matchesCourse;
+        group.name.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesSearch;
     });
 
     if (sortConfig.key) {
       filtered.sort((a, b) => {
         let aValue = a[sortConfig.key];
         let bValue = b[sortConfig.key];
-
-        if (sortConfig.key === "course.name") {
-          aValue = a.courses?.map(c => c.name).join(", ") || "";
-          bValue = b.courses?.map(c => c.name).join(", ") || "";
-        }
 
         if (aValue < bValue)
           return sortConfig.direction === "ascending" ? -1 : 1;
@@ -60,7 +51,7 @@ export default function GroupsTable({
     }
 
     return filtered;
-  }, [groups, searchTerm, courseFilter, sortConfig]);
+  }, [groups, searchTerm, sortConfig]);
 
   const handleSort = (key) => {
     let direction = "ascending";
@@ -94,19 +85,6 @@ export default function GroupsTable({
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-sm shrink-0">
-            <Filter size={12} className="text-slate-400" />
-            <select
-              value={courseFilter}
-              onChange={(e) => setCourseFilter(e.target.value)}
-              className="bg-transparent text-[10px] font-black uppercase tracking-tight focus:outline-none cursor-pointer text-slate-600"
-            >
-              <option value="All">All Courses</option>
-              {courses.map((course) => (
-                <option key={course.id} value={course.id} className="normal-case font-medium">{course.name}</option>
-              ))}
-            </select>
-          </div>
           <div className="px-3 py-1.5 bg-blue-50 text-indigo-700 text-[10px] font-black uppercase tracking-tight rounded-lg border border-blue-100 shrink-0">
             {processedGroups.length} Total Groups
           </div>
@@ -123,12 +101,6 @@ export default function GroupsTable({
                   <SortIndicator direction={sortConfig.key === "name" ? sortConfig.direction : null} />
                 </div>
               </th>
-              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell cursor-pointer" onClick={() => handleSort("course.name")}>
-                <div className="flex items-center gap-1">
-                  Assigned Curriculum
-                  <SortIndicator direction={sortConfig.key === "course.name" ? sortConfig.direction : null} />
-                </div>
-              </th>
               <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest hidden lg:table-cell">Academic Lifecycle</th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Census</th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Controls</th>
@@ -137,7 +109,7 @@ export default function GroupsTable({
           <tbody className="divide-y divide-slate-50">
             {isLoading && processedGroups.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-12 border-none">
+                <td colSpan={3} className="py-12 border-none">
                   <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                     <div className="h-5 w-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Syncing Cohorts...</span>
@@ -146,7 +118,7 @@ export default function GroupsTable({
               </tr>
             ) : processedGroups.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-12 text-center">
+                <td colSpan={3} className="py-12 text-center">
                   <div className="flex flex-col items-center opacity-40">
                     <Users size={24} className="mb-2" />
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No active groups found</p>
@@ -171,15 +143,6 @@ export default function GroupsTable({
                         <span className="text-[13px] font-black text-slate-800 tracking-tight">{group.name}</span>
                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Academic Group</span>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 whitespace-nowrap hidden md:table-cell">
-                    <div className="flex flex-wrap gap-1">
-                      {group.courses?.map((c) => (
-                        <span key={c.id} className="px-1.5 py-0.5 text-[9px] font-bold text-indigo-800 bg-blue-50 border border-blue-100 rounded">
-                          {c.name}
-                        </span>
-                      )) || <span className="text-slate-400 italic text-[10px]">No courses</span>}
                     </div>
                   </td>
                   <td className="px-5 py-3 whitespace-nowrap hidden lg:table-cell">

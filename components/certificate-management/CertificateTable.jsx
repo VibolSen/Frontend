@@ -30,8 +30,10 @@ export default function CertificateTable({
   courses,
   isLoading,
   onBulkIssueClick,
-  basePath = "/admin/certificate-management",
+  role = "admin",
+  basePath,
 }) {
+  const dynamicBasePath = basePath || `/${role}/certificate-management`;
   const renderSortIcon = (field) => {
     if (sortField === field) {
       return <SortIndicator direction={sortOrder} />;
@@ -155,7 +157,7 @@ export default function CertificateTable({
                     <td className="px-5 py-3 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-1">
                         <Link
-                          href={`${basePath}/${cert.id}`}
+                          href={`${dynamicBasePath}/${cert.id}`}
                           className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                           title="View Document"
                         >

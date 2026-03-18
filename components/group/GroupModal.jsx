@@ -18,7 +18,7 @@ export default function GroupModal({
   const [formData, setFormData] = useState({
     name: "",
     batchId: "",
-    courseIds: [],
+    academicYear: "",
     studentIds: []
   });
   const [studentSearch, setStudentSearch] = useState("");
@@ -37,14 +37,14 @@ export default function GroupModal({
         setFormData({
           name: groupToEdit.name || "",
           batchId: groupToEdit.batchId || "",
-          courseIds: groupToEdit.courseIds || [],
+          academicYear: groupToEdit.academicYear || "",
           studentIds: (groupToEdit.students || []).map(s => s.id)
         });
       } else {
         setFormData({
           name: "",
           batchId: "",
-          courseIds: [],
+          academicYear: "",
           studentIds: []
         });
       }
@@ -52,14 +52,6 @@ export default function GroupModal({
     }
   }, [isOpen, groupToEdit]);
 
-  const handleCourseChange = (courseId) => {
-    setFormData((prev) => {
-      const courseIds = prev.courseIds.includes(courseId)
-        ? prev.courseIds.filter((id) => id !== courseId)
-        : [...prev.courseIds, courseId];
-      return { ...prev, courseIds };
-    });
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,15 +80,19 @@ export default function GroupModal({
     const matchesBatch = !formData.batchId || student.profile?.batchId === formData.batchId;
     // Must also match the department of that generation (prevents cross-dept mixing)
     const matchesDept = !selectedBatch?.departmentId || student.departmentId === selectedBatch.departmentId;
+    
+    // Must match academic year if selected
+    const grpYearMatch = formData.academicYear ? formData.academicYear.match(/\d+/) : null;
+    const formAcademicYearInt = grpYearMatch ? parseInt(grpYearMatch[0], 10) : null;
+    const matchesYear = !formAcademicYearInt || student.profile?.academicYear === formAcademicYearInt;
+
     const matchesSearch = `${student.firstName} ${student.lastName}`.toLowerCase().includes(studentSearch.toLowerCase());
-    return matchesBatch && matchesDept && matchesSearch;
+    return matchesBatch && matchesDept && matchesYear && matchesSearch;
   });
 
   const validateForm = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Group name is required.";
-    if (!formData.courseIds || formData.courseIds.length === 0)
-      newErrors.courseIds = "At least one course is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -139,7 +135,7 @@ export default function GroupModal({
                       {isEditMode ? "Modify Group" : "Create New Group"}
                     </h2>
                     <p className="text-xs text-slate-500">
-                      Link this group to a specific cohort generation and assign courses.
+                      Link this group to a specific cohort generation and assign students.
                     </p>
                   </div>
                 </div>
@@ -195,6 +191,24 @@ export default function GroupModal({
                   </select>
                 </div>
 
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 ml-1">
+                    Academic Year
+                  </label>
+                  <select
+                    name="academicYear"
+                    value={formData.academicYear}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white appearance-none"
+                  >
+                    <option value="">Select Year</option>
+                    <option value="Year 1">Year 1</option>
+                    <option value="Year 2">Year 2</option>
+                    <option value="Year 3">Year 3</option>
+                    <option value="Year 4">Year 4</option>
+                  </select>
+                </div>
+
                 {/* Integrated Student Selection */}
                 <div className="space-y-2.5 pt-2">
                   <div className="flex items-center justify-between px-1">
@@ -217,9 +231,9 @@ export default function GroupModal({
                   {selectedBatch && (
                     <div className="flex items-center gap-2 text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-lg px-3 py-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
-                      Showing students from <span className="font-black mx-0.5">{selectedBatch.name}</span>
-                      {selectedBatch.department && <> — <span className="font-black mx-0.5">{selectedBatch.department.name}</span></>}
-                      only
+                      Strict Filter On: <span className="font-black mx-0.5">{selectedBatch.name}</span>
+                      {selectedBatch.department && <> • <span className="font-black mx-0.5">{selectedBatch.department.name}</span></>}
+                      {formData.academicYear && <> • <span className="font-black mx-0.5">{formData.academicYear}</span></>}
                     </div>
                   )}
 
@@ -263,36 +277,6 @@ export default function GroupModal({
                   </div>
                 </div>
 
-                <div className="space-y-1.5 pt-2">
-                  <label className="text-xs font-semibold text-slate-700 ml-1">
-                    Associated Courses
-                  </label>
-                  <div className={`p-1.5 space-y-2.5 bg-slate-50 border rounded-xl max-h-40 overflow-y-auto transition-all duration-200 ${errors.courseIds ? "border-red-500 ring-4 ring-red-500/10" : "border-slate-200"
-                    }`}>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                      {courses.map((course) => (
-                        <label key={course.id} className="flex items-center group cursor-pointer p-1.5 rounded-lg hover:bg-white transition-all border border-transparent hover:border-slate-100">
-                          <div className="relative flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={formData.courseIds.includes(course.id)}
-                              onChange={() => handleCourseChange(course.id)}
-                              className="peer h-4 w-4 bg-white border-slate-300 rounded text-indigo-600 focus:ring-indigo-500 transition-all duration-200"
-                            />
-                            <div className="ml-2.5 text-[11px] font-bold text-slate-600 group-hover:text-slate-900 transition-colors">
-                              {course.name}
-                            </div>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  {errors.courseIds && (
-                    <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-[10px] text-red-500 ml-1">
-                      {errors.courseIds}
-                    </motion.p>
-                  )}
-                </div>
               </div>
 
               <div className="p-5 bg-slate-50 border-t flex justify-end items-center gap-3">

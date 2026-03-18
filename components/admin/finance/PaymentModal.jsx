@@ -16,6 +16,7 @@ export default function PaymentModal({ isOpen, payment, onClose, onPaymentSaved,
     paymentMethod: "",
     transactionId: "",
     notes: "",
+    currency: "USD",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [invoices, setInvoices] = useState([]);
@@ -41,6 +42,7 @@ export default function PaymentModal({ isOpen, payment, onClose, onPaymentSaved,
         paymentMethod: payment.paymentMethod,
         transactionId: payment.transactionId || "",
         notes: payment.notes || "",
+        currency: payment.currency || "USD",
       });
       setSelectedInvoice({
         value: payment.invoiceId,
@@ -54,6 +56,7 @@ export default function PaymentModal({ isOpen, payment, onClose, onPaymentSaved,
         paymentMethod: "",
         transactionId: "",
         notes: "",
+        currency: "USD",
       });
       setSelectedInvoice(null);
     }
@@ -75,7 +78,12 @@ export default function PaymentModal({ isOpen, payment, onClose, onPaymentSaved,
 
   const handleInvoiceSelectChange = (selectedOption) => {
     setSelectedInvoice(selectedOption);
-    setFormData((prev) => ({ ...prev, invoiceId: selectedOption ? selectedOption.value : "" }));
+    const selectedInv = invoices.find(inv => inv.id === selectedOption.value);
+    setFormData((prev) => ({ 
+        ...prev, 
+        invoiceId: selectedOption ? selectedOption.value : "",
+        currency: selectedInv ? selectedInv.currency : "USD"
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -192,10 +200,10 @@ export default function PaymentModal({ isOpen, payment, onClose, onPaymentSaved,
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 ml-1">Amount ($)</label>
+                  <label className="text-xs font-semibold text-slate-700 ml-1">Amount ({formData.currency})</label>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
-                      <DollarSign className="w-3.5 h-3.5" />
+                      <span className="text-xs font-bold">{formData.currency === "USD" ? "$" : "៛"}</span>
                     </div>
                     <input
                       type="number"

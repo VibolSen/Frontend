@@ -12,6 +12,7 @@ export default function FeeModal({ isOpen, fee, onClose, onFeeSaved, showMessage
     name: "",
     description: "",
     amount: "",
+    currency: "USD",
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -21,12 +22,14 @@ export default function FeeModal({ isOpen, fee, onClose, onFeeSaved, showMessage
         name: fee.name,
         description: fee.description || "",
         amount: fee.amount,
+        currency: fee.currency || "USD",
       });
     } else {
       setFormData({
         name: "",
         description: "",
         amount: "",
+        currency: "USD",
       });
     }
   }, [fee]);
@@ -127,10 +130,23 @@ export default function FeeModal({ isOpen, fee, onClose, onFeeSaved, showMessage
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 ml-1">Amount ($)</label>
+                  <label className="text-xs font-semibold text-slate-700 ml-1">Currency</label>
+                  <select
+                    name="currency"
+                    value={formData.currency}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white font-semibold"
+                  >
+                    <option value="USD">USD ($)</option>
+                    <option value="KHR">KHR (៛)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 ml-1">Amount</label>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
-                      <DollarSign className="w-4 h-4" />
+                      <span className="text-xs font-bold">{formData.currency === "USD" ? "$" : "៛"}</span>
                     </div>
                     <input
                       type="number"

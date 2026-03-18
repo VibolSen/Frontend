@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowLeft, Printer, Download, MapPin, Mail, Hash, Calendar, Clock, User, ExternalLink, CreditCard, AlertCircle } from "lucide-react";
+import { ChevronLeft, Printer, Download, CreditCard, Clock, CheckCircle2, AlertCircle, Calendar, User, ArrowRight, ArrowLeft, Copy, Check, MapPin, Mail, Hash, ExternalLink } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 // Helper Component for Status Stamp
@@ -188,15 +188,15 @@ export default function InvoiceDetailView() {
              <div className="space-y-2 mt-2">
                 <div className="flex items-center justify-between md:justify-end gap-4">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Billed:</span>
-                  <span className="text-sm font-black text-slate-900">${invoice.totalAmount.toLocaleString()}</span>
+                  <span className="text-sm font-black text-slate-900">{invoice.currency === "USD" ? "$" : "៛"}{invoice.totalAmount.toLocaleString(undefined, { minimumFractionDigits: invoice.currency === "USD" ? 2 : 0 })}</span>
                 </div>
                 <div className="flex items-center justify-between md:justify-end gap-4">
                   <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">TOTAL CREDITS:</span>
-                  <span className="text-sm font-black text-blue-600">-${totalPaid.toLocaleString()}</span>
+                  <span className="text-sm font-black text-blue-600">-{invoice.currency === "USD" ? "$" : "៛"}{totalPaid.toLocaleString(undefined, { minimumFractionDigits: invoice.currency === "USD" ? 2 : 0 })}</span>
                 </div>
                 <div className="pt-2 border-t border-slate-200 flex items-center justify-between md:justify-end gap-4">
                   <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Balance Due:</span>
-                  <span className="text-xl font-black text-blue-900">${outstandingAmount.toLocaleString()}</span>
+                  <span className="text-xl font-black text-blue-900">{invoice.currency === "USD" ? "$" : "៛"}{outstandingAmount.toLocaleString(undefined, { minimumFractionDigits: invoice.currency === "USD" ? 2 : 0 })}</span>
                 </div>
              </div>
           </div>
@@ -211,7 +211,7 @@ export default function InvoiceDetailView() {
                 <tr className="border-b border-slate-900">
                   <th className="px-2 py-4 text-[10px] font-black uppercase tracking-widest text-slate-900 w-16 italic">REF</th>
                   <th className="px-2 py-4 text-[10px] font-black uppercase tracking-widest text-slate-900">Description / Fee Category</th>
-                  <th className="px-2 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-900">Amount (USD)</th>
+                  <th className="px-2 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-900">Amount ({invoice.currency})</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -223,7 +223,7 @@ export default function InvoiceDetailView() {
                       <p className="text-[11px] text-slate-400 font-medium leading-relaxed mt-1 uppercase italic tracking-wide">{item.description || 'Academic service fee'}</p>
                     </td>
                     <td className="px-2 py-5 text-right font-black text-slate-900 text-sm">
-                      ${item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      {invoice.currency === "USD" ? "$" : "៛"}{item.amount.toLocaleString(undefined, { minimumFractionDigits: invoice.currency === "USD" ? 2 : 0 })}
                     </td>
                   </tr>
                 ))}
@@ -231,7 +231,7 @@ export default function InvoiceDetailView() {
               <tfoot>
                 <tr>
                   <td colSpan="2" className="px-2 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest pt-8">Grand Total</td>
-                  <td className="px-2 py-6 text-right text-xl font-black text-blue-900 pt-8">${invoice.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="px-2 py-6 text-right text-xl font-black text-blue-900 pt-8">{invoice.currency === "USD" ? "$" : "៛"}{invoice.totalAmount.toLocaleString(undefined, { minimumFractionDigits: invoice.currency === "USD" ? 2 : 0 })}</td>
                 </tr>
               </tfoot>
             </table>
@@ -244,9 +244,10 @@ export default function InvoiceDetailView() {
           {invoice.payments && invoice.payments.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {invoice.payments.map((payment) => (
-                <div key={payment.id} className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-lg shadow-sm">
+                <div key={payment.id} className="p-4 bg-white border border-slate-100 rounded-lg shadow-sm group hover:border-blue-100 transition-all">
+                  <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-slate-50 rounded-lg">
+                    <div className="p-2 bg-slate-50 rounded-lg group-hover:bg-blue-50 transition-colors">
                       <CreditCard className="w-4 h-4 text-blue-600" />
                     </div>
                     <div>
@@ -257,12 +258,48 @@ export default function InvoiceDetailView() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black text-blue-600 leading-none">+${payment.amount.toLocaleString()}</p>
-                    <p className="text-[8px] text-slate-300 font-medium uppercase tracking-tighter mt-1">
-                        {payment.senderAccount ? `ACC: ${payment.senderAccount}` : `TxID: ${payment.transactionId?.substring(0,8)}`}
+                    <p className="text-sm font-black text-blue-600 leading-none">+{payment.currency === "USD" ? "$" : "៛"}{payment.amount.toLocaleString(undefined, { minimumFractionDigits: payment.currency === "USD" ? 2 : 0 })}</p>
+                    <p className="text-[10px] text-slate-400 font-bold mt-1.5 tabular-nums">
+                        {new Date(payment.paymentDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', yr: '2-digit' })}
                     </p>
                   </div>
                 </div>
+                
+                {/* Audit Expansion - Only for Bank Transfers */}
+                {payment.paymentMethod === "BANK_TRANSFER" && (
+                  <div className="mt-3 pt-3 border-t border-slate-50 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <div className="flex flex-col">
+                            <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Sender Identification</span>
+                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight truncate max-w-[200px]">
+                                {payment.senderAccount || 'N/A'} • {payment.senderName || 'BAKONG_USER'}
+                            </span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">Settlement Destination</span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight truncate max-w-[200px]">
+                                {payment.receiverAccount || 'SCHOOL_MERCHANT_ACC'}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                        <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest mb-1 text-right">Transaction Hash (Blockchain)</span>
+                        <div className="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 px-2 py-1 rounded transition-colors group/hash cursor-pointer"
+                             onClick={() => {
+                                 if (payment.transactionId) {
+                                     navigator.clipboard.writeText(payment.transactionId);
+                                     // Simple visual feedback could be added here if needed
+                                 }
+                             }}>
+                            <span className="text-[9px] font-mono font-bold text-slate-500 tracking-tighter uppercase tabular-nums">
+                                {payment.transactionId ? `${payment.transactionId.substring(0, 16)}...` : 'N/A'}
+                            </span>
+                            <Copy size={10} className="text-slate-300 group-hover/hash:text-blue-500 transition-colors" />
+                        </div>
+                    </div>
+                  </div>
+                )}
+              </div>
               ))}
             </div>
           ) : (

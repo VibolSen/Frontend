@@ -18,7 +18,8 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
-  const [currency, setCurrency] = useState("USD"); // Default to USD
+  const [currency, setCurrency] = useState("USD");
+  const [md5, setMd5] = useState("");
   const [mounted, setMounted] = useState(false);
   const [imgErrors, setImgErrors] = useState({ khqr: false, bakong: false });
 
@@ -30,8 +31,14 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
 
   useEffect(() => {
     if (isOpen && invoice) {
-        generateQR();
+        setCurrency(invoice.currency || "USD");
         setIsSuccess(false);
+    }
+  }, [isOpen, invoice]);
+
+  useEffect(() => {
+    if (isOpen && invoice) {
+        generateQR();
     } else {
         setQrString("");
         setError("");
@@ -47,7 +54,10 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
     if (isOpen && invoice && qrString && !isSuccess) {
       pollInterval = setInterval(async () => {
         try {
-          const response = await apiClient.get(`/financial/bakong-status/${invoice.id}`);
+          const params = new URLSearchParams();
+          if (md5) params.append("md5", md5);
+          
+          const response = await apiClient.get(`/financial/bakong-status/${invoice.id}?${params.toString()}`);
           if (response.isPaid) {
             setIsSuccess(true);
             clearInterval(pollInterval);
@@ -85,6 +95,7 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
             invoiceId: invoice.id
         });
         setQrString(response.qrString);
+        if (response.md5) setMd5(response.md5);
     } catch (err) {
         console.error("Failed to generate QR:", err);
         const detailedError = err.response?.data?.details?.status?.message || err.response?.data?.error || "Failed to generate QR code. Please try again.";
@@ -139,24 +150,8 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
                     )}
                 </div>
                 
-                <div 
-                    onClick={async () => {
-                        // Secret Simulation Trigger for Testing on Localhost
-                        if (process.env.NODE_ENV === 'development') {
-                            try {
-                                await apiClient.post('/financial/bakong-callback', {
-                                    invoiceId: invoice.id,
-                                    amount: invoice.totalAmount,
-                                    transactionId: `SIM-${Date.now()}`
-                                });
-                            } catch (e) { console.error(e); }
-                        }
-                    }}
-                    className="absolute -bottom-3.5 left-1/2 -translate-x-1/2 bg-white px-3 py-1 rounded-full shadow-sm border border-slate-100 flex items-center gap-1.5 whitespace-nowrap cursor-pointer active:scale-95 transition-transform"
-                >
-                    <BadgeCheck className="w-3 h-3 text-emerald-500" />
-                    <span className="text-[9px] font-black text-slate-800 uppercase tracking-widest">Authorized Merchant</span>
-                </div>
+                {/* Security Detail Line */}
+                <div className="absolute -bottom-[0.5px] left-0 right-0 h-[1px] bg-white/20" />
             </div>
 
             <div className="px-6 pt-6 pb-5 flex flex-col items-center">
@@ -208,10 +203,22 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
                     <div className="flex items-baseline justify-center gap-1">
                         <span className="text-base font-black text-red-600">{currency === "USD" ? "$" : "៛"}</span>
                         <span className="text-3xl font-black text-slate-900 tracking-tighter">
-                            {currency === "USD" 
-                                ? invoice?.totalAmount?.toLocaleString(undefined, { minimumFractionDigits: 2 }) 
-                                : (invoice?.totalAmount * 4100).toLocaleString()
-                            }
+                            {(() => {
+                                const baseAmount = invoice?.totalAmount || 0;
+                                const baseCurr = invoice?.currency || "USD";
+                                
+                                if (baseCurr === currency) return baseAmount.toLocaleString(undefined, { minimumFractionDigits: baseCurr === "USD" ? 2 : 0 });
+                                
+                                if (baseCurr === "USD" && currency === "KHR") {
+                                    return Math.ceil(baseAmount * 4100).toLocaleString();
+                                }
+                                
+                                if (baseCurr === "KHR" && currency === "USD") {
+                                    return (baseAmount / 4100).toLocaleString(undefined, { minimumFractionDigits: 2 });
+                                }
+                                
+                                return baseAmount.toLocaleString();
+                            })()}
                         </span>
                     </div>
                 </div>

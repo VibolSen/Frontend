@@ -88,6 +88,8 @@ const FINANCE_NAV_GROUPS = [
     items: [
       { label: "Invoices", icon: <FileText />, href: "/finance/invoices" },
       { label: "Payments", icon: <CreditCard />, href: "/finance/payments" },
+      { label: "Unbilled", icon: <AlertCircle />, href: "/finance/unbilled" },
+      { label: "Payment Status Report", icon: <FileText />, href: "/finance/student-payments" },
       { label: "Fees Mgmt.", icon: <Receipt />, href: "/finance/fees" },
     ]
   },

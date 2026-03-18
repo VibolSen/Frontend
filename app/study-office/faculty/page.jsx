@@ -5,7 +5,7 @@ import FacultyManagement from '@/components/faculty/FacultyManagement';
 
 const StudyOfficeFacultyPage = () => {
   return (
-    <FacultyManagement />
+    <FacultyManagement role="study-office" />
   );
 };
 

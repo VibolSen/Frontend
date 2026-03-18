@@ -106,6 +106,7 @@ const STUDY_OFFICE_NAV_GROUPS = [
     group: "Operations",
     items: [
       { label: "Schedules", icon: <Calendar />, href: "/study-office/schedule" },
+      { label: "Student Attendance", icon: <ClipboardList />, href: "/study-office/student-attendance" },
       { label: "Gradebook", icon: <BookOpen />, href: "/study-office/gradebook" },
       { label: "Assignments", icon: <ClipboardList />, href: "/study-office/assignments" },
       { label: "Exams", icon: <FileText />, href: "/study-office/exams" },

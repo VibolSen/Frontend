@@ -45,7 +45,7 @@ export default function AttendancePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#EBF4F6] pb-10">
+    <div className="min-h-screen bg-white pb-10">
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

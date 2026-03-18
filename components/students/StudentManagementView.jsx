@@ -135,10 +135,10 @@ export default function StudentManagementView() {
     setIsResetModalOpen(true);
   };
 
-  const executeResetPassword = async (userId, newPassword) => {
+  const executeResetPassword = async (user, newPassword) => {
     setIsLoading(true);
     try {
-      await apiClient.post(`/users/reset-password/${userId}`, { newPassword });
+      await apiClient.post(`/users/reset-password/${user.id}`, { newPassword });
       showMessage("Credential reset successful. Student can now log in with the new password.");
       setIsResetModalOpen(false);
     } catch (err) {
