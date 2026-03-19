@@ -22,6 +22,8 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
   const [successMessage, setSuccessMessage] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isSkipConfirmOpen, setIsSkipConfirmOpen] = useState(false);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState(initialStatus);
@@ -76,19 +78,16 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
   };
 
   const toggleSelectAll = () => {
-    const selectableInvoices = filteredData
-      .filter(item => !item.invoiceId.startsWith("unbilled-"))
-      .map(item => item.invoiceId);
+    const selectableIds = filteredData.map(item => item.invoiceId);
 
-    if (selectedInvoiceIds.length === selectableInvoices.length) {
+    if (selectedInvoiceIds.length === selectableIds.length) {
       setSelectedInvoiceIds([]);
     } else {
-      setSelectedInvoiceIds(selectableInvoices);
+      setSelectedInvoiceIds(selectableIds);
     }
   };
 
   const toggleSelectInvoice = (id) => {
-    if (id.startsWith("unbilled-")) return;
     setSelectedInvoiceIds(prev => 
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
@@ -109,6 +108,61 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
     } finally {
       setIsLoading(false);
       setIsReminderConfirmOpen(false);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    setIsLoading(true);
+    try {
+      // Filter out fake `unbilled-*` IDs — these are NOT real database records
+      const realInvoiceIds = selectedInvoiceIds.filter(id => !id.startsWith("unbilled-"));
+
+      if (realInvoiceIds.length === 0) {
+        showMessage("UNBILLED students have no invoice to void. Select only real invoices (DRAFT, SENT, OVERDUE, etc.).", "error");
+        setIsDeleteConfirmOpen(false);
+        setIsLoading(false);
+        return;
+      }
+
+      await apiClient.post("/financial/invoices/bulk-delete", { ids: realInvoiceIds });
+      showMessage(`Successfully voided ${realInvoiceIds.length} invoices.`, "success");
+      setSelectedInvoiceIds([]);
+      fetchReport();
+    } catch (err) {
+      showMessage(err.message || "Failed to void invoices", "error");
+    } finally {
+      setIsLoading(false);
+      setIsDeleteConfirmOpen(false);
+    }
+  };
+
+  const handleBulkSkip = () => {
+    setIsSkipConfirmOpen(true);
+  };
+
+  const confirmBulkSkip = async () => {
+    setIsLoading(true);
+    try {
+      // Extract unique userIds for all selected rows (billed or unbilled)
+      const selectedUserIds = reportData
+        .filter(item => selectedInvoiceIds.includes(item.invoiceId))
+        .map(item => item.userId);
+
+      if (selectedUserIds.length === 0) return;
+
+      await apiClient.post("/financial/reports/bulk-skip-billing", { studentIds: selectedUserIds });
+      showMessage(`Successfully skipped billing for ${selectedUserIds.length} students.`, "success");
+      setSelectedInvoiceIds([]);
+      fetchReport();
+    } catch (err) {
+      showMessage(err.message || "Failed to skip billing", "error");
+    } finally {
+      setIsLoading(false);
+      setIsSkipConfirmOpen(false);
     }
   };
 
@@ -175,12 +229,12 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
 
       <BulkActionsBar
         selectedIds={selectedInvoiceIds}
-        onClear={() => setSelectedInvoiceIds([])}
-        onCustomAction={handleBulkRemind}
-        customActionLabel="Remind Students"
         customActionIcon={<Bell size={14} />}
         label="Invoices"
-        showDelete={false}
+        onDelete={handleBulkDelete}
+        showDelete={true}
+        onCustomAction={handleBulkSkip}
+        customActionLabel="Skip Billing"
       />
 
       {/* Filters Section */}
@@ -240,9 +294,14 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
                 <Filter size={14} className="text-indigo-500" />
                 Filtered Results ({filteredData.length})
             </h3>
-            <button className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest hover:text-indigo-800 transition-colors flex items-center gap-1">
-                <Download size={12} /> Export CSV
-            </button>
+            <div className="flex items-center gap-4">
+              <span className="text-[9px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200 uppercase whitespace-nowrap">
+                💡 Tip: "UNBILLED" students have no invoice yet. Mark as "Inactive" to remove from report.
+              </span>
+              <button className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest hover:text-indigo-800 transition-colors flex items-center gap-1">
+                  <Download size={12} /> Export CSV
+              </button>
+            </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
@@ -303,18 +362,16 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
                       }`}
                     >
                       <td className="px-5 py-3 whitespace-nowrap">
-                        {!item.invoiceId.startsWith("unbilled-") && (
-                          <div 
-                            onClick={() => toggleSelectInvoice(item.invoiceId)}
-                            className="flex items-center justify-center cursor-pointer"
-                          >
-                            {selectedInvoiceIds.includes(item.invoiceId) ? (
-                              <CheckSquare size={16} className="text-indigo-600" />
-                            ) : (
-                              <Square size={16} className="text-slate-300 group-hover:text-slate-400" />
-                            )}
-                          </div>
-                        )}
+                        <div 
+                          onClick={() => toggleSelectInvoice(item.invoiceId)}
+                          className="flex items-center justify-center cursor-pointer"
+                        >
+                          {selectedInvoiceIds.includes(item.invoiceId) ? (
+                            <CheckSquare size={16} className="text-indigo-600" />
+                          ) : (
+                            <Square size={16} className="text-slate-300 group-hover:text-slate-400" />
+                          )}
+                        </div>
                       </td>
                       <td className="px-5 py-3 whitespace-nowrap">
                         <div className="flex flex-col">
@@ -371,6 +428,26 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
         onCancel={() => setIsReminderConfirmOpen(false)}
         confirmText={`Dispatch ${selectedInvoiceIds.length} Reminders`}
         type="indigo"
+      />
+
+      <ConfirmationDialog
+        isOpen={isDeleteConfirmOpen}
+        title="Void Invoices"
+        message={`Permanent Action: You are about to void ${selectedInvoiceIds.length} invoices. This will also remove any associated payments. Are you sure?`}
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setIsDeleteConfirmOpen(false)}
+        confirmText={`Void ${selectedInvoiceIds.length} Invoices`}
+        type="danger"
+      />
+
+      <ConfirmationDialog
+        isOpen={isSkipConfirmOpen}
+        title="Skip Billing Generation"
+        message={`You are about to move ${selectedInvoiceIds.length} students to "Non-Billed" status. They will no longer appear on this report unless you manually re-activate them. Continue?`}
+        onConfirm={confirmBulkSkip}
+        onCancel={() => setIsSkipConfirmOpen(false)}
+        confirmText={`Skip ${selectedInvoiceIds.length} Students`}
+        type="warning"
       />
 
        <ConfirmationDialog

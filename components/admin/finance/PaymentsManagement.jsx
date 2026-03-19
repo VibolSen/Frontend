@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import PaymentModal from "./PaymentModal";
 import Link from "next/link";
-import { Plus, Edit, Trash2, CreditCard, Search, RefreshCcw, ArrowRight, Copy, Check, CheckSquare, Square } from "lucide-react";
+import { Plus, Edit, Trash2, CreditCard, Search, RefreshCcw, ArrowRight, Copy, Check, CheckSquare, Square, TrendingUp, Coins, BarChart3, Layers } from "lucide-react";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -132,6 +132,19 @@ export default function PaymentsManagement() {
     (p.student?.firstName + " " + p.student?.lastName).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Calculate Summary Metrics
+  const totalUSD = payments.filter(p => p.currency === "USD").reduce((sum, p) => sum + p.amount, 0);
+  const totalKHR = payments.filter(p => p.currency === "KHR").reduce((sum, p) => sum + p.amount, 0);
+  const totalVolume = payments.length;
+  const avgUSD = totalVolume > 0 ? (totalUSD / payments.filter(p => p.currency === "USD").length || 0) : 0;
+
+  const summaryCards = [
+    { label: "Gross Liquidity (USD)", val: `$${totalUSD.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, icon: Coins, color: "emerald" },
+    { label: "Gross Liquidity (KHR)", val: `៛${totalKHR.toLocaleString()}`, icon: TrendingUp, color: "blue" },
+    { label: "Transaction Volume", val: totalVolume, icon: BarChart3, color: "indigo" },
+    { label: "Avg. Remittance", val: `$${avgUSD.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, icon: Layers, color: "violet" },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -150,6 +163,29 @@ export default function PaymentsManagement() {
           <Plus size={14} />
           Log Payment
         </button>
+      </div>
+      
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {summaryCards.map((card, i) => (
+          <motion.div
+            key={i}
+            whileHover={{ y: -5 }}
+            className="p-5 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between group transition-all hover:border-blue-200 hover:shadow-md"
+          >
+            <div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover:text-blue-500 transition-colors">
+                {card.label}
+              </p>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight">
+                {card.val}
+              </h3>
+            </div>
+            <div className={`h-12 w-12 rounded-2xl bg-${card.color}-50 text-${card.color}-600 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform`}>
+              <card.icon size={20} strokeWidth={2.5} />
+            </div>
+          </motion.div>
+        ))}
       </div>
 
       <BulkActionsBar
