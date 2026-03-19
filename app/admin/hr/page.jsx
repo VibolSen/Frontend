@@ -1,5 +1,9 @@
-import { redirect } from 'next/navigation';
+import HRDashboard from "@/components/dashboard/HRDashboard";
 
-export default function HRRedirectPage() {
-  redirect('/admin/hr/dashboard');
+export default function AdminHRPage() {
+  return (
+    <div className="container mx-auto">
+      <HRDashboard />
+    </div>
+  );
 }

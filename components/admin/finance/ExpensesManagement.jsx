@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import ExpenseModal from "./ExpenseModal";
-import { Plus, Edit, Trash2, Receipt, Search, RefreshCcw } from "lucide-react";
+import { Plus, Edit, Trash2, Receipt, Search, RefreshCcw, CheckSquare, Square } from "lucide-react";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
+import BulkActionsBar from "@/components/ui/BulkActionsBar";
 
 import { apiClient } from "@/lib/api";
 
@@ -16,8 +17,10 @@ export default function ExpensesManagement() {
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [selectedExpenseIds, setSelectedExpenseIds] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
@@ -88,6 +91,39 @@ export default function ExpensesManagement() {
     }
   };
 
+  const handleBulkDelete = () => {
+    setIsBulkDeleteConfirmOpen(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    setIsLoading(true);
+    try {
+      await apiClient.post("/financial/expenses/bulk-delete", { ids: selectedExpenseIds });
+      showMessage(`Successfully voided ${selectedExpenseIds.length} expense records`, "success");
+      setSelectedExpenseIds([]);
+      await fetchExpenses();
+    } catch (err) {
+      showMessage(err.message || "Bulk operation failed", "error");
+    } finally {
+      setIsLoading(false);
+      setIsBulkDeleteConfirmOpen(false);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedExpenseIds.length === filteredExpenses.length) {
+      setSelectedExpenseIds([]);
+    } else {
+      setSelectedExpenseIds(filteredExpenses.map(e => e.id));
+    }
+  };
+
+  const toggleSelectExpense = (id) => {
+    setSelectedExpenseIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
   const filteredExpenses = expenses.filter(e => 
     e.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
     e.description.toLowerCase().includes(searchTerm.toLowerCase())
@@ -112,6 +148,14 @@ export default function ExpensesManagement() {
           Record Expense
         </button>
       </div>
+
+      <BulkActionsBar
+        selectedIds={selectedExpenseIds}
+        onClear={() => setSelectedExpenseIds([])}
+        onDelete={handleBulkDelete}
+        label="Expenses"
+        showDelete={true}
+      />
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all">
         <div className="p-4 border-b border-slate-100 bg-blue-50/30 flex flex-col md:flex-row justify-between items-center gap-3">
@@ -144,6 +188,18 @@ export default function ExpensesManagement() {
           <table className="w-full border-collapse">
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr>
+                <th className="px-5 py-3 text-left w-10">
+                  <div 
+                    onClick={toggleSelectAll}
+                    className="flex items-center justify-center cursor-pointer text-slate-400 hover:text-indigo-600 transition-colors"
+                  >
+                    {selectedExpenseIds.length === filteredExpenses.length && filteredExpenses.length > 0 ? (
+                      <CheckSquare size={16} className="text-indigo-600" />
+                    ) : (
+                      <Square size={16} />
+                    )}
+                  </div>
+                </th>
                 <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Classification</th>
                 <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</th>
                 <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount Paid</th>
@@ -155,7 +211,7 @@ export default function ExpensesManagement() {
               <AnimatePresence mode="popLayout">
                 {isLoading && filteredExpenses.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-20 text-center">
+                    <td colSpan={6} className="py-20 text-center">
                        <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                         <div className="h-6 w-6 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Retrieving Expenditures...</span>
@@ -164,7 +220,7 @@ export default function ExpensesManagement() {
                   </tr>
                 ) : filteredExpenses.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-20 text-center">
+                    <td colSpan={6} className="py-20 text-center">
                        <Receipt size={32} className="mx-auto text-slate-200 mb-3" />
                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">No Expenditures found</h3>
                        <p className="text-slate-500 text-[10px] uppercase tracking-widest mt-1">Institutional overhead is currently unrecorded</p>
@@ -178,8 +234,24 @@ export default function ExpensesManagement() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: Math.min(index * 0.02, 0.4) }}
-                      className="group hover:bg-slate-50/50 transition-colors"
+                      className={`group transition-all duration-300 ${
+                        selectedExpenseIds.includes(exp.id) 
+                          ? 'bg-blue-50/50' 
+                          : 'hover:bg-slate-50/50'
+                      }`}
                     >
+                      <td className="px-5 py-3 whitespace-nowrap">
+                        <div 
+                          onClick={() => toggleSelectExpense(exp.id)}
+                          className="flex items-center justify-center cursor-pointer"
+                        >
+                          {selectedExpenseIds.includes(exp.id) ? (
+                            <CheckSquare size={16} className="text-indigo-600" />
+                          ) : (
+                            <Square size={16} className="text-slate-300 group-hover:text-slate-400" />
+                          )}
+                        </div>
+                      </td>
                       <td className="px-5 py-3 whitespace-nowrap">
                         <span className="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 text-[9px] font-black uppercase tracking-widest border border-rose-100 shadow-sm">
                            {exp.category}
@@ -240,6 +312,16 @@ export default function ExpensesManagement() {
         onConfirm={confirmDelete}
         title="Purge Expenditure"
         message="Are you sure you want to remove this expense record? This action will permanently delete the transaction from the registry."
+      />
+
+       <ConfirmationDialog
+        isOpen={isBulkDeleteConfirmOpen}
+        title="Purge Multiple Expenditures"
+        message={`Warning: You are about to permanently purge ${selectedExpenseIds.length} expense records. This action cannot be undone.`}
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setIsBulkDeleteConfirmOpen(false)}
+        confirmText={`Purge ${selectedExpenseIds.length} Records`}
+        type="danger"
       />
 
        <ConfirmationDialog

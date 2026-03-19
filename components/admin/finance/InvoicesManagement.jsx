@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import InvoiceModal from "./InvoiceModal";
 import Link from "next/link";
-import { Plus, Eye, Edit, Trash2, FileText, Search, RefreshCcw, Filter } from "lucide-react";
+import { Plus, Eye, Edit, Trash2, FileText, Search, RefreshCcw, Filter, CheckSquare, Square } from "lucide-react";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
+import BulkActionsBar from "@/components/ui/BulkActionsBar";
 
 import { apiClient } from "@/lib/api";
 
@@ -18,8 +19,10 @@ export default function InvoicesManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
+  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
@@ -123,6 +126,39 @@ export default function InvoicesManagement() {
     }
   };
 
+  const handleBulkDelete = () => {
+    setIsBulkDeleteConfirmOpen(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    setIsLoading(true);
+    try {
+      await apiClient.post("/financial/invoices/bulk-delete", { ids: selectedInvoiceIds });
+      showMessage(`Successfully voided ${selectedInvoiceIds.length} invoice documents`, "success");
+      setSelectedInvoiceIds([]);
+      await fetchInvoices();
+    } catch (err) {
+      showMessage(err.message || "Bulk operation failed", "error");
+    } finally {
+      setIsLoading(false);
+      setIsBulkDeleteConfirmOpen(false);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedInvoiceIds.length === filteredInvoices.length) {
+      setSelectedInvoiceIds([]);
+    } else {
+      setSelectedInvoiceIds(filteredInvoices.map(inv => inv.id));
+    }
+  };
+
+  const toggleSelectInvoice = (id) => {
+    setSelectedInvoiceIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
   const sortedInvoices = [...invoices].sort((a, b) => {
     if (sortConfig.key === 'student') {
       const nameA = `${a.student?.firstName} ${a.student?.lastName}`.toLowerCase();
@@ -188,6 +224,14 @@ export default function InvoicesManagement() {
           Create Invoice
         </button>
       </div>
+
+      <BulkActionsBar
+        selectedIds={selectedInvoiceIds}
+        onClear={() => setSelectedInvoiceIds([])}
+        onDelete={handleBulkDelete}
+        label="Invoices"
+        showDelete={true}
+      />
 
       {/* Financial Intelligence Dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -272,6 +316,18 @@ export default function InvoicesManagement() {
           <table className="w-full border-collapse">
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr>
+                <th className="px-5 py-3 text-left w-10">
+                  <div 
+                    onClick={toggleSelectAll}
+                    className="flex items-center justify-center cursor-pointer text-slate-400 hover:text-indigo-600 transition-colors"
+                  >
+                    {selectedInvoiceIds.length === filteredInvoices.length && filteredInvoices.length > 0 ? (
+                      <CheckSquare size={16} className="text-indigo-600" />
+                    ) : (
+                      <Square size={16} />
+                    )}
+                  </div>
+                </th>
                 <th 
                   onClick={() => handleSort('id')}
                   className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:text-slate-900 transition-colors"
@@ -342,7 +398,7 @@ export default function InvoicesManagement() {
               <AnimatePresence mode="popLayout">
                 {isLoading && filteredInvoices.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-20 text-center">
+                    <td colSpan={9} className="py-20 text-center">
                        <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                         <div className="h-6 w-6 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Retrieving Accounts...</span>
@@ -351,7 +407,7 @@ export default function InvoicesManagement() {
                   </tr>
                 ) : filteredInvoices.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-20 text-center">
+                    <td colSpan={9} className="py-20 text-center">
                        <FileText size={32} className="mx-auto text-blue-200 mb-3" />
                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">No Invoices found</h3>
                        <p className="text-slate-500 text-[10px] uppercase tracking-widest mt-1">Registry is complete but currently empty</p>
@@ -365,8 +421,24 @@ export default function InvoicesManagement() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: Math.min(index * 0.02, 0.4) }}
-                      className="group hover:bg-slate-50/50 transition-colors"
+                      className={`group transition-all duration-300 ${
+                        selectedInvoiceIds.includes(inv.id) 
+                          ? 'bg-blue-50/50' 
+                          : 'hover:bg-slate-50/50'
+                      }`}
                     >
+                      <td className="px-5 py-3 whitespace-nowrap">
+                        <div 
+                          onClick={() => toggleSelectInvoice(inv.id)}
+                          className="flex items-center justify-center cursor-pointer"
+                        >
+                          {selectedInvoiceIds.includes(inv.id) ? (
+                            <CheckSquare size={16} className="text-indigo-600" />
+                          ) : (
+                            <Square size={16} className="text-slate-300 group-hover:text-slate-400" />
+                          )}
+                        </div>
+                      </td>
                       <td className="px-5 py-3 whitespace-nowrap">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight tabular-nums">
                           INV-{inv.id.substring(inv.id.length - 6)}
@@ -469,6 +541,16 @@ export default function InvoicesManagement() {
         onConfirm={confirmDelete}
         title="Void Invoice"
         message="Are you sure you want to void this invoice document? This action will permanently remove it from the financial registry."
+      />
+
+       <ConfirmationDialog
+        isOpen={isBulkDeleteConfirmOpen}
+        title="Void Multiple Invoices"
+        message={`Warning: You are about to permanently void ${selectedInvoiceIds.length} invoice documents. This action cannot be reversed.`}
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setIsBulkDeleteConfirmOpen(false)}
+        confirmText={`Void ${selectedInvoiceIds.length} Invoices`}
+        type="danger"
       />
 
        <ConfirmationDialog

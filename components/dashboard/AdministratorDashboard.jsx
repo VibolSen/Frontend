@@ -23,6 +23,11 @@ import {
   DollarSign,
   Calendar,
   ChevronRight,
+  Clock,
+  Wallet,
+  Award,
+  Search,
+  UserCog,
 } from "lucide-react";
 import AnalyticsChart from "./AnalyticsChart";
 
@@ -99,6 +104,21 @@ export default function AdministratorDashboard() {
     return "Good evening";
   };
 
+  const formatMultiCurrency = (amounts) => {
+    if (!amounts || !Array.isArray(amounts) || amounts.length === 0) return "$0.00";
+    const sorted = [...amounts].sort((a, b) => (a.currency === "USD" ? -1 : 1));
+    return sorted
+      .map((a) => {
+        const symbol = a.currency === "KHR" ? "៛" : "$";
+        const formatted = a.total.toLocaleString(undefined, {
+          minimumFractionDigits: a.currency === "USD" ? 2 : 0,
+          maximumFractionDigits: a.currency === "USD" ? 2 : 0,
+        });
+        return `${symbol}${formatted}`;
+      })
+      .join(" / ");
+  };
+
   const chartData = [
     { name: "Students", count: dashboardData.studentCount },
     { name: "Teachers", count: dashboardData.teacherCount },
@@ -143,29 +163,47 @@ export default function AdministratorDashboard() {
           <div className="flex items-center gap-2.5 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm border-l-4 border-l-emerald-500">
             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-              System Core: Operational
+               Nodes Active: {dashboardData.activeSessionCount || 1}
             </span>
           </div>
         </motion.header>
 
-        {/* Stats Section - More Compact */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+        {/* Stats Section */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-10 gap-3">
           {[
             { title: "Students", val: dashboardData.studentCount, icon: Users, color: "blue", href: "/admin/students" },
             { title: "Teachers", val: dashboardData.teacherCount, icon: UserCheck, color: "indigo", href: "/admin/teachers" },
             { title: "Staff", val: dashboardData.staffCount, icon: Briefcase, color: "slate", href: "/admin/staff" },
-            { title: "Departments", val: dashboardData.departmentCount, icon: Building2, color: "sky", href: "/admin/departments" },
+            { title: "Faculty", val: dashboardData.facultyCount, icon: Activity, color: "rose", href: "/admin/faculty" },
+            { title: "Dept", val: dashboardData.departmentCount, icon: Building2, color: "sky", href: "/admin/departments" },
             { title: "Courses", val: dashboardData.courseCount, icon: Library, color: "violet", href: "/admin/courses" },
             { title: "Groups", val: dashboardData.groupCount, icon: Group, color: "cyan", href: "/admin/groups" },
-          ].map((stat, i) => (
+            { 
+              title: "Revenue", 
+              val: formatMultiCurrency(dashboardData.totalRevenue), 
+              icon: DollarSign, 
+              color: "emerald", 
+              href: "/admin/finance/payments" 
+            },
+            { 
+              title: "Expenses", 
+              val: formatMultiCurrency(dashboardData.totalExpenses), 
+              icon: Wallet, 
+              color: "amber", 
+              href: "/admin/finance" 
+            },
+            { title: "Sessions", val: dashboardData.activeSessionCount || 1, icon: Shield, color: "emerald", href: "/admin/settings" },
+          ].map((stat) => (
             <motion.div variants={itemVariants} key={stat.title} whileHover={{ y: -3 }}>
-              <Link href={stat.href} prefetch={false} className="group flex items-center justify-between p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-blue-200 hover:shadow-md transition-all">
-                <div>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{stat.title}</p>
-                  <p className="text-xl font-black text-slate-900 leading-none">{stat.val}</p>
+              <Link href={stat.href || "#"} prefetch={false} className="group flex items-center justify-between p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-blue-200 hover:shadow-md transition-all">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5 truncate">{stat.title}</p>
+                  <p className={`font-black text-slate-900 leading-none truncate tracking-tight ${stat.title === "Revenue" || stat.title === "Expenses" ? "text-[11px]" : "text-sm"}`}>
+                    {stat.val}
+                  </p>
                 </div>
-                <div className={`h-9 w-9 rounded-lg bg-${stat.color}-50 text-${stat.color}-600 flex items-center justify-center shrink-0`}>
-                  <stat.icon size={18} />
+                <div className={`h-8 w-8 rounded-lg bg-${stat.color}-50 text-${stat.color}-600 flex items-center justify-center shrink-0`}>
+                  <stat.icon size={16} />
                 </div>
               </Link>
             </motion.div>
@@ -173,8 +211,9 @@ export default function AdministratorDashboard() {
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Controls */}
+          {/* Main Controls Area */}
           <div className="lg:col-span-2 space-y-6">
+            
             {/* Quick Actions - Compact Grid */}
             <motion.section variants={itemVariants} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
               <div className="flex items-center justify-between mb-5">
@@ -194,6 +233,11 @@ export default function AdministratorDashboard() {
                   { label: "Lib", icon: Book, href: "/admin/e-library", bg: "bg-cyan-50", text: "text-cyan-600" },
                   { label: "Grades", icon: ClipboardList, href: "/admin/assignment-management", bg: "bg-teal-50", text: "text-teal-600" },
                   { label: "History", icon: Activity, href: "/admin/course-analytics", bg: "bg-blue-50", text: "text-blue-600" },
+                  { label: "Attendance", icon: Clock, href: "/admin/attendance", bg: "bg-orange-50", text: "text-orange-600" },
+                  { label: "Finance", icon: Wallet, href: "/admin/finance", bg: "bg-rose-50", text: "text-rose-600" },
+                  { label: "HR Admin", icon: UserCog, href: "/admin/hr", bg: "bg-amber-50", text: "text-amber-600" },
+                  { label: "Certify", icon: Award, href: "/admin/certificate-management", bg: "bg-yellow-50", text: "text-yellow-600" },
+                  { label: "Recruit", icon: Search, href: "/admin/recruitment", bg: "bg-indigo-50", text: "text-indigo-600" },
                 ].map((action) => (
                   <Link
                     href={action.href}
@@ -212,7 +256,6 @@ export default function AdministratorDashboard() {
               </div>
             </motion.section>
 
-            {/* School Overview Chart */}
             <motion.section variants={itemVariants} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
               <h3 className="text-lg font-black text-slate-800 tracking-tight mb-5">
                 School Overview
@@ -223,8 +266,10 @@ export default function AdministratorDashboard() {
             </motion.section>
           </div>
 
-          {/* Sidebar Area - Insights */}
+          {/* Sidebar - Real-time Intel & Activity */}
           <div className="space-y-6">
+            
+            {/* Intelligence Insights - Retained Gradient but with original content style */}
             <motion.section variants={itemVariants} className="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-200/50 overflow-hidden relative">
               <div className="relative z-10 space-y-4">
                 <div className="flex items-center gap-2">
@@ -234,54 +279,86 @@ export default function AdministratorDashboard() {
                   <span className="text-[10px] font-black uppercase tracking-widest text-blue-50">Intelligence Report</span>
                 </div>
 
-                {dashboardData.studentsPerGroup?.length > 0 ? (
-                  <>
-                    <h4 className="text-lg font-black leading-tight">
-                      {dashboardData.studentsPerGroup.sort((a, b) => b.count - a.count)[0].name} is currently your largest group.
-                    </h4>
-                    <p className="text-xs text-blue-100 font-medium leading-relaxed">
-                      With {dashboardData.studentsPerGroup[0].count} students, this group represents a significant portion of your active student body.
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <h4 className="text-lg font-black leading-tight">System population overview: {dashboardData.studentCount} Students.</h4>
-                    <p className="text-xs text-blue-100 font-medium leading-relaxed">Ensure all academic schedules are optimized for the current enrollment levels.</p>
-                  </>
-                )}
+                <div className="space-y-3">
+                   <h4 className="text-lg font-black leading-tight">
+                      Security alert: {dashboardData.loginsLast24h || 0} active logins detected in the last cycle.
+                   </h4>
+                   <div className="space-y-1">
+                      {dashboardData.pendingLeaves > 0 && (
+                        <p className="text-[10px] font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 bg-amber-300 rounded-full animate-pulse" />
+                          {dashboardData.pendingLeaves} Leave requests pending approval
+                        </p>
+                      )}
+                      {dashboardData.pendingApplications > 0 && (
+                        <p className="text-[10px] font-black text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 bg-emerald-300 rounded-full animate-pulse" />
+                          {dashboardData.pendingApplications} New job applications to review
+                        </p>
+                      )}
+                      <p className="text-xs text-blue-100 font-medium leading-relaxed opacity-90">
+                        The current teacher-to-student ratio is {(dashboardData.studentCount / (dashboardData.teacherCount || 1)).toFixed(1)}:1. System balance optimal.
+                      </p>
+                   </div>
+                </div>
 
                 <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <p className="text-[9px] font-black text-blue-200 uppercase tracking-tighter">Student/Teacher Ratio</p>
-                    <p className="text-sm font-black">
-                      {(dashboardData.studentCount / (dashboardData.teacherCount || 1)).toFixed(1)} : 1
-                    </p>
-                  </div>
-                  <Link href="/admin/reports" className="h-8 w-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
-                    <ChevronRight size={16} />
-                  </Link>
+                   <div className="flex gap-4">
+                      <div className="text-center">
+                         <p className="text-[11px] font-black text-white leading-none">98%</p>
+                         <p className="text-[8px] font-bold text-blue-200 uppercase mt-1">Health</p>
+                      </div>
+                      <div className="text-center">
+                         <p className="text-[11px] font-black text-white leading-none">{dashboardData.activeSessionCount || 1}</p>
+                         <p className="text-[8px] font-bold text-blue-200 uppercase mt-1">Sessions</p>
+                      </div>
+                   </div>
+                   <Link href="/admin/reports" className="h-8 w-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
+                      <ChevronRight size={16} />
+                   </Link>
                 </div>
               </div>
               <div className="absolute -right-6 -bottom-6 h-32 w-32 bg-white/10 rounded-full blur-2xl" />
-              <div className="absolute -left-10 top-0 h-40 w-40 bg-indigo-400/20 rounded-full blur-3xl" />
             </motion.section>
 
-            <motion.section variants={itemVariants} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-center">
-              <div className="h-14 w-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-white shadow-sm">
-                <Shield size={28} />
+            {/* Live Audit Stream - Re-styled to fit the original theme */}
+            <motion.section variants={itemVariants} className="bg-white border border-slate-200 rounded-2xl flex flex-col h-[400px] overflow-hidden shadow-sm">
+              <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Live Activity Stream</h3>
+                <Activity size={16} className="text-rose-500 animate-pulse" />
               </div>
-              <h4 className="text-sm font-black text-slate-900 leading-none mb-1">{welcomeName}</h4>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Master Control</p>
-              <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-center gap-6">
-                <div className="text-center">
-                  <p className="text-[11px] font-black text-slate-900 leading-none">High</p>
-                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Security</p>
-                </div>
-                <div className="h-4 w-px bg-slate-100" />
-                <div className="text-center">
-                  <p className="text-[11px] font-black text-slate-900 leading-none">v4.2</p>
-                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Version</p>
-                </div>
+              
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                {dashboardData.recentActivity?.map((log, i) => (
+                  <div key={i} className="flex gap-4 p-3 rounded-xl bg-slate-50/50 hover:bg-white hover:border-slate-100 transition-all group">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start mb-1">
+                        <p className="text-[10px] font-black text-slate-800 truncate uppercase tracking-tight">
+                           {log.actor?.firstName} {log.actor?.lastName}
+                        </p>
+                        <span className="text-[8px] font-bold text-slate-400">
+                          {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <p className="text-[9px] text-slate-500 font-medium leading-tight line-clamp-2">
+                         {log.action.replace(/_/g, ' ')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+
+                {(!dashboardData.recentActivity || dashboardData.recentActivity.length === 0) && (
+                  <div className="flex flex-col items-center justify-center h-full text-slate-300 space-y-2 opacity-50">
+                    <Activity size={24} />
+                    <p className="text-[9px] font-black uppercase tracking-widest">No Recent Activity</p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-3 text-center border-t border-slate-50">
+                 <Link href="/admin/course-analytics" className="text-[9px] font-black text-blue-600 uppercase tracking-widest hover:underline">
+                    Detailed System Logs
+                 </Link>
               </div>
             </motion.section>
           </div>

@@ -221,7 +221,7 @@ export default function SettingsView({ user }) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#EBF4F6] p-6 lg:p-8">
+    <div className="min-h-screen bg-white p-6 lg:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         
         {/* Header */}

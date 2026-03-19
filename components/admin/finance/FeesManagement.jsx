@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import FeeModal from "./FeeModal";
-import { Plus, Edit, Trash2, DollarSign, Search, RefreshCcw } from "lucide-react";
+import { Plus, Edit, Trash2, DollarSign, Search, RefreshCcw, CheckSquare, Square } from "lucide-react";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
+import BulkActionsBar from "@/components/ui/BulkActionsBar";
 
 import { apiClient } from "@/lib/api";
 
@@ -16,8 +17,10 @@ export default function FeesManagement() {
   const [selectedFee, setSelectedFee] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [selectedFeeIds, setSelectedFeeIds] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
@@ -88,6 +91,39 @@ export default function FeesManagement() {
     }
   };
 
+  const handleBulkDelete = () => {
+    setIsBulkDeleteConfirmOpen(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    setIsLoading(true);
+    try {
+      await apiClient.post("/financial/fees/bulk-delete", { ids: selectedFeeIds });
+      showMessage(`Successfully purged ${selectedFeeIds.length} fee structures`, "success");
+      setSelectedFeeIds([]);
+      await fetchFees();
+    } catch (err) {
+      showMessage(err.message || "Bulk operation failed", "error");
+    } finally {
+      setIsLoading(false);
+      setIsBulkDeleteConfirmOpen(false);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedFeeIds.length === filteredFees.length) {
+      setSelectedFeeIds([]);
+    } else {
+      setSelectedFeeIds(filteredFees.map(f => f.id));
+    }
+  };
+
+  const toggleSelectFee = (id) => {
+    setSelectedFeeIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
   const filteredFees = fees.filter(f => 
     f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     f.description.toLowerCase().includes(searchTerm.toLowerCase())
@@ -112,6 +148,14 @@ export default function FeesManagement() {
           Create Fee
         </button>
       </div>
+
+      <BulkActionsBar
+        selectedIds={selectedFeeIds}
+        onClear={() => setSelectedFeeIds([])}
+        onDelete={handleBulkDelete}
+        label="Fees"
+        showDelete={true}
+      />
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all">
         <div className="p-4 border-b border-slate-100 bg-blue-50/30 flex flex-col md:flex-row justify-between items-center gap-3">
@@ -144,6 +188,18 @@ export default function FeesManagement() {
           <table className="w-full border-collapse">
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr>
+                <th className="px-5 py-3 text-left w-10">
+                  <div 
+                    onClick={toggleSelectAll}
+                    className="flex items-center justify-center cursor-pointer text-slate-400 hover:text-indigo-600 transition-colors"
+                  >
+                    {selectedFeeIds.length === filteredFees.length && filteredFees.length > 0 ? (
+                      <CheckSquare size={16} className="text-indigo-600" />
+                    ) : (
+                      <Square size={16} />
+                    )}
+                  </div>
+                </th>
                 <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Fee Classification</th>
                 <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Descriptive Narrative</th>
                 <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Pricing</th>
@@ -154,7 +210,7 @@ export default function FeesManagement() {
               <AnimatePresence mode="popLayout">
                 {isLoading && filteredFees.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-20 text-center">
+                    <td colSpan={5} className="py-20 text-center">
                       <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                         <div className="h-6 w-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Compiling Ledger...</span>
@@ -163,7 +219,7 @@ export default function FeesManagement() {
                   </tr>
                 ) : filteredFees.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-20 text-center">
+                    <td colSpan={5} className="py-20 text-center">
                        <DollarSign size={32} className="mx-auto text-blue-200 mb-3" />
                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">No Fees found</h3>
                        <p className="text-slate-500 text-[10px] uppercase tracking-widest mt-1">The ledger is currently clear</p>
@@ -177,8 +233,24 @@ export default function FeesManagement() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: Math.min(index * 0.02, 0.4) }}
-                      className="group hover:bg-slate-50/50 transition-colors"
+                      className={`group transition-all duration-300 ${
+                        selectedFeeIds.includes(fee.id) 
+                          ? 'bg-blue-50/50' 
+                          : 'hover:bg-slate-50/50'
+                      }`}
                     >
+                      <td className="px-5 py-3 whitespace-nowrap">
+                        <div 
+                          onClick={() => toggleSelectFee(fee.id)}
+                          className="flex items-center justify-center cursor-pointer"
+                        >
+                          {selectedFeeIds.includes(fee.id) ? (
+                            <CheckSquare size={16} className="text-indigo-600" />
+                          ) : (
+                            <Square size={16} className="text-slate-300 group-hover:text-slate-400" />
+                          )}
+                        </div>
+                      </td>
                       <td className="px-5 py-3 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-lg bg-blue-50 text-indigo-600 flex items-center justify-center font-black text-[10px] shrink-0 border border-blue-100">
@@ -238,6 +310,16 @@ export default function FeesManagement() {
         onConfirm={confirmDelete}
         title="Delete Fee Structure"
         message="Are you sure you want to remove this fee structure? This action cannot be undone and may affect pending invoices."
+      />
+
+       <ConfirmationDialog
+        isOpen={isBulkDeleteConfirmOpen}
+        title="Purge Multiple Fee Structures"
+        message={`Warning: You are about to permanently purge ${selectedFeeIds.length} fee structures. This action cannot be undone.`}
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setIsBulkDeleteConfirmOpen(false)}
+        confirmText={`Delete ${selectedFeeIds.length} Structures`}
+        type="danger"
       />
 
       <ConfirmationDialog

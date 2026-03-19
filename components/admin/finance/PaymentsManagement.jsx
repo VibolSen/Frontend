@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import PaymentModal from "./PaymentModal";
 import Link from "next/link";
-import { Plus, Edit, Trash2, CreditCard, Search, RefreshCcw, ArrowRight, Copy, Check } from "lucide-react";
+import { Plus, Edit, Trash2, CreditCard, Search, RefreshCcw, ArrowRight, Copy, Check, CheckSquare, Square } from "lucide-react";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { motion, AnimatePresence } from "framer-motion";
+import BulkActionsBar from "@/components/ui/BulkActionsBar";
 
 import { apiClient } from "@/lib/api";
 
@@ -17,8 +18,10 @@ export default function PaymentsManagement() {
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [selectedPaymentIds, setSelectedPaymentIds] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
@@ -89,10 +92,44 @@ export default function PaymentsManagement() {
     }
   };
 
+  const handleBulkDelete = () => {
+    setIsBulkDeleteConfirmOpen(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    setIsLoading(true);
+    try {
+      await apiClient.post("/financial/payments/bulk-delete", { ids: selectedPaymentIds });
+      showMessage(`Successfully purged ${selectedPaymentIds.length} payment entries`, "success");
+      setSelectedPaymentIds([]);
+      await fetchPayments();
+    } catch (err) {
+      showMessage(err.message || "Bulk operation failed", "error");
+    } finally {
+      setIsLoading(false);
+      setIsBulkDeleteConfirmOpen(false);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedPaymentIds.length === filteredPayments.length) {
+      setSelectedPaymentIds([]);
+    } else {
+      setSelectedPaymentIds(filteredPayments.map(p => p.id));
+    }
+  };
+
+  const toggleSelectPayment = (id) => {
+    setSelectedPaymentIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
   const filteredPayments = payments.filter(p => 
     p.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.invoiceId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.paymentMethod.toLowerCase().includes(searchTerm.toLowerCase())
+    p.paymentMethod.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p.student?.firstName + " " + p.student?.lastName).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -114,6 +151,14 @@ export default function PaymentsManagement() {
           Log Payment
         </button>
       </div>
+
+      <BulkActionsBar
+        selectedIds={selectedPaymentIds}
+        onClear={() => setSelectedPaymentIds([])}
+        onDelete={handleBulkDelete}
+        label="Payments"
+        showDelete={true}
+      />
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all">
         <div className="p-4 border-b border-slate-100 bg-blue-50/30 flex flex-col md:flex-row justify-between items-center gap-3">
@@ -146,6 +191,18 @@ export default function PaymentsManagement() {
           <table className="w-full border-collapse">
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr>
+                <th className="px-5 py-3 text-left w-10">
+                  <div 
+                    onClick={toggleSelectAll}
+                    className="flex items-center justify-center cursor-pointer text-slate-400 hover:text-indigo-600 transition-colors"
+                  >
+                    {selectedPaymentIds.length === filteredPayments.length && filteredPayments.length > 0 ? (
+                      <CheckSquare size={16} className="text-indigo-600" />
+                    ) : (
+                      <Square size={16} />
+                    )}
+                  </div>
+                </th>
                 <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Receipt SN</th>
                 <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Document Link</th>
                 <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Remittance</th>
@@ -158,7 +215,7 @@ export default function PaymentsManagement() {
               <AnimatePresence mode="popLayout">
                 {isLoading && filteredPayments.length === 0 ? (
                    <tr>
-                    <td colSpan={6} className="py-20 text-center">
+                    <td colSpan={7} className="py-20 text-center">
                        <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                         <div className="h-6 w-6 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Scanning Transactions...</span>
@@ -167,7 +224,7 @@ export default function PaymentsManagement() {
                   </tr>
                 ) : filteredPayments.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-20 text-center">
+                    <td colSpan={7} className="py-20 text-center">
                        <CreditCard size={32} className="mx-auto text-slate-200 mb-3" />
                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">No Transactions found</h3>
                        <p className="text-slate-500 text-[10px] uppercase tracking-widest mt-1">Institutional cashflow is currently stagnant</p>
@@ -181,8 +238,24 @@ export default function PaymentsManagement() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: Math.min(index * 0.02, 0.4) }}
-                      className="group hover:bg-slate-50/50 transition-colors"
+                      className={`group transition-all duration-300 ${
+                        selectedPaymentIds.includes(payment.id) 
+                          ? 'bg-blue-50/50' 
+                          : 'hover:bg-slate-50/50'
+                      }`}
                     >
+                      <td className="px-5 py-3 whitespace-nowrap">
+                        <div 
+                          onClick={() => toggleSelectPayment(payment.id)}
+                          className="flex items-center justify-center cursor-pointer"
+                        >
+                          {selectedPaymentIds.includes(payment.id) ? (
+                            <CheckSquare size={16} className="text-indigo-600" />
+                          ) : (
+                            <Square size={16} className="text-slate-300 group-hover:text-slate-400" />
+                          )}
+                        </div>
+                      </td>
                       <td className="px-5 py-3 whitespace-nowrap">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight tabular-nums italic">
                           REC-{payment.id.substring(payment.id.length - 6)}
@@ -269,6 +342,16 @@ export default function PaymentsManagement() {
         onConfirm={confirmDelete}
         title="Purge Transaction"
         message="Are you sure you want to remove this payment entry? This action may cause discrepancies in the corresponding invoice balance."
+      />
+
+       <ConfirmationDialog
+        isOpen={isBulkDeleteConfirmOpen}
+        title="Purge Multiple Transactions"
+        message={`Warning: You are about to permanently purge ${selectedPaymentIds.length} payment entries. This action may affect institutional reconciliation.`}
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setIsBulkDeleteConfirmOpen(false)}
+        confirmText={`Purge ${selectedPaymentIds.length} Payments`}
+        type="danger"
       />
 
        <ConfirmationDialog

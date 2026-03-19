@@ -3,15 +3,26 @@
 import { useState, useEffect } from "react";
 import { 
   Search, RefreshCcw, Filter, User, 
-  CheckCircle2, AlertCircle, Clock, FileText, Download
+  CheckCircle2, AlertCircle, Clock, FileText, Download,
+  CheckSquare, Square, Bell
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiClient } from "@/lib/api";
+import BulkActionsBar from "@/components/ui/BulkActionsBar";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 
 export default function StudentPaymentReport({ initialStatus = "" }) {
   const [reportData, setReportData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   
+  // Selection
+  const [selectedInvoiceIds, setSelectedInvoiceIds] = useState([]);
+  const [isReminderConfirmOpen, setIsReminderConfirmOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   // Filters
   const [statusFilter, setStatusFilter] = useState(initialStatus);
   const [academicYearFilter, setAcademicYearFilter] = useState("");
@@ -32,6 +43,7 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
       const endpoint = `/financial/reports/student-payments?${params.toString()}`;
       const data = await apiClient.get(endpoint);
       setReportData(data || []);
+      setSelectedInvoiceIds([]); // Clear selection on refresh
     } catch (error) {
       console.error("Failed to fetch student payment report:", error);
     } finally {
@@ -42,6 +54,63 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
   useEffect(() => {
     fetchReport();
   }, [statusFilter, academicYearFilter, periodFilter, semesterFilter]);
+
+  const showMessage = (message, type = "success") => {
+    if (type === "error") {
+      setErrorMessage(message);
+      setIsErrorModalOpen(true);
+    } else {
+      setSuccessMessage(message);
+      setIsSuccessModalOpen(true);
+    }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setIsSuccessModalOpen(false);
+    setSuccessMessage("");
+  };
+
+  const handleCloseErrorModal = () => {
+    setIsErrorModalOpen(false);
+    setErrorMessage("");
+  };
+
+  const toggleSelectAll = () => {
+    const selectableInvoices = filteredData
+      .filter(item => !item.invoiceId.startsWith("unbilled-"))
+      .map(item => item.invoiceId);
+
+    if (selectedInvoiceIds.length === selectableInvoices.length) {
+      setSelectedInvoiceIds([]);
+    } else {
+      setSelectedInvoiceIds(selectableInvoices);
+    }
+  };
+
+  const toggleSelectInvoice = (id) => {
+    if (id.startsWith("unbilled-")) return;
+    setSelectedInvoiceIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkRemind = () => {
+    setIsReminderConfirmOpen(true);
+  };
+
+  const confirmBulkRemind = async () => {
+    setIsLoading(true);
+    try {
+      await apiClient.post("/financial/reminders/send", { invoiceIds: selectedInvoiceIds });
+      showMessage(`Successfully dispatched ${selectedInvoiceIds.length} reminders to students.`, "success");
+      setSelectedInvoiceIds([]);
+    } catch (err) {
+      showMessage(err.message || "Failed to send reminders", "error");
+    } finally {
+      setIsLoading(false);
+      setIsReminderConfirmOpen(false);
+    }
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -103,6 +172,16 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
           Refresh Data
         </button>
       </div>
+
+      <BulkActionsBar
+        selectedIds={selectedInvoiceIds}
+        onClear={() => setSelectedInvoiceIds([])}
+        onCustomAction={handleBulkRemind}
+        customActionLabel="Remind Students"
+        customActionIcon={<Bell size={14} />}
+        label="Invoices"
+        showDelete={false}
+      />
 
       {/* Filters Section */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-5 gap-3">
@@ -169,6 +248,18 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
           <table className="w-full border-collapse">
             <thead className="bg-slate-50 border-b border-slate-100">
               <tr>
+                <th className="px-5 py-3 text-left w-10">
+                  <div 
+                    onClick={toggleSelectAll}
+                    className="flex items-center justify-center cursor-pointer text-slate-400 hover:text-indigo-600 transition-colors"
+                  >
+                    {selectedInvoiceIds.length === filteredData.filter(i => !i.invoiceId.startsWith("unbilled-")).length && filteredData.length > 0 ? (
+                      <CheckSquare size={16} className="text-indigo-600" />
+                    ) : (
+                      <Square size={16} />
+                    )}
+                  </div>
+                </th>
                 <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Student</th>
                 <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Year / Batch</th>
                 <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Period</th>
@@ -182,7 +273,7 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
               <AnimatePresence mode="popLayout">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={7} className="py-20 text-center">
+                    <td colSpan={8} className="py-20 text-center">
                       <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                         <div className="h-6 w-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Loading Report...</span>
@@ -191,7 +282,7 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
                   </tr>
                 ) : filteredData.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-20 text-center">
+                    <td colSpan={8} className="py-20 text-center">
                       <User size={32} className="mx-auto text-slate-200 mb-3" />
                       <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">No records found</h3>
                       <p className="text-slate-500 text-[10px] uppercase tracking-widest mt-1">Adjust your filters to see results</p>
@@ -205,8 +296,26 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: Math.min(index * 0.02, 0.2) }}
-                      className="group hover:bg-slate-50/50 transition-colors"
+                      className={`group transition-all duration-300 ${
+                        selectedInvoiceIds.includes(item.invoiceId) 
+                          ? 'bg-indigo-50/50' 
+                          : 'hover:bg-slate-50/50'
+                      }`}
                     >
+                      <td className="px-5 py-3 whitespace-nowrap">
+                        {!item.invoiceId.startsWith("unbilled-") && (
+                          <div 
+                            onClick={() => toggleSelectInvoice(item.invoiceId)}
+                            className="flex items-center justify-center cursor-pointer"
+                          >
+                            {selectedInvoiceIds.includes(item.invoiceId) ? (
+                              <CheckSquare size={16} className="text-indigo-600" />
+                            ) : (
+                              <Square size={16} className="text-slate-300 group-hover:text-slate-400" />
+                            )}
+                          </div>
+                        )}
+                      </td>
                       <td className="px-5 py-3 whitespace-nowrap">
                         <div className="flex flex-col">
                             <span className="text-xs font-bold text-slate-800">{item.studentName}</span>
@@ -253,6 +362,36 @@ export default function StudentPaymentReport({ initialStatus = "" }) {
           </table>
         </div>
       </div>
+
+      <ConfirmationDialog
+        isOpen={isReminderConfirmOpen}
+        title="Payment Reminder Dispatch"
+        message={`Warning: This will trigger automated payment notifications for ${selectedInvoiceIds.length} selected invoices. Ensure academic periods are correct.`}
+        onConfirm={confirmBulkRemind}
+        onCancel={() => setIsReminderConfirmOpen(false)}
+        confirmText={`Dispatch ${selectedInvoiceIds.length} Reminders`}
+        type="indigo"
+      />
+
+       <ConfirmationDialog
+        isOpen={isSuccessModalOpen}
+        title="Operation Successful"
+        message={successMessage}
+        onConfirm={handleCloseSuccessModal}
+        onCancel={handleCloseSuccessModal}
+        confirmText="OK"
+        type="success"
+      />
+
+       <ConfirmationDialog
+        isOpen={isErrorModalOpen}
+        title="Operation Failed"
+        message={errorMessage}
+        onConfirm={handleCloseErrorModal}
+        onCancel={handleCloseErrorModal}
+        confirmText="OK"
+        type="danger"
+      />
     </div>
   );
 }
