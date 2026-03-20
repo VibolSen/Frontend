@@ -10,7 +10,7 @@ import { apiClient } from "@/lib/api";
 import { useUser } from "@/context/UserContext";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
-const LEAVE_TYPES = ["ANNUAL", "SICK", "MATERNITY", "PATERNITY", "UNPAID", "EMERGENCY"];
+const LEAVE_TYPES = ["CASUAL", "SICK", "MATERNITY", "PATERNITY", "UNPAID", "OTHER", "RESIGNATION"];
 const STATUS_CFG = {
   PENDING:  { label: "Pending",  color: "text-amber-600",   bg: "bg-amber-50",   border: "border-amber-200",  icon: Clock },
   APPROVED: { label: "Approved", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200", icon: CheckCircle },
@@ -26,7 +26,10 @@ function LeaveRow({ leave, onApprove, onReject, isManager, index }) {
   const cfg = STATUS_CFG[leave.status] || STATUS_CFG.PENDING;
   const StatusIcon = cfg.icon;
   const days = daysBetween(leave.startDate, leave.endDate);
-  const staffName = `${leave.staff?.firstName || leave.user?.firstName || ""} ${leave.staff?.lastName || leave.user?.lastName || ""}`.trim();
+  
+  // Use Prisma's 'user' object from the include
+  const staff = leave.user || {};
+  const staffName = `${staff.firstName || ""} ${staff.lastName || ""}`.trim() || "Unknown User";
   const initials = staffName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
@@ -34,22 +37,26 @@ function LeaveRow({ leave, onApprove, onReject, isManager, index }) {
       className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
       <td className="px-5 py-3.5">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-[11px] font-black shrink-0 border border-rose-100">
+          <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-[11px] font-black shrink-0 border border-indigo-100">
             {initials}
           </div>
           <div>
             <p className="text-[12px] font-bold text-slate-800">{staffName}</p>
-            <p className="text-[9px] text-slate-400 font-medium">{leave.staff?.role || leave.user?.role || "Staff"}</p>
+            <p className="text-[9px] text-slate-400 font-medium">{staff.role || "Staff"}</p>
           </div>
         </div>
       </td>
       <td className="px-5 py-3.5">
         <span className="px-2.5 py-1 bg-slate-50 border border-slate-200 text-slate-600 text-[9px] font-black rounded-lg uppercase tracking-wider">
-          {leave.leaveType || leave.type}
+          {leave.type}
         </span>
       </td>
-      <td className="px-5 py-3.5 text-[11px] text-slate-600 font-medium">{leave.startDate}</td>
-      <td className="px-5 py-3.5 text-[11px] text-slate-600 font-medium">{leave.endDate}</td>
+      <td className="px-5 py-3.5 text-[11px] text-slate-600 font-medium">
+        {leave.startDate ? new Date(leave.startDate).toLocaleDateString() : '—'}
+      </td>
+      <td className="px-5 py-3.5 text-[11px] text-slate-600 font-medium">
+        {leave.endDate ? new Date(leave.endDate).toLocaleDateString() : '—'}
+      </td>
       <td className="px-5 py-3.5">
         <span className="text-[13px] font-black text-slate-800">{days}</span>
         <span className="text-[9px] text-slate-400 font-medium ml-1">days</span>
@@ -81,7 +88,7 @@ function LeaveRow({ leave, onApprove, onReject, isManager, index }) {
 }
 
 function NewLeaveModal({ onClose, onSubmit, isSubmitting }) {
-  const [form, setForm] = useState({ leaveType: "ANNUAL", startDate: "", endDate: "", reason: "" });
+  const [form, setForm] = useState({ type: "CASUAL", startDate: "", endDate: "", reason: "" });
   const days = daysBetween(form.startDate, form.endDate);
   const valid = form.startDate && form.endDate && form.reason.trim() &&
     new Date(form.endDate) >= new Date(form.startDate);
@@ -102,7 +109,7 @@ function NewLeaveModal({ onClose, onSubmit, isSubmitting }) {
         <div className="space-y-3">
           <div>
             <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Leave Type</label>
-            <select value={form.leaveType} onChange={(e) => setForm({ ...form, leaveType: e.target.value })}
+            <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
               className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all">
               {LEAVE_TYPES.map((t) => <option key={t} value={t}>{t.charAt(0) + t.slice(1).toLowerCase()} Leave</option>)}
             </select>
@@ -161,37 +168,49 @@ export default function LeaveManagementView() {
   const fetchLeaves = useCallback(async () => {
     setIsLoading(true);
     try {
-      const endpoint = isManager ? "/hr/leaves" : `/hr/leaves?staffId=${user?.id}`;
+      const endpoint = isManager ? "/leaves/all" : "/leaves/my-requests";
       const data = await apiClient.get(endpoint);
-      setLeaves(Array.isArray(data) ? data : MOCK_LEAVES);
-    } catch { setLeaves(MOCK_LEAVES); }
-    finally { setIsLoading(false); }
-  }, [isManager, user]);
+      setLeaves(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Fetch leaves failed:", err);
+      setLeaves([]);
+    } finally { setIsLoading(false); }
+  }, [isManager]);
 
   useEffect(() => { fetchLeaves(); }, [fetchLeaves]);
 
   const handleSubmit = async (form) => {
     setIsSubmitting(true);
     try {
-      const body = { ...form, staffId: user?.id, status: "PENDING" };
-      let newLeave;
-      try { newLeave = await apiClient.post("/hr/leaves", body); }
-      catch { newLeave = { ...body, id: `tmp-${Date.now()}`, staff: { firstName: user?.firstName, lastName: user?.lastName, role: user?.role } }; }
-      setLeaves((prev) => [newLeave, ...prev]);
+      await apiClient.post("/leaves/request", form);
+      fetchLeaves();
       showToast("Leave request submitted!");
+    } catch (err) {
+      console.error("Submit failed:", err);
+      showToast("Submission failed.");
     } finally { setIsSubmitting(false); setShowModal(false); }
   };
 
   const handleApprove = async (id) => {
-    try { await apiClient.put(`/hr/leaves/${id}`, { status: "APPROVED" }); } catch { /* fallback */ }
-    setLeaves((p) => p.map((l) => l.id === id ? { ...l, status: "APPROVED" } : l));
-    showToast("Leave approved.");
+    try { 
+      await apiClient.put(`/leaves/${id}/status`, { status: "APPROVED" }); 
+      setLeaves((p) => p.map((l) => l.id === id ? { ...l, status: "APPROVED" } : l));
+      showToast("Leave approved.");
+    } catch (err) {
+      console.error("Approval failed:", err);
+      showToast("Action failed.");
+    }
   };
 
   const handleReject = async (id) => {
-    try { await apiClient.put(`/hr/leaves/${id}`, { status: "REJECTED" }); } catch { /* fallback */ }
-    setLeaves((p) => p.map((l) => l.id === id ? { ...l, status: "REJECTED" } : l));
-    showToast("Leave rejected.");
+    try { 
+      await apiClient.put(`/leaves/${id}/status`, { status: "REJECTED" }); 
+      setLeaves((p) => p.map((l) => l.id === id ? { ...l, status: "REJECTED" } : l));
+      showToast("Leave rejected.");
+    } catch (err) {
+      console.error("Rejection failed:", err);
+      showToast("Action failed.");
+    }
   };
 
   const stats = useMemo(() => ({
@@ -206,8 +225,8 @@ export default function LeaveManagementView() {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       list = list.filter((l) =>
-        `${l.staff?.firstName || l.user?.firstName} ${l.staff?.lastName || l.user?.lastName}`.toLowerCase().includes(q) ||
-        (l.leaveType || l.type || "").toLowerCase().includes(q) ||
+        `${l.user?.firstName || ""} ${l.user?.lastName || ""}`.toLowerCase().includes(q) ||
+        (l.type || "").toLowerCase().includes(q) ||
         (l.reason || "").toLowerCase().includes(q)
       );
     }
@@ -318,10 +337,3 @@ export default function LeaveManagementView() {
   );
 }
 
-const MOCK_LEAVES = [
-  { id: "l1", staff: { firstName: "Sophea", lastName: "Chan", role: "Teacher" }, leaveType: "ANNUAL", startDate: "2025-03-10", endDate: "2025-03-14", reason: "Family trip", status: "PENDING" },
-  { id: "l2", staff: { firstName: "Dara", lastName: "Kim", role: "HR Officer" }, leaveType: "SICK", startDate: "2025-02-20", endDate: "2025-02-22", reason: "Medical treatment", status: "APPROVED" },
-  { id: "l3", staff: { firstName: "Vibol", lastName: "Pich", role: "Teacher" }, leaveType: "EMERGENCY", startDate: "2025-02-15", endDate: "2025-02-15", reason: "Family emergency", status: "APPROVED" },
-  { id: "l4", staff: { firstName: "Mealea", lastName: "Sok", role: "Admin" }, leaveType: "UNPAID", startDate: "2025-04-01", endDate: "2025-04-05", reason: "Personal matters", status: "REJECTED" },
-  { id: "l5", staff: { firstName: "Rithya", lastName: "Heng", role: "Teacher" }, leaveType: "ANNUAL", startDate: "2025-03-25", endDate: "2025-03-28", reason: "Rest and recovery", status: "PENDING" },
-];

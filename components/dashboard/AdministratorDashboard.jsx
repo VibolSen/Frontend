@@ -142,7 +142,7 @@ export default function AdministratorDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/20 pb-10">
+    <div className="min-h-screen pb-10">
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -150,7 +150,7 @@ export default function AdministratorDashboard() {
         className="max-w-7xl mx-auto p-3 md:p-6 space-y-6"
       >
         {/* Header */}
-        <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-0.5">
             <h1 className="text-2xl md:text-3xl font-black text-blue-600 tracking-tight">
               {getGreeting()}, <span className="text-indigo-600">{welcomeName}</span>
@@ -160,13 +160,13 @@ export default function AdministratorDashboard() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm border-l-4 border-l-emerald-500">
+          <div className="flex items-center gap-2.5 px-4 py-2 bg-transparent border border-slate-200 rounded-xl shadow-sm border-l-4 border-l-emerald-500">
             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
                Nodes Active: {dashboardData.activeSessionCount || 1}
             </span>
           </div>
-        </motion.header>
+        </motion.div>
 
         {/* Stats Section */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-10 gap-3">

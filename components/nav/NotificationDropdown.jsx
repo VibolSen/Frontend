@@ -23,6 +23,7 @@ export default function NotificationDropdown() {
   const { user } = useUser();
   const router = useRouter();
   const dropdownRef = useRef(null);
+  const dropdownTimeoutRef = useRef(null); // Added dropdownTimeoutRef
 
   useEffect(() => {
     if (user?.id) {
@@ -31,6 +32,25 @@ export default function NotificationDropdown() {
       return () => clearInterval(interval);
     }
   }, [user]);
+
+  // Added hover-to-open logic
+  const handleMouseEnter = () => {
+    if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current);
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 200);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current);
+    };
+  }, []);
+  // End of hover-to-open logic
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -93,7 +113,12 @@ export default function NotificationDropdown() {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div 
+      className="relative" 
+      ref={dropdownRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`relative p-2.5 rounded-xl transition-all duration-300 ${

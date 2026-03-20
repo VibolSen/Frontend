@@ -29,6 +29,327 @@
   background: #64748b;
 }
 
+/* ============================================================
+   LIQUID GLASS UI THEME (High Contrast / Darker Gradients)
+   Applied when <html class="glass"> is set
+   ============================================================ */
+
+html.glass {
+  background-color: #0f172a !important; /* Fallback deep slate */
+  position: relative;
+  min-height: 100vh;
+  color: #f8fafc !important;
+}
+
+/* Vibrant Liquid Backgrounds — Smooth, Deep Gradients */
+html.glass[data-glass-bg="minimal-white"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 20% 30%, #334155, #0f172a);
+}
+
+html.glass[data-glass-bg="premium-abstract"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 0% 0%, #4338ca 0%, transparent 50%),
+              radial-gradient(circle at 100% 0%, #7e22ce 0%, transparent 50%),
+              radial-gradient(circle at 100% 100%, #1d4ed8 0%, transparent 50%),
+              radial-gradient(circle at 0% 100%, #312e81 0%, transparent 50%),
+              #0f172a;
+}
+
+html.glass[data-glass-bg="soft-gradient"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+}
+
+html.glass[data-glass-bg="vivid-blue"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 30% 30%, #1e40af 0%, transparent 60%),
+              radial-gradient(circle at 70% 70%, #1e3a8a 0%, transparent 60%),
+              #020617;
+}
+
+html.glass[data-glass-bg="vivid-purple"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 30% 30%, #6d28d9 0%, transparent 60%),
+              radial-gradient(circle at 70% 70%, #4c1d95 0%, transparent 60%),
+              #020617;
+}
+
+html.glass[data-glass-bg="soft-indigo"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 50% 50%, #312e81 0%, #0f172a 100%);
+}
+
+html.glass[data-glass-bg="soft-rose"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 50% 50%, #4c0519 0%, #020617 100%);
+}
+
+html.glass body,
+html.glass body > *,
+html.glass main,
+html.glass .min-h-screen,
+html.glass .bg-slate-50,
+html.glass .bg-slate-100,
+html.glass .bg-slate-200,
+html.glass .bg-gray-50,
+html.glass .bg-gray-100,
+html.glass .bg-zinc-50,
+html.glass .bg-neutral-50,
+html.glass .bg-slate-50\/20 {
+  background-color: transparent !important;
+  color: #f8fafc !important;
+}
+
+/* Sidebar — Liquid Glass Version */
+.glass aside {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+}
+
+/* Liquid Glass Panels — Target generic white blocks and common card styles */
+.glass .bg-white,
+.glass .bg-white\/80,
+.glass .bg-slate-50\/50,
+.glass [class*="rounded-"].bg-white,
+.glass [class*="rounded-xl"].bg-slate-50,
+.glass [class*="rounded-2xl"].bg-white,
+.glass .shadow-sm,
+.glass .shadow-md,
+.glass .shadow-lg {
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2),
+              inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+  color: #f8fafc !important;
+}
+
+/* Special Case: Darkened panels for better contrast if needed */
+.glass .bg-gradient-to-br.from-blue-700 {
+  background: rgba(0, 0, 0, 0.2) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* exhaustive color-coded backgrounds (bg-xxx-50) used in stats and icons */
+.glass [class*="bg-blue-50"],
+.glass [class*="bg-indigo-50"],
+.glass [class*="bg-rose-50"],
+.glass [class*="bg-slate-50"],
+.glass [class*="bg-emerald-50"],
+.glass [class*="bg-amber-50"],
+.glass [class*="bg-sky-50"],
+.glass [class*="bg-violet-50"],
+.glass [class*="bg-cyan-50"],
+.glass [class*="bg-teal-50"],
+.glass [class*="bg-orange-50"],
+.glass [class*="bg-purple-50"],
+.glass [class*="bg-yellow-50"] {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+}
+
+/* Interactive elements */
+.glass .hover\:bg-slate-50:hover,
+.glass .hover\:bg-gray-50:hover,
+.glass .group:hover .group-hover\:bg-slate-50\/50 {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.glass .bg-blue-500,
+.glass .bg-indigo-600,
+.glass .bg-blue-600 {
+  background-color: rgba(59, 130, 246, 0.4) !important;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Global Typography Swap for Liquid Glass */
+.glass .text-slate-900,
+.glass .text-slate-800,
+.glass .text-slate-700,
+.glass .text-slate-600,
+.glass .text-gray-900,
+.glass .text-gray-800,
+.glass .text-gray-700,
+.glass .text-gray-600,
+.glass .text-blue-600, .glass .text-blue-500,
+.glass .text-indigo-600, .glass .text-indigo-500,
+.glass .text-emerald-600, .glass .text-emerald-500,
+.glass .text-rose-600, .glass .text-rose-500,
+.glass .text-amber-600, .glass .text-amber-500,
+.glass .text-violet-600, .glass .text-violet-500,
+.glass h1, .glass h2, .glass h3, .glass h4, .glass p, .glass span, .glass label,
+.glass a, .glass button {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Explicitly target hover states to prevent Tailwind overrides from hiding text */
+.glass *:hover,
+.glass .group:hover *,
+.glass [class*="hover:text-"]:hover,
+.glass [class*="group-hover:text-"] {
+  color: #ffffff !important;
+}
+
+.glass .text-slate-500,
+.glass .text-slate-400,
+.glass .text-gray-500,
+.glass .text-gray-400 {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Prevent solid white backgrounds on hover from causing "white-on-white" invisibility */
+.glass .hover\:bg-white:hover,
+.glass .hover\:bg-slate-100:hover,
+.glass .hover\:bg-slate-50:hover,
+.glass .hover\:bg-gray-50:hover,
+.glass .hover\:bg-gray-100:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Sidebar Active Highlighting */
+.glass .bg-blue-50,
+.glass .sidebar-active-link {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Form Elements */
+.glass input,
+.glass textarea,
+.glass select {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  backdrop-filter: blur(10px);
+}
+.glass input::placeholder,
+.glass textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Solid-on-Glass Dropdowns & Popups — For 100% Legibility */
+.glass .absolute.bg-white,
+.glass .z-50.bg-white,
+.glass .dropdown-menu,
+.glass [role="dialog"] .bg-white,
+.glass .modal-content {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.5) !important;
+  opacity: 1 !important;
+}
+
+/* Restore Dark Typography inside Solid Panels */
+.glass .absolute.bg-white *,
+.glass .z-50.bg-white *,
+.glass .dropdown-menu *,
+.glass [role="dialog"] .bg-white * {
+  color: #1e293b !important; /* Slate-800 */
+}
+
+/* Sub-text and captions in solid panels */
+.glass .absolute.bg-white .text-slate-500,
+.glass .absolute.bg-white .text-gray-500,
+.glass .z-50.bg-white span,
+.glass .dropdown-menu p {
+  color: #64748b !important; /* Slate-500 */
+}
+
+/* Restore brand/highlight colors in solid panels */
+.glass .absolute.bg-white .text-blue-600,
+.glass .absolute.bg-white .text-indigo-600,
+.glass .absolute.bg-white .text-emerald-600 {
+  color: #2563eb !important; /* Restore Blue-600 */
+}
+
+/* Simplify internal components for solid white background */
+.glass .absolute .bg-slate-50,
+.glass .absolute .bg-slate-100,
+.glass .absolute .bg-blue-50,
+.glass .absolute .bg-rose-50,
+.glass .absolute .p-1\.5,
+.glass .absolute .p-3 {
+  background: #f8fafc !important; /* Light Slate-50 */
+  border-color: #e2e8f0 !important;
+  box-shadow: none !important;
+}
+
+.glass .absolute button:hover,
+.glass .absolute a:hover {
+  background-color: #f1f5f9 !important; /* Light Slate-100 */
+  backdrop-filter: none !important;
+}
+
+/* Restore the Notification Badge (the red circle) to look sharp on white */
+.glass .absolute .bg-rose-500 {
+  background-color: #f43f5e !important;
+  box-shadow: 0 0 0 2px #ffffff !important;
+  color: #ffffff !important;
+}
+
+.glass img.ring-white {
+  box-shadow: 0 0 0 2px #ffffff !important;
+}
+
+/* Empty State Fix (Crystalline Silence) */
+.glass .absolute .bg-slate-50.rounded-\[2rem\] {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* Rings & Badge Overrides — For Notification items and profile pics */
+.glass .ring-white,
+.glass .ring-slate-50,
+.glass .ring-2.ring-blue-100 {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2) !important;
+}
+
+.glass .bg-rose-500.ring-2.ring-white {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Fix for profile image ring in Header.jsx line 130 */
+.glass img.ring-white {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ============================================================ */
+
 /* Home Page animations */
 /* Gradient background animation */
 @keyframes gradient-slow {

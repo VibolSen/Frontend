@@ -92,6 +92,7 @@ export default function LeaveRequestModal({ isOpen, onClose, onSubmit, isSubmitt
                       <option value="UNPAID">Unpaid Leave</option>
                       <option value="MATERNITY">Maternity Leave</option>
                       <option value="PATERNITY">Paternity Leave</option>
+                      <option value="OTHER">Other / Special Leave</option>
                       <option value="RESIGNATION">Formal Resignation</option>
                     </select>
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">

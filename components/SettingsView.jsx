@@ -25,7 +25,8 @@ import {
   DollarSign,
   AlertCircle,
   Mail,
-  X
+  X,
+  Sparkles
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -34,9 +35,17 @@ import { useAccessibility } from "@/context/AccessibilityContext";
 import { useUser } from "@/context/UserContext";
 import { apiClient } from "@/lib/api";
 import toast from "react-hot-toast";
+import LiquidConfirm from "@/components/ui/LiquidConfirm";
 
 export default function SettingsView({ user }) {
-  const { theme, setThemeMode } = useTheme();
+  const { 
+    theme, 
+    setThemeMode, 
+    glassBackground, 
+    updateGlassBackground,
+    glassIntensity,
+    updateGlassIntensity 
+  } = useTheme();
   const { updateUser } = useUser();
   const { fontSize, updateFontSize, reducedMotion, toggleReducedMotion, highContrast, toggleHighContrast, screenReaderOptimized, toggleScreenReaderOptimized } = useAccessibility();
   const [activeTab, setActiveTab] = useState("profile");
@@ -84,9 +93,16 @@ export default function SettingsView({ user }) {
     currency: user?.role === "FINANCE" ? "USD" : "KHR",
   });
 
-  // Mock Sessions
   const [sessions, setSessions] = useState([]);
   const [isLoadingSessions, setIsLoadingSessions] = useState(false);
+  const [confirmConfig, setConfirmConfig] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    confirmText: "Proceed",
+    type: "danger",
+    onConfirm: () => {},
+  });
 
   React.useEffect(() => {
     if (activeTab === "privacy") {
@@ -115,18 +131,24 @@ export default function SettingsView({ user }) {
     }
   };
 
-  const handleRevokeOtherSessions = async () => {
-    const confirm = window.confirm("Are you sure you want to sign out from all other devices?");
-    if (!confirm) return;
-
-    const loadingToast = toast.loading("Signing out other devices...");
-    try {
-      await apiClient.post("/auth/sessions/revoke-other");
-      toast.success("Other devices signed out successfully", { id: loadingToast });
-      fetchSessions();
-    } catch (err) {
-      toast.error("Failed to revoke other sessions", { id: loadingToast });
-    }
+  const handleRevokeOtherSessions = () => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Sign out all other devices?",
+      message: "This will end all your active sessions except for the one you are currently using on this device.",
+      confirmText: "Sign Out Others",
+      type: "danger",
+      onConfirm: async () => {
+        const loadingToast = toast.loading("Signing out other devices...");
+        try {
+          await apiClient.post("/auth/sessions/revoke-other");
+          toast.success("Other devices signed out successfully", { id: loadingToast });
+          fetchSessions();
+        } catch (err) {
+          toast.error("Failed to revoke other sessions", { id: loadingToast });
+        }
+      }
+    });
   };
 
   const handleProfileChange = (e) => {
@@ -221,7 +243,7 @@ export default function SettingsView({ user }) {
   ];
 
   return (
-    <div className="min-h-screen bg-white p-6 lg:p-8">
+    <div className="min-h-screen bg-transparent p-6 lg:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         
         {/* Header */}
@@ -490,30 +512,193 @@ export default function SettingsView({ user }) {
                   {/* Theme Toggle */}
                   <div className="space-y-2">
                     <label className="text-[12px] font-bold text-slate-700">Theme</label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-3">
                       <button
                         onClick={() => setThemeMode("light")}
-                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 transition-all ${
+                        className={`flex flex-col items-center justify-center gap-1.5 px-3 py-3 rounded-xl border-2 transition-all ${
                           theme === "light"
                             ? "border-blue-500 bg-blue-50 text-blue-700"
                             : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
                         }`}
                       >
                         <Sun className="w-4 h-4" />
-                        <span className="text-[13px] font-bold">Light</span>
+                        <span className="text-[12px] font-bold">Light</span>
                       </button>
                       <button
                         onClick={() => setThemeMode("dark")}
-                        className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 transition-all ${
+                        className={`flex flex-col items-center justify-center gap-1.5 px-3 py-3 rounded-xl border-2 transition-all ${
                           theme === "dark"
                             ? "border-blue-500 bg-blue-50 text-blue-700"
                             : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
                         }`}
                       >
                         <Moon className="w-4 h-4" />
-                        <span className="text-[13px] font-bold">Dark</span>
+                        <span className="text-[12px] font-bold">Dark</span>
+                      </button>
+                      <button
+                        onClick={() => setThemeMode("glass")}
+                        className={`flex flex-col items-center justify-center gap-1.5 px-3 py-3 rounded-xl border-2 transition-all ${
+                          theme === "glass"
+                            ? "border-purple-500 bg-gradient-to-br from-purple-50 to-indigo-50 text-purple-700 shadow-md shadow-purple-200"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-purple-300 hover:bg-purple-50/40"
+                        }`}
+                      >
+                        <Sparkles className={`w-4 h-4 ${theme === "glass" ? "text-purple-500" : ""}`} />
+                        <span className="text-[12px] font-bold">Glass</span>
                       </button>
                     </div>
+
+                    {/* Glass UI Background Settings */}
+                    {theme === "glass" && (
+                      <div className="mt-6 space-y-4 p-5 rounded-3xl border border-blue-100 bg-blue-50/30 animate-scale-in">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-blue-600" />
+                            <label className="text-[13px] font-bold text-slate-700">Glass Background Style</label>
+                          </div>
+                          <span className="text-[10px] font-medium text-blue-500 bg-blue-100/50 px-2 py-0.5 rounded-full">New Effects</span>
+                        </div>
+
+                        {/* Intensity Setting */}
+                        <div className="space-y-3 pb-4 border-b border-blue-100/50">
+                          <label className="text-[12px] font-bold text-slate-700 flex items-center gap-2">
+                             <Zap className="w-3.5 h-3.5 text-blue-500" />
+                             Glass Intensity (Frosted Effect)
+                          </label>
+                          <div className="grid grid-cols-2 gap-3">
+                            <button
+                              onClick={() => updateGlassIntensity("low")}
+                              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all ${
+                                glassIntensity === "low"
+                                  ? "border-blue-500 bg-white text-blue-700 shadow-sm"
+                                  : "border-slate-100 bg-white/40 text-slate-500 hover:border-slate-200"
+                              }`}
+                            >
+                              <span className="text-[11px] font-bold">Soft / Low</span>
+                            </button>
+                            <button
+                              onClick={() => updateGlassIntensity("strong")}
+                              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all ${
+                                glassIntensity === "strong"
+                                  ? "border-blue-500 bg-white text-blue-700 shadow-sm"
+                                  : "border-slate-100 bg-white/40 text-slate-500 hover:border-slate-200"
+                              }`}
+                            >
+                              <span className="text-[11px] font-bold">Vivid / Strong</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-blue-400" />
+                            <label className="text-[13px] font-black text-white/90">Liquid Glass Backgrounds</label>
+                          </div>
+                          <span className="text-[10px] font-extrabold text-blue-300 bg-blue-500/20 px-2 py-0.5 rounded-full border border-blue-400/30">Liquid v2</span>
+                        </div>
+
+                        {/* Style Categories */}
+                        <div className="space-y-4">
+                          {/* Featured Row */}
+                          <div className="space-y-2">
+                            <p className="text-[10px] font-black text-white/40 uppercase tracking-widest px-1">Signature Styles</p>
+                            <div className="grid grid-cols-2 gap-3">
+                              <button
+                                onClick={() => updateGlassBackground("premium-abstract")}
+                                className={`flex flex-col gap-2 p-2.5 rounded-2xl border-2 transition-all ${
+                                  glassBackground === "premium-abstract" ? "border-blue-500 bg-white/10 shadow-lg scale-[1.02]" : "border-white/5 bg-white/5 hover:border-white/10"
+                                }`}
+                              >
+                                <div className="w-full h-12 rounded-xl relative overflow-hidden border border-white/20">
+                                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-700 to-blue-800" />
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <Sparkles className="w-4 h-4 text-white/40" />
+                                  </div>
+                                </div>
+                                <span className="text-[11px] font-bold text-white/80 text-center">Midnight Aurora</span>
+                              </button>
+
+                              <button
+                                onClick={() => updateGlassBackground("minimal-white")}
+                                className={`flex flex-col gap-2 p-2.5 rounded-2xl border-2 transition-all ${
+                                  glassBackground === "minimal-white" ? "border-blue-500 bg-white/10 shadow-lg scale-[1.02]" : "border-white/5 bg-white/5 hover:border-white/10"
+                                }`}
+                              >
+                                <div className="w-full h-12 rounded-xl bg-slate-800 border border-white/20 flex items-center justify-center">
+                                  <div className="w-6 h-6 rounded-full bg-slate-700 shadow-inner border border-white/10" />
+                                </div>
+                                <span className="text-[11px] font-bold text-white/80 text-center">Slate Deep</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Strong Row */}
+                          <div className="space-y-2">
+                            <p className="text-[10px] font-black text-white/40 uppercase tracking-widest px-1">Vibrant (Strong)</p>
+                            <div className="grid grid-cols-2 gap-3">
+                              <button
+                                onClick={() => updateGlassBackground("vivid-blue")}
+                                className={`flex flex-col gap-2 p-2.5 rounded-2xl border-2 transition-all ${
+                                  glassBackground === "vivid-blue" ? "border-blue-500 bg-white/10 shadow-lg scale-[1.02]" : "border-white/5 bg-white/5 hover:border-white/10"
+                                }`}
+                              >
+                                <div className="w-full h-12 rounded-xl bg-gradient-to-br from-blue-900 to-blue-700 border border-white/20 flex items-center justify-center">
+                                  <div className="w-8 h-8 rounded-full bg-blue-400/20 blur-md" />
+                                </div>
+                                <span className="text-[11px] font-bold text-white/80 text-center">Electric Blue</span>
+                              </button>
+
+                              <button
+                                onClick={() => updateGlassBackground("vivid-purple")}
+                                className={`flex flex-col gap-2 p-2.5 rounded-2xl border-2 transition-all ${
+                                  glassBackground === "vivid-purple" ? "border-blue-500 bg-white/10 shadow-lg scale-[1.02]" : "border-white/5 bg-white/5 hover:border-white/10"
+                                }`}
+                              >
+                                <div className="w-full h-12 rounded-xl bg-gradient-to-br from-purple-900 to-violet-700 border border-white/20 flex items-center justify-center">
+                                  <div className="w-8 h-8 rounded-full bg-purple-400/20 blur-md" />
+                                </div>
+                                <span className="text-[11px] font-bold text-white/80 text-center">Deep Violet</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Muted Row */}
+                          <div className="space-y-2">
+                            <p className="text-[10px] font-black text-white/40 uppercase tracking-widest px-1">Subtle (Lower)</p>
+                            <div className="grid grid-cols-2 gap-3">
+                              <button
+                                onClick={() => updateGlassBackground("soft-indigo")}
+                                className={`flex flex-col gap-2 p-2.5 rounded-2xl border-2 transition-all ${
+                                  glassBackground === "soft-indigo" ? "border-blue-500 bg-white/10 shadow-lg scale-[1.02]" : "border-white/5 bg-white/5 hover:border-white/10"
+                                }`}
+                              >
+                                <div className="w-full h-12 rounded-xl bg-slate-900 border border-white/10 flex items-center justify-center">
+                                  <div className="w-6 h-6 rounded-full bg-indigo-500/20 blur-sm" />
+                                </div>
+                                <span className="text-[11px] font-bold text-white/80 text-center">Midnight Indigo</span>
+                              </button>
+
+                              <button
+                                onClick={() => updateGlassBackground("soft-rose")}
+                                className={`flex flex-col gap-2 p-2.5 rounded-2xl border-2 transition-all ${
+                                  glassBackground === "soft-rose" ? "border-blue-500 bg-white/10 shadow-lg scale-[1.02]" : "border-white/5 bg-white/5 hover:border-white/10"
+                                }`}
+                              >
+                                <div className="w-full h-12 rounded-xl bg-slate-950 border border-white/10 flex items-center justify-center">
+                                  <div className="w-6 h-6 rounded-full bg-rose-500/20 blur-sm" />
+                                </div>
+                                <span className="text-[11px] font-bold text-white/80 text-center">Dark Rose</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <p className="text-[10px] text-blue-300 font-medium px-1 flex items-center gap-1.5 opacity-80">
+                          <AlertCircle className="w-3 h-3" />
+                          Liquid Glass uses deep gradients to make the etched panels pop.
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -767,13 +952,21 @@ export default function SettingsView({ user }) {
                                 </div>
                                 {!sess.current && (
                                   <button 
-                                    onClick={async () => {
-                                      if(window.confirm("Sign out this device?")) {
-                                        try {
-                                          await apiClient.post(`/auth/sessions/revoke/${sess.id}`);
-                                          fetchSessions();
-                                        } catch(e) { toast.error("Failed to revoke session"); }
-                                      }
+                                    onClick={() => {
+                                      setConfirmConfig({
+                                        isOpen: true,
+                                        title: "Sign out this device?",
+                                        message: `Are you sure you want to end the session on ${sess.device} (${sess.browser})?`,
+                                        confirmText: "End Session",
+                                        type: "danger",
+                                        onConfirm: async () => {
+                                          try {
+                                            await apiClient.post(`/auth/sessions/revoke/${sess.id}`);
+                                            fetchSessions();
+                                            toast.success("Session ended successfully");
+                                          } catch(e) { toast.error("Failed to revoke session"); }
+                                        }
+                                      });
                                     }}
                                     className="p-2 text-slate-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all"
                                   >
@@ -846,6 +1039,11 @@ export default function SettingsView({ user }) {
           </div>
         </div>
       </div>
+      {/* Custom Confirmation Modal */}
+      <LiquidConfirm
+        {...confirmConfig}
+        onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
+      />
     </div>
   );
 }

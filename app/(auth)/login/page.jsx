@@ -2,7 +2,8 @@
 "use client";
 
 import { useState } from "react";
-import { LogIn, Mail, Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { LogIn, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { signIn, getSession } from "next-auth/react";
 import Cookies from "js-cookie";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -99,145 +100,171 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EBF4F6] flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-center">
-        {/* Left Side - Illustration */}
-        <div className="hidden lg:flex flex-col items-center justify-center text-center space-y-6">
-          <div className="space-y-4 text-slate-700 w-full flex flex-col items-center">
-            <h2 className="text-3xl font-black text-balance max-w-md tracking-tight leading-tight">
-              Welcome Back to Your Educational Journey!
-            </h2>
-            <p className="text-lg text-slate-500 text-pretty max-w-md font-medium">
-              Continue your learning experience with thousands of students
-              transforming their future.
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-6 bg-[#F8FAFC]">
+      {/* Soft Background Gradients */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-400/10 blur-[120px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-400/10 blur-[120px] rounded-full" />
+      </div>
+
+      {/* Main Content Dashboard-style Grid */}
+      <motion.div 
+        initial={{ opacity: 0, y: 15, scale: 0.99 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative z-10 w-full max-w-4xl grid lg:grid-cols-2 gap-10 items-center"
+      >
+        {/* Left Side: Modern Brand Experience */}
+        <div className="hidden lg:flex flex-col space-y-6">
+          <div className="space-y-3">
+            <motion.div
+              initial={{ opacity: 0, x: -15 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 shadow-sm"
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+              <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest px-0.5">Academic Excellence Protocol</span>
+            </motion.div>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-[1.1]">
+              Transforming <br />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
+                Education.
+              </span>
+            </h1>
+            <p className="text-sm text-slate-500 font-medium max-w-[320px] leading-relaxed">
+              Unlock a world of sophisticated learning management designed for visionary institutions and future leaders.
             </p>
           </div>
-          <div className="relative flex justify-center transform hover:scale-105 transition-transform duration-500">
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-200 to-indigo-200 rounded-full opacity-20 blur-3xl"></div>
+
+          <div className="relative transform hover:scale-[1.01] transition-transform duration-700 w-full max-w-[280px]">
+            <div className="absolute inset-0 bg-blue-500/10 blur-2xl rounded-full opacity-30" />
             <img
               src="/illustration/login.png"
-              alt="Student logging in"
-              className="w-80 h-80 object-contain drop-shadow-2xl relative z-10"
+              alt="Education illustration"
+              className="w-full relative z-10 drop-shadow-xl"
             />
           </div>
         </div>
 
-        {/* Right Side - Login Form */}
-        <div className="w-full max-w-md mx-auto lg:mr-auto lg:ml-0">
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-xl p-8 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+        {/* Right Side: Light Liquid Glass Form (Compact) */}
+        <div className="w-full max-w-[380px] mx-auto lg:ml-auto lg:mr-0">
+          <div className="relative group">
+            {/* Subtle Outer Glow */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-[2rem] blur-lg opacity-40 transition duration-1000" />
             
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-                Login to Your Account
-              </h2>
-              <p className="text-[13px] text-slate-500 mt-2 font-medium">
-                Enter your credentials to continue learning
-              </p>
-            </div>
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6 text-[13px] font-medium flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Email Field */}
-              <div className="space-y-1.5">
-                <label className="text-[13px] font-bold text-slate-700 flex items-center gap-1.5 ml-1">
-                  Email Address
-                </label>
-                <div className="relative group">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 group-focus-within:text-blue-600 transition-colors" />
-                  <input
-                    type="email"
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    placeholder="Enter your email address"
-                    className="w-full bg-slate-50 border border-slate-200 px-3 py-2.5 pl-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 text-slate-800 placeholder:text-slate-400 text-[13px] font-medium"
-                  />
+            <div className="relative bg-white/50 backdrop-blur-[24px] border border-white rounded-[2rem] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.06)] p-8 overflow-hidden">
+              {/* Glass Reflection Accent */}
+              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-200/40 to-transparent" />
+              
+              <div className="text-center mb-8">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-blue-500/20 transform hover:rotate-3 transition-transform cursor-pointer">
+                  <LogIn className="w-6 h-6 text-white" />
                 </div>
+                <h2 className="text-xl font-black text-slate-900 tracking-tight">Login Portal</h2>
+                <p className="text-[11px] text-slate-400 mt-1.5 font-bold uppercase tracking-widest opacity-80">School Management System</p>
               </div>
 
-              {/* Password Field */}
-              <div className="space-y-1.5">
-                <label className="text-[13px] font-bold text-slate-700 flex items-center gap-1.5 ml-1">
-                  Password
-                </label>
-                <div className="relative group">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 group-focus-within:text-blue-600 transition-colors" />
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    required
-                    className="w-full bg-slate-50 border border-slate-200 px-3 py-2.5 pl-10 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 text-slate-800 placeholder:text-slate-400 text-[13px] font-medium"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-blue-600 transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="bg-rose-50 border border-rose-100 text-rose-600 px-3.5 py-3 rounded-xl mb-6 text-[12px] font-bold flex items-center gap-3 shadow-sm shadow-rose-500/5"
+                >
+                  <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.3)]" />
+                  {error}
+                </motion.div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Email Field */}
+                <div className="space-y-1.5 text-left">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 pl-1">Authorized Email</label>
+                  <div className="relative group/field">
+                    <Mail className="w-3.5 h-3.5 text-slate-300 absolute left-3.5 top-1/2 -translate-y-1/2 group-focus-within/field:text-blue-600 transition-colors" />
+                    <input
+                      type="email"
+                      name="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      placeholder="e.g. name@school.edu"
+                      className="w-full bg-slate-50/50 border border-slate-200 px-3.5 py-2.8 pl-10 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between text-[13px]">
-                <label className="flex items-center gap-2 text-slate-600 font-medium cursor-pointer group">
+                {/* Password Field */}
+                <div className="space-y-1.5 text-left">
+                  <div className="flex justify-between items-center ml-1 pl-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Security Pin</label>
+                    <a href="/forgot-password" size="sm" className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:text-blue-700 transition-colors cursor-pointer">Forgot?</a>
+                  </div>
+                  <div className="relative group/field">
+                    <Lock className="w-3.5 h-3.5 text-slate-300 absolute left-3.5 top-1/2 -translate-y-1/2 group-focus-within/field:text-blue-600 transition-colors" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      placeholder="••••••••"
+                      className="w-full bg-slate-50/50 border border-slate-200 px-3.5 py-2.8 pl-10 pr-11 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-200 hover:text-slate-500 transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5 px-1 ml-1">
                   <input
                     type="checkbox"
-                    className="rounded text-blue-600 focus:ring-blue-500 border-slate-300 w-4 h-4 transition-all"
+                    id="remember"
+                    className="w-3.5 h-3.5 rounded border-slate-300 bg-white text-blue-600 focus:ring-2 focus:ring-blue-500/10 transition-all cursor-pointer"
                   />
-                  <span className="group-hover:text-slate-800 transition-colors">Remember me</span>
-                </label>
-                <a
-                  href="/forgot-password"
-                  className="text-blue-600 hover:text-blue-700 font-bold transition-colors hover:underline"
+                  <label htmlFor="remember" className="text-[11px] font-bold text-slate-500 cursor-pointer hover:text-slate-700 transition-colors">Keep me signed in</label>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`relative w-full py-3 px-6 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-500 overflow-hidden group/btn ${
+                    isLoading
+                      ? "bg-slate-50 text-slate-300 cursor-not-allowed border border-slate-100"
+                      : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-500/10 hover:shadow-blue-500/25 hover:scale-[1.01] active:scale-[0.99]"
+                  }`}
                 >
-                  Forgot password?
-                </a>
+                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                  <div className="relative flex items-center justify-center gap-2.5">
+                    {isLoading ? (
+                      <>
+                        <div className="w-3.5 h-3.5 border-2 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
+                        <span className="text-slate-300">Authenticating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <LogIn className="w-3.5 h-3.5" />
+                        <span>Confirm Login</span>
+                      </>
+                    )}
+                  </div>
+                </button>
+              </form>
+
+              <div className="mt-8 pt-6 border-t border-slate-50 text-center">
+                <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest leading-loose">
+                  Institutional Security <br />
+                  <span className="text-slate-400 font-extrabold opacity-50">System Version 2.5.2</span>
+                </p>
               </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`w-full py-3 px-4 rounded-xl font-bold transition-all duration-200 flex items-center justify-center gap-2 text-[13px] uppercase tracking-wide ${
-                  isLoading
-                    ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
-                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transform hover:-translate-y-0.5 active:translate-y-0"
-                }`}
-              >
-                {isLoading ? (
-                  <>
-                    <LoadingSpinner size="xs" color="slate" className="mr-2" />
-                    Logging in...
-                  </>
-                ) : (
-                  <>
-                    <LogIn className="w-4 h-4" />
-                    Login
-                  </>
-                )}
-              </button>
-            </form>
-
-
+            </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

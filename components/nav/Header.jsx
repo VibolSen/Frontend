@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { useUser } from "@/context/UserContext";
 import { signOut } from "next-auth/react";
+import { apiClient } from "@/lib/api";
 import NotificationDropdown from "./NotificationDropdown";
 import { 
   LogOut, 
@@ -59,6 +60,11 @@ export default function Header({ toggleSidebar }) {
   }, []);
 
   const handleLogout = async () => {
+    try {
+      await apiClient.post("/auth/logout");
+    } catch (err) {
+      console.error("Backend logout failed:", err);
+    }
     localStorage.removeItem("user");
     Cookies.remove("token");
     await signOut({ callbackUrl: "/" });
