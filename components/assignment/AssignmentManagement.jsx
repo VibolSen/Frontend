@@ -16,6 +16,7 @@ import { apiClient } from '@/lib/api';
 export default function AssignmentManagement() {
   const [assignments, setAssignments] = useState([]);
   const [groups, setGroups] = useState([]); // To store all groups for assignment creation/editing
+  const [courses, setCourses] = useState([]); // Added courses state
   const [isLoading, setIsLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -52,21 +53,37 @@ export default function AssignmentManagement() {
   };
 
   const fetchData = useCallback(async () => {
+    if (userLoading) return; // Wait for user data to load
+
     setIsLoading(true);
     try {
-      const [assignmentsData, groupsData] = await Promise.all([
-        apiClient.get("/assignments"),
-        apiClient.get("/groups"),
-      ]);
+      const userRole = user?.role?.toUpperCase();
+      const loggedInUserId = user?.id;
 
+      let assignmentsUrl = "/assignments";
+      if (userRole === "TEACHER") {
+        assignmentsUrl = `/assignments?teacherId=${loggedInUserId}`;
+      } else if (userRole === "STUDENT") {
+        assignmentsUrl = `/assignments?studentId=${loggedInUserId}`;
+      }
+
+      const requests = [
+        apiClient.get(assignmentsUrl),
+        apiClient.get("/groups"),
+        apiClient.get(`/courses${userRole === "TEACHER" ? `?teacherId=${loggedInUserId}` : ""}`) 
+      ];
+
+      const [assignmentsData, groupsData, coursesData] = await Promise.all(requests);
+      
       setAssignments(assignmentsData || []);
       setGroups(groupsData || []);
+      setCourses(coursesData || []);
     } catch (err) {
       console.error(err.message);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user?.id]); // Added user?.id dependency
 
   useEffect(() => {
     fetchData();
@@ -252,7 +269,8 @@ export default function AssignmentManagement() {
           setAssignmentToEdit(null);
         }}
         onSave={assignmentToEdit ? handleUpdateAssignment : handleSaveAssignment}
-        teacherGroups={groups} // Pass all groups to the modal
+        teacherGroups={groups} 
+        courses={courses} // Pass courses to the modal
         isLoading={isLoading}
         assignment={assignmentToEdit}
       />

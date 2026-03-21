@@ -322,13 +322,29 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
                         <h4 className="text-base font-semibold text-gray-800">Assignments</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                            <label htmlFor="assignedToTeacher" className="block text-xs font-medium text-gray-700">Assign to Teacher</label>
-                            <select id="assignedToTeacher" name="assignedToTeacher" value={assignedToTeacherId} onChange={(e) => setAssignedToTeacherId(e.target.value)} className={inputStyle}>
-                                <option value="">Select Teacher</option>
-                                {teachers.map((teacher) => (
-                                <option key={teacher.id} value={teacher.id}>{teacher.firstName} {teacher.lastName}</option>
-                                ))}
-                            </select>
+                              <div className="flex justify-between items-center mb-1">
+                                <label htmlFor="assignedToTeacher" className="block text-xs font-medium text-gray-700">Assign to Teacher</label>
+                                {courseId && courses.find(c => c.id === courseId)?.leadBy && (
+                                  <span className="text-[10px] font-bold bg-green-50 text-green-600 px-1.5 py-0.5 rounded border border-green-100 uppercase tracking-tight">Course Lead</span>
+                                )}
+                              </div>
+                              <select id="assignedToTeacher" name="assignedToTeacher" value={assignedToTeacherId} onChange={(e) => setAssignedToTeacherId(e.target.value)} className={inputStyle}>
+                                  <option value="">Select Teacher</option>
+                                  {teachers.map((teacher) => {
+                                    const isLead = courses.find(c => c.id === courseId)?.leadById === teacher.id || 
+                                                   courses.find(c => c.id === courseId)?.leadBy?.id === teacher.id;
+                                    return (
+                                      <option key={teacher.id} value={teacher.id}>
+                                        {teacher.firstName} {teacher.lastName} {isLead ? "(Course Lead)" : ""}
+                                      </option>
+                                    );
+                                  })}
+                              </select>
+                              {courseId && courses.find(c => c.id === courseId)?.leadBy && (
+                                <p className="mt-1 text-[10px] text-slate-500 italic">
+                                  Defaulting to course lead: <span className="font-semibold">{courses.find(c => c.id === courseId)?.leadBy.firstName} {courses.find(c => c.id === courseId)?.leadBy.lastName}</span>
+                                </p>
+                              )}
                             </div>
                             <div>
                             <label htmlFor="assignedToGroup" className="block text-xs font-medium text-gray-700">Assign to Group</label>

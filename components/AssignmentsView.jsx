@@ -37,7 +37,7 @@ export default function AssignmentsView({ loggedInUser }) {
 
       const requests = [
         apiClient.get(assignmentsUrl),
-        apiClient.get("/courses") 
+        apiClient.get(`/courses${userRole === "TEACHER" ? `?teacherId=${loggedInUser.id}` : ""}`) 
       ];
       
       if (userRole === "TEACHER") {

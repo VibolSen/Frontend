@@ -177,9 +177,22 @@ export default function CoursesTable({
                     <div className="flex items-center gap-2">
                        {course.leadBy ? (
                          <>
-                           <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-[8px] font-black border border-slate-200">
-                             {course.leadBy.firstName?.[0] || ""}{course.leadBy.lastName?.[0] || ""}
-                           </div>
+                            <div className="w-6 h-6 rounded-full overflow-hidden bg-slate-100 text-slate-600 flex items-center justify-center text-[8px] font-black border border-slate-200 shrink-0">
+                               {course.leadBy.profile?.avatar ? (
+                                 <img 
+                                   src={course.leadBy.profile.avatar} 
+                                   alt={`${course.leadBy.firstName} ${course.leadBy.lastName}`}
+                                   className="w-full h-full object-cover"
+                                   onError={(e) => {
+                                     e.target.style.display = 'none';
+                                     e.target.nextSibling.style.display = 'flex';
+                                   }}
+                                 />
+                               ) : null}
+                               <span className={course.leadBy.profile?.avatar ? "hidden" : "flex"}>
+                                 {course.leadBy.firstName?.[0] || ""}{course.leadBy.lastName?.[0] || ""}
+                               </span>
+                            </div>
                            <div className="flex flex-col">
                              <span className="text-[11px] font-bold text-slate-700 leading-tight">{course.leadBy.firstName} {course.leadBy.lastName}</span>
                              <span className="text-[8px] font-medium text-slate-400 uppercase tracking-tighter">Lecturer</span>
