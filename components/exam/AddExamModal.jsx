@@ -85,6 +85,10 @@ export default function AddExamModal({
     const validFiles = [];
 
     for (const file of files) {
+      if (file.type !== "application/pdf") {
+        setError(`File ${file.name} is not a PDF. Please use PDF format only.`);
+        return;
+      }
       if (file.size > MAX_SIZE) {
         setError(`File ${file.name} is too large. Max size is 10MB.`);
         return;
@@ -414,14 +418,14 @@ export default function AddExamModal({
                                     </svg>
                                   </div>
                                   <p className="text-xs text-slate-500 font-black uppercase tracking-tight">Drop files or click to browse</p>
-                                  <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-widest">Max 10MB • PDF, JPG, PNG</p>
+                                  <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-widest">Max 10MB • PDF Only</p>
                               </div>
                               <input 
                                   type="file" 
                                   className="hidden" 
                                   multiple 
                                   onChange={handleFileChange}
-                                  accept="application/pdf,image/*"
+                                  accept="application/pdf"
                                   disabled={isLoading}
                               />
                           </label>

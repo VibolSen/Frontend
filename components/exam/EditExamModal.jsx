@@ -72,6 +72,10 @@ export default function EditExamModal({
     const validFiles = [];
 
     for (const file of files) {
+      if (file.type !== "application/pdf") {
+        setError(`File ${file.name} is not a PDF. Please use PDF format only.`);
+        return;
+      }
       if (file.size > MAX_SIZE) {
         setError(`File ${file.name} is too large. Max size is 10MB.`);
         return;
@@ -312,7 +316,7 @@ export default function EditExamModal({
                 </div>
                 <div className="space-y-3 pt-2 pb-1">
                     <label className="text-xs font-semibold text-slate-700 ml-1 flex items-center gap-2">
-                       <FileText className="w-4 h-4 text-indigo-500" /> Exam Materials (PDF/Images)
+                       <FileText className="w-4 h-4 text-indigo-500" /> Exam Materials (PDF Only)
                     </label>
                     
                     {/* Existing Attachments */}
@@ -383,14 +387,14 @@ export default function EditExamModal({
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
                                 <p className="text-xs text-slate-500 font-medium">Add more materials</p>
-                                <p className="text-[10px] text-slate-400 mt-1">PDF, JPG, PNG or WEBP (MAX. 10MB)</p>
+                                <p className="text-[10px] text-slate-400 mt-1">PDF format Only (MAX. 10MB)</p>
                             </div>
                             <input 
                                 type="file" 
                                 className="hidden" 
                                 multiple 
                                 onChange={handleFileChange}
-                                accept="application/pdf,image/*"
+                                accept="application/pdf"
                                 disabled={isLoading}
                             />
                         </label>

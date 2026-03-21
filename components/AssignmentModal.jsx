@@ -112,6 +112,10 @@ export default function AssignmentModal({
     const validFiles = [];
 
     for (const file of files) {
+      if (file.type !== "application/pdf") {
+        setError(`File ${file.name} is not a PDF. Only PDF uploads are supported.`);
+        return;
+      }
       if (file.size > MAX_SIZE) {
         setError(`File ${file.name} is too large. Max size is 10MB.`);
         return;
@@ -480,14 +484,14 @@ export default function AssignmentModal({
                                     </svg>
                                   </div>
                                   <p className="text-sm text-slate-500 font-semibold">Drop materials here or <span className="text-blue-600">browse</span></p>
-                                  <p className="text-[11px] text-slate-400 mt-1 font-medium italic">Support: PDF, Word, Images (Max 10MB)</p>
+                                  <p className="text-[11px] text-slate-400 mt-1 font-medium italic">Support: PDF Only (Max 10MB)</p>
                               </div>
                               <input 
                                   type="file" 
                                   className="hidden" 
                                   multiple 
                                   onChange={handleFileChange}
-                                  accept="application/pdf,image/*,.doc,.docx"
+                                  accept="application/pdf"
                                   disabled={isLoading}
                               />
                           </label>
