@@ -100,7 +100,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-6 bg-[#F8FAFC]">
+    <div className="h-screen w-full relative overflow-hidden flex items-center justify-center p-6 bg-[#F8FAFC]">
       {/* Soft Background Gradients */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-400/10 blur-[120px] rounded-full animate-pulse" />
@@ -176,12 +176,12 @@ export default function LoginPage() {
                 </motion.div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Email Field */}
                 <div className="space-y-1.5 text-left">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 pl-1">Authorized Email</label>
                   <div className="relative group/field">
-                    <Mail className="w-3.5 h-3.5 text-slate-300 absolute left-3.5 top-1/2 -translate-y-1/2 group-focus-within/field:text-blue-600 transition-colors" />
+                    <Mail className="w-3.5 h-3.5 text-slate-300 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within/field:text-blue-600 transition-colors" />
                     <input
                       type="email"
                       name="email"
@@ -189,7 +189,7 @@ export default function LoginPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       placeholder="e.g. name@school.edu"
-                      className="w-full bg-slate-50/50 border border-slate-200 px-3.5 py-2.8 pl-10 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
+                      className="w-full bg-slate-50/50 border border-slate-200 px-4 py-4 pl-11 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
                     />
                   </div>
                 </div>
@@ -201,21 +201,21 @@ export default function LoginPage() {
                     <a href="/forgot-password" size="sm" className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:text-blue-700 transition-colors cursor-pointer">Forgot?</a>
                   </div>
                   <div className="relative group/field">
-                    <Lock className="w-3.5 h-3.5 text-slate-300 absolute left-3.5 top-1/2 -translate-y-1/2 group-focus-within/field:text-blue-600 transition-colors" />
+                    <Lock className="w-3.5 h-3.5 text-slate-300 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within/field:text-blue-600 transition-colors" />
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       placeholder="••••••••"
-                      className="w-full bg-slate-50/50 border border-slate-200 px-3.5 py-2.8 pl-10 pr-11 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
+                      className="w-full bg-slate-50/50 border border-slate-200 px-4 py-4 pl-11 pr-12 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-200 hover:text-slate-500 transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 transition-colors"
                     >
-                      {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </div>
@@ -232,7 +232,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className={`relative w-full py-3 px-6 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-500 overflow-hidden group/btn ${
+                  className={`relative w-full py-4 px-6 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-500 overflow-hidden group/btn ${
                     isLoading
                       ? "bg-slate-50 text-slate-300 cursor-not-allowed border border-slate-100"
                       : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-500/10 hover:shadow-blue-500/25 hover:scale-[1.01] active:scale-[0.99]"
