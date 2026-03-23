@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Edit, Trash2, Calendar, ShieldCheck, ClipboardCheck, Clock, Layers, Users } from "lucide-react";
+import { Edit, Trash2, Eye, Calendar, ShieldCheck, ClipboardCheck, Clock, Layers, Users } from "lucide-react";
 import { motion } from "framer-motion";
 
 const AssignmentCard = ({
@@ -123,24 +123,42 @@ const AssignmentCard = ({
              )}
           </div>
 
-          {(userRole?.toUpperCase() === "ADMIN" || userRole?.toUpperCase() === "TEACHER") && (
-            <div className="flex items-center gap-1">
-              <button 
-                onClick={onEdit}
-                className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
-                title="Modify"
-              >
-                <Edit className="w-3.5 h-3.5" />
-              </button>
-              <button 
-                onClick={onDelete}
-                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
-                title="Delete"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                onNavigate();
+              }}
+              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+              title="Review Submissions"
+            >
+              <Eye className="w-3.5 h-3.5" />
+            </button>
+            {(userRole?.toUpperCase() === "ADMIN" || userRole?.toUpperCase() === "TEACHER") && (
+              <>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit();
+                  }}
+                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                  title="Modify"
+                >
+                  <Edit className="w-3.5 h-3.5" />
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete();
+                  }}
+                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                  title="Delete"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Progress Bar (if submissions exist) */}

@@ -84,7 +84,7 @@ export default function ManageGroupCourses({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start relative">
         {/* Available Courses */}
-        <div className="flex flex-col h-[400px] lg:h-[450px]">
+        <div className="flex flex-col h-[320px] lg:h-[380px]">
           <div className="flex items-center justify-between mb-4 px-2">
             <div className="flex items-center gap-3">
               <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">Available Courses</span>
@@ -114,7 +114,7 @@ export default function ManageGroupCourses({
         </div>
 
         {/* Assigned Courses */}
-        <div className="flex flex-col h-[400px] lg:h-[450px]">
+        <div className="flex flex-col h-[320px] lg:h-[380px]">
           <div className="flex items-center justify-between mb-4 px-2">
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-black uppercase tracking-widest text-indigo-500">Selected Curriculum</span>

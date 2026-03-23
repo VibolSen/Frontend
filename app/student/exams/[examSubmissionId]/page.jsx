@@ -1,6 +1,7 @@
 import { fetchAPI } from "@/lib/api-server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import BackButton from "@/components/ui/BackButton";
 import ExamSubmissionView from "./ExamSubmissionView";
 import Link from "next/link";
 
@@ -29,15 +30,13 @@ export default async function ExamSubmissionPage({ params }) {
       <div className="text-center p-8">
         <h1 className="text-2xl font-bold">Exam Not Found</h1>
         <p className="text-slate-500">This submission could not be located.</p>
-        <Link
-          href="/student/exams"
-          className="text-blue-600 hover:underline mt-4 inline-block"
-        >
-          &larr; Back to My Exams
-        </Link>
+        <div className="mt-6 flex justify-center">
+          <BackButton href="/student/exams" label="Back to My Exams" className="mb-0" />
+        </div>
       </div>
+
     );
   }
 
-  return <ExamSubmissionView initialSubmission={examSubmission} />;
+  return <ExamSubmissionView initialSubmission={examSubmission} userId={session?.user?.id} />;
 }

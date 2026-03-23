@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { apiClient } from "@/lib/api";
+import toast from "react-hot-toast";
+import BackButton from "@/components/ui/BackButton";
 
 const StatusBadge = ({ status }) => {
   const configs = {
@@ -55,7 +57,7 @@ const getSecureLink = (url, forceDownload = false) => {
     }
 };
 
-export default function SubmissionView({ initialSubmission }) {
+export default function SubmissionView({ initialSubmission, userId }) {
   const [submission, setSubmission] = useState(initialSubmission);
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -68,6 +70,10 @@ export default function SubmissionView({ initialSubmission }) {
     const validFiles = [];
 
     for (const file of files) {
+      if (file.type !== "application/pdf") {
+        setError(`File ${file.name} is not a PDF. Please use PDF format only.`);
+        return;
+      }
       if (file.size > MAX_SIZE) {
         setError(`File ${file.name} is too large. Max size is 10MB.`);
         return;
@@ -98,14 +104,16 @@ export default function SubmissionView({ initialSubmission }) {
       
       if (submission.status === "PENDING") {
         formData.append("assignmentId", submission.assignment.id);
-        formData.append("studentId", submission.studentId || "");
+        formData.append("studentId", submission.studentId || userId || "");
         selectedFiles.forEach(file => formData.append("files", file));
         const response = await apiClient.post("/submissions", formData);
         setSubmission(response);
+        toast.success("Assignment submitted successfully!");
       } else {
         selectedFiles.forEach(file => formData.append("files", file));
         const response = await apiClient.put(`/submissions/${submission.id}`, formData);
         setSubmission(response);
+        toast.success("Submission updated successfully!");
       }
     } catch (err) {
       setError(err.response?.data?.message || err.message);
@@ -128,13 +136,7 @@ export default function SubmissionView({ initialSubmission }) {
         
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
           <div className="space-y-3">
-            <Link
-              href="/student/assignments"
-              className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors group"
-            >
-              <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" />
-              Assignment Catalog
-            </Link>
+            <BackButton href="/student/assignments" label="Assignment Catalog" className="mb-0" />
             
             <div>
                 <h1 className="text-2xl font-black tracking-tight text-slate-900 mb-1.5 bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
@@ -270,7 +272,7 @@ export default function SubmissionView({ initialSubmission }) {
                         <div className="space-y-3">
                             <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-1.5 leading-none">
                                 <UploadCloud size={10} />
-                                Attachment Vault (Max 10MB)
+                                Attachment Vault (Max 10MB • PDF Only)
                             </label>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <AnimatePresence>
@@ -304,8 +306,8 @@ export default function SubmissionView({ initialSubmission }) {
                                      <div className="w-8 h-8 bg-white rounded-lg shadow-sm border border-slate-200 group-hover:border-blue-200 group-hover:text-blue-600 flex items-center justify-center transition-all duration-300">
                                         <UploadCloud size={16} />
                                      </div>
-                                     <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest transition-colors">Select Files</span>
-                                     <input type="file" multiple onChange={handleFileChange} className="hidden" />
+                                     <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest transition-colors">Select PDF Only</span>
+                                     <input type="file" multiple onChange={handleFileChange} accept="application/pdf" className="hidden" />
                                 </label>
                             </div>
                         </div>

@@ -14,9 +14,9 @@ import {
   SettingsIcon
 } from "lucide-react";
 import Link from "next/link";
-import AnnouncementsView from "@/components/announcements/AnnouncementsView";
 import { apiClient } from "@/lib/api";
 import { motion } from "framer-motion";
+import BackButton from "@/components/ui/BackButton";
 
 export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
   const [course, setCourse] = useState(null);
@@ -57,10 +57,11 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
         <InfoIcon className="mx-auto h-12 w-12 text-slate-300 mb-4" />
         <h2 className="text-xl font-bold text-slate-900">Course Not Found</h2>
         <p className="text-slate-500 mt-2">We couldn't retrieve the details for this course.</p>
-        <Link href="/teacher/courses" prefetch={false} className="mt-6 inline-flex items-center px-6 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all shadow-lg">
-          <ArrowLeftIcon size={16} className="mr-2" /> back to My Catalog
-        </Link>
+        <div className="mt-6 flex justify-center">
+          <BackButton href="/teacher/courses" label="Back to My Catalog" className="mb-0" />
+        </div>
       </div>
+
     );
   }
 
@@ -70,10 +71,9 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
       <div className="relative overflow-hidden bg-white rounded-[2rem] border border-slate-100 shadow-sm p-8">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-4">
-            <Link href="/teacher/courses" prefetch={false} className="inline-flex items-center px-4 py-2 bg-slate-50 text-slate-500 hover:text-indigo-600 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-slate-100 group/back">
-              <ArrowLeftIcon size={14} className="mr-2 group-hover/back:-translate-x-1 transition-transform" /> Back to Catalog
-            </Link>
+            <BackButton href="/teacher/courses" label="Back to Catalog" className="mb-0 border-slate-100" />
             <div className="space-y-2">
+
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest border border-indigo-100">
                 {course.courseDepartments?.[0]?.department?.name || "General Academic"}
               </div>

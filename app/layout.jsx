@@ -35,27 +35,42 @@ export default function RootLayout({ children }) {
                   containerClassName=""
                   containerStyle={{}}
                   toastOptions={{
-                    // Define default options
                     className: '',
                     duration: 5000,
                     style: {
-                      background: '#363636',
-                      color: '#fff',
+                      background: 'rgba(255, 255, 255, 0.85)',
+                      backdropFilter: 'blur(16px)',
+                      color: '#1e293b',
+                      fontSize: '12px',
+                      fontWeight: '800',
+                      letterSpacing: '0.05em',
+                      borderRadius: '16px',
+                      padding: '12px 24px',
+                      boxShadow: '0 10px 40px -10px rgba(0,0,0,0.1)',
+                      border: '1px solid rgba(255, 255, 255, 0.4)',
                     },
-
-                    // Default options for specific types
                     success: {
-                      duration: 3000,
-                      theme: {
-                        primary: 'green',
-                        secondary: 'black',
+                      duration: 4000,
+                      iconTheme: {
+                        primary: '#10b981',
+                        secondary: '#fff',
                       },
+                      style: {
+                        background: 'rgba(236, 253, 245, 0.85)',
+                        border: '1px solid rgba(16, 185, 129, 0.2)',
+                        color: '#065f46',
+                      }
                     },
                     error: {
-                        duration: 4000,
+                        duration: 5000,
+                        iconTheme: {
+                          primary: '#ef4444',
+                          secondary: '#fff',
+                        },
                         style: {
-                            background: '#ef4444',
-                            color: '#fff',
+                            background: 'rgba(254, 242, 242, 0.85)',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            color: '#991b1b',
                         }
                     }
                   }}

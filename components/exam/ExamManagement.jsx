@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GraduationCap, Users, Calendar, Plus, RefreshCcw } from "lucide-react";
 
 import { apiClient } from '@/lib/api';
+import toast from 'react-hot-toast';
 
 export default function ExamManagement({ loggedInUser }) {
   const [exams, setExams] = useState([]);
@@ -32,30 +33,15 @@ export default function ExamManagement({ loggedInUser }) {
   const [isUnauthorized, setIsUnauthorized] = useState(false); // New state variable
 
   // Confirmation States
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   const showMessage = (message, type = "success") => {
     if (type === "error") {
-      setErrorMessage(message);
-      setIsErrorModalOpen(true);
+      toast.error(message);
     } else {
-      setSuccessMessage(message);
-      setIsSuccessModalOpen(true);
+      toast.success(message);
     }
   };
 
-  const handleCloseSuccessModal = () => {
-    setIsSuccessModalOpen(false);
-    setSuccessMessage("");
-  };
-
-  const handleCloseErrorModal = () => {
-    setIsErrorModalOpen(false);
-    setErrorMessage("");
-  };
 
   const fetchData = useCallback(async () => {
     console.log("fetchData called. loggedInUser:", loggedInUser, "userRole:", userRole); // Debug log
@@ -97,7 +83,8 @@ export default function ExamManagement({ loggedInUser }) {
       }
       
       setExams(examsData);
-      setCourses(coursesData);
+      // Filter strictly for lead courses only as per user request
+      setCourses(userRole === "teacher" ? coursesData.filter(c => c.leadById === teacherId) : coursesData);
       
     } catch (err) {
       console.error(err.message);
@@ -347,27 +334,6 @@ export default function ExamManagement({ loggedInUser }) {
         isLoading={isLoading}
       />
       
-      <ConfirmationDialog
-        isOpen={isSuccessModalOpen}
-        title="Success"
-        message={successMessage}
-        onConfirm={handleCloseSuccessModal}
-        onCancel={handleCloseSuccessModal}
-        isLoading={isLoading}
-        confirmText="OK"
-        type="success"
-      />
-
-      <ConfirmationDialog
-        isOpen={isErrorModalOpen}
-        title="Error"
-        message={errorMessage}
-        onConfirm={handleCloseErrorModal}
-        onCancel={handleCloseErrorModal}
-        isLoading={isLoading}
-        confirmText="OK"
-        type="danger"
-      />
     </div>
   );
 }

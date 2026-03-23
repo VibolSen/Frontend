@@ -22,10 +22,7 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function Navbar() {
   const { user, loading } = useUser();
   const router = useRouter();
-  const [courses, setCourses] = useState([]);
-  const [faculties, setFaculties] = useState([]);
-
-  const [activeDropdown, setActiveDropdown] = useState(null); // 'faculties', 'courses', 'profile'
+  const [activeDropdown, setActiveDropdown] = useState(null); // 'profile'
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const timeoutRef = useRef(null);
 
@@ -42,21 +39,6 @@ export default function Navbar() {
     }, 200);
   };
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [coursesData, facultiesData] = await Promise.all([
-          apiClient.get("/courses"),
-          apiClient.get("/faculties")
-        ]);
-        if (coursesData) setCourses(coursesData);
-        if (facultiesData) setFaculties(facultiesData);
-      } catch (err) {
-        console.error("Failed to fetch navbar data:", err);
-      }
-    }
-    fetchData();
-  }, []);
 
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -101,101 +83,6 @@ export default function Navbar() {
         <nav className="hidden lg:flex items-center gap-1">
           <NavLink href="/" label="Home" />
 
-          {/* Faculties Dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => handleMouseEnter('faculties')}
-            onMouseLeave={handleMouseLeave}
-          >
-            <button className={`flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300
-              ${activeDropdown === 'faculties' ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}`}
-            >
-              Faculties
-              <ChevronDown size={14} className={`transition-transform duration-500 ${activeDropdown === 'faculties' ? 'rotate-180' : ''}`} />
-            </button>
-
-            <AnimatePresence>
-              {activeDropdown === 'faculties' && faculties.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute top-full left-0 mt-2 w-72 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-slate-100 py-3 z-50"
-                >
-                  <div className="px-5 py-2 border-b border-slate-50 mb-2">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                      <ShieldCheck size={12} className="text-blue-500" />
-                      Academic Divisions
-                    </p>
-                  </div>
-                  <div className="max-h-[350px] overflow-y-auto custom-scrollbar px-2">
-                    {faculties.map((faculty) => (
-                      <Link
-                        key={faculty.id}
-                        href={`/faculties/${faculty.id}`}
-                        prefetch={false}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-50 text-slate-700 hover:text-blue-700 transition-all group"
-                        onClick={() => setActiveDropdown(null)}
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-white border border-slate-100 transition-colors">
-                          <Globe size={14} />
-                        </div>
-                        <span className="text-sm font-semibold truncate">{faculty.name}</span>
-                      </Link>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Courses Dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => handleMouseEnter('courses')}
-            onMouseLeave={handleMouseLeave}
-          >
-            <button className={`flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300
-              ${activeDropdown === 'courses' ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'}`}
-            >
-              Courses
-              <ChevronDown size={14} className={`transition-transform duration-500 ${activeDropdown === 'courses' ? 'rotate-180' : ''}`} />
-            </button>
-
-            <AnimatePresence>
-              {activeDropdown === 'courses' && courses.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-slate-100 py-3 z-50"
-                >
-                  <div className="px-5 py-2 border-b border-slate-50 mb-2">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                      <BookOpen size={12} className="text-blue-500" />
-                      Available Modules
-                    </p>
-                  </div>
-                  <div className="max-h-[400px] overflow-y-auto custom-scrollbar px-2">
-                    {courses.map((course) => (
-                      <Link
-                        key={course.id}
-                        href={`/courses/${course.id}`}
-                        prefetch={false}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-50 text-slate-700 hover:text-blue-700 transition-all group"
-                        onClick={() => setActiveDropdown(null)}
-                      >
-                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-white border border-slate-100 transition-colors">
-                          <Layout size={14} />
-                        </div>
-                        <span className="text-sm font-semibold truncate">{course.name}</span>
-                      </Link>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
 
           <NavLink href="/about" label="About" />
           <NavLink href="/careers" label="Careers" />
@@ -366,45 +253,6 @@ export default function Navbar() {
                   <MobileNavLink href="/about" label="About Academy" icon={<ShieldCheck size={20} />} onClick={() => setIsMobileMenuOpen(false)} />
                 </div>
 
-                {/* Mobile Faculties */}
-                <div className="pt-4 space-y-1 text-left">
-                  <p className="px-4 text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-4 h-[1px] bg-slate-200" />
-                    Faculties
-                    <span className="w-full h-[1px] bg-slate-200" />
-                  </p>
-                  <div className="grid grid-cols-1 gap-1">
-                    {faculties.map((faculty) => (
-                      <MobileNavLink
-                        key={faculty.id}
-                        href={`/faculties/${faculty.id}`}
-                        label={faculty.name}
-                        icon={<Globe size={18} className="text-slate-300 group-hover:text-blue-500" />}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Mobile Courses */}
-                <div className="pt-4 space-y-1 pb-10 text-left">
-                  <p className="px-4 text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-4 h-[1px] bg-slate-200" />
-                    Featured Courses
-                    <span className="w-full h-[1px] bg-slate-200" />
-                  </p>
-                  <div className="grid grid-cols-1 gap-1">
-                    {courses.slice(0, 8).map((course) => (
-                      <MobileNavLink
-                        key={course.id}
-                        href={`/courses/${course.id}`}
-                        label={course.name}
-                        icon={<Layout size={18} className="text-slate-300 group-hover:text-amber-500" />}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      />
-                    ))}
-                  </div>
-                </div>
               </motion.div>
 
               {/* Mobile Footer Auth */}

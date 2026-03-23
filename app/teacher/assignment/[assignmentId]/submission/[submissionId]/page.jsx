@@ -1,21 +1,20 @@
 import { fetchAPI } from "@/lib/api-server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import AssignmentGradingView from "@/components/assignment/AssignmentGradingView";
 import BackButton from "@/components/ui/BackButton";
-import SubmissionView from "./SubmissionView";
-import Link from "next/link";
 
 async function getSubmissionData(submissionId) {
   try {
-    return await fetchAPI(`/submissions/${submissionId}`);
+    return await fetchAPI(`/teacher/submissions/${submissionId}`);
   } catch (error) {
     return null;
   }
 }
 
-export default async function SubmissionPage({ params }) {
+export default async function AssignmentGradingPage({ params }) {
   const awaitedParams = await params;
-  const { submissionId } = awaitedParams;
+  const { assignmentId, submissionId } = awaitedParams;
   const submission = await getSubmissionData(submissionId);
   const session = await getServerSession(authOptions);
 
@@ -26,15 +25,13 @@ export default async function SubmissionPage({ params }) {
   if (!submission) {
     return (
       <div className="text-center p-8">
-        <h1 className="text-2xl font-bold">Assignment Not Found</h1>
-        <p className="text-slate-500">This submission could not be located.</p>
+        <h1 className="text-2xl font-bold italic text-slate-400 font-outfit uppercase tracking-widest">Submission details unavailable</h1>
         <div className="mt-6 flex justify-center">
-          <BackButton href="/student/assignments" label="Back to My Assignments" className="mb-0" />
+          <BackButton href={`/teacher/assignment/${assignmentId}`} label="Back to Roster" />
         </div>
       </div>
-
     );
   }
 
-  return <SubmissionView initialSubmission={submission} userId={session?.user?.id} />;
+  return <AssignmentGradingView initialSubmission={submission} backLink={`/teacher/assignment/${assignmentId}`} />;
 }

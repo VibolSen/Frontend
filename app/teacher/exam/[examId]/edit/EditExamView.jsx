@@ -10,7 +10,7 @@ export default function EditExamView({ exam, loggedInUser }) {
   const [formData, setFormData] = useState({
     title: exam.title || "",
     description: exam.description || "",
-    examDate: exam.examDate ? new Date(exam.examDate).toISOString().split('T')[0] : "",
+    date: exam.date ? new Date(exam.date).toISOString().split('T')[0] : (exam.examDate ? new Date(exam.examDate).toISOString().split('T')[0] : ""),
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -106,8 +106,8 @@ export default function EditExamView({ exam, loggedInUser }) {
               </label>
               <input
                 type="date"
-                name="examDate"
-                value={formData.examDate}
+                name="date"
+                value={formData.date}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border rounded-md"
               />

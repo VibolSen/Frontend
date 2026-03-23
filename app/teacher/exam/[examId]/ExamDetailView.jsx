@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { apiClient } from "@/lib/api";
+import toast from "react-hot-toast";
+import BackButton from "@/components/ui/BackButton";
 
 const StatusBadge = ({ status }) => {
   const styles = {
@@ -76,28 +78,23 @@ export default function ExamDetailView({ initialExam }) {
 
   const handleGradeSubmission = async (submissionId, grade, feedback) => {
     try {
-      const updatedSubmission = await apiClient.put(`/teacher/exam-submissions/${submissionId}`, { grade, feedback });
+      const updatedSubmission = await apiClient.put(`/exam-submissions/${submissionId}`, { grade, feedback, status: 'GRADED' });
       setExam((prev) => ({
         ...prev,
         submissions: prev.submissions.map((sub) =>
           sub.id === submissionId ? { ...sub, ...updatedSubmission } : sub
         ),
       }));
-      console.log("Grade saved successfully!");
+      toast.success("Grade saved successfully!");
     } catch (err) {
-      console.error(err.response?.data?.message || err.message);
+      toast.error(err.response?.data?.message || err.message);
     }
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <Link href="/teacher/exam">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-blue-700 transition-colors mb-4 inline-flex items-center gap-2">
-            <span>&larr;</span>
-            <span>Back to All Exams</span>
-          </button>
-        </Link>
+      <div className="flex flex-col space-y-2">
+        <BackButton href="/teacher/exam" label="Back to All Exams" className="mb-2" />
         <h1 className="text-3xl font-bold text-slate-800 mt-2">
           {exam.title}
         </h1>

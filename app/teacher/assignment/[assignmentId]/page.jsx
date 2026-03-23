@@ -1,6 +1,7 @@
 import { fetchAPI } from "@/lib/api-server";
 import GradingView from "./GradingView";
 import Link from "next/link";
+import BackButton from "@/components/ui/BackButton";
 
 async function getAssignmentData(params) {
   const { assignmentId } = await params;
@@ -18,13 +19,11 @@ export default async function GradingPage({ params }) {
     return (
       <div className="text-center p-8">
         <h1 className="text-2xl font-bold">Assignment Not Found</h1>
-        <Link
-          href="/teacher/assignments"
-          className="text-blue-600 hover:underline mt-4 inline-block"
-        >
-          &larr; Back to Assignments
-        </Link>
+        <div className="mt-6 flex justify-center">
+          <BackButton href="/teacher/assignments" label="Back to Assignments" className="mb-0" />
+        </div>
       </div>
+
     );
   }
 

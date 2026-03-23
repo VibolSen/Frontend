@@ -10,6 +10,7 @@ import {
     Mortarboard, School, Calendar, RefreshCcw, UserPlus, CheckCircle2, AlertCircle, X
 } from "lucide-react";
 import { apiClient } from "@/lib/api";
+import BackButton from "@/components/ui/BackButton";
 
 const yearColors = {
     1: "bg-blue-100 text-blue-700",
@@ -250,11 +251,8 @@ export default function DepartmentDetailView({ role = "admin" }) {
         <div className="space-y-6">
             {/* Back + Header */}
             <div className="space-y-4">
-                <button onClick={() => router.back()}
-                    className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 text-sm font-semibold transition-colors">
-                    <ArrowLeft size={14} />
-                    Back to Departments
-                </button>
+                <BackButton onClick={() => router.back()} label="Back to Departments" className="mb-0" />
+
 
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                     <div className="flex items-center gap-4">

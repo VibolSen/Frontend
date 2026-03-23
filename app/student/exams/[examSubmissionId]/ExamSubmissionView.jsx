@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { apiClient } from "@/lib/api";
+import toast from "react-hot-toast";
+import BackButton from "@/components/ui/BackButton";
 
 const StatusBadge = ({ status }) => {
   const styles = {
@@ -35,7 +37,7 @@ const getSecureLink = (url, forceDownload = false) => {
     }
 };
 
-export default function ExamSubmissionView({ initialSubmission }) {
+export default function ExamSubmissionView({ initialSubmission, userId }) {
   const [submission, setSubmission] = useState(initialSubmission);
   const [content, setContent] = useState(initialSubmission.content || "");
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +50,10 @@ export default function ExamSubmissionView({ initialSubmission }) {
     const validFiles = [];
 
     for (const file of files) {
+      if (file.type !== "application/pdf") {
+        setError(`File ${file.name} is not a PDF. Please use PDF format only.`);
+        return;
+      }
       if (file.size > MAX_SIZE) {
         setError(`File ${file.name} is too large. Max size is 5MB.`);
         return;
@@ -79,17 +85,18 @@ export default function ExamSubmissionView({ initialSubmission }) {
 
       if (submission.status === "PENDING") {
         formData.append("examId", submission.exam.id);
-        formData.append("studentId", submission.studentId || "");
+        formData.append("studentId", submission.studentId || userId || "");
         selectedFiles.forEach(file => formData.append("files", file));
         
         const response = await apiClient.post("/exam-submissions", formData);
         setSubmission(response);
+        toast.success("Exam submitted successfully!");
       } else {
         selectedFiles.forEach(file => formData.append("files", file));
         const response = await apiClient.put(`/exam-submissions/${submission.id}`, formData);
         setSubmission(response);
+        toast.success("Exam submission updated!");
       }
-      console.log("Exam submitted successfully!");
     } catch (err) {
       setError(err.response?.data?.message || err.message);
     } finally {
@@ -104,12 +111,7 @@ export default function ExamSubmissionView({ initialSubmission }) {
       <div className="max-w-4xl mx-auto space-y-6">
 
         <div className="flex items-center justify-between mb-5">
-          <Link href="/student/exams" className="flex items-center bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg px-4 py-2 font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to My Exams
-          </Link>
+          <BackButton href="/student/exams" label="Back to My Exams" className="mb-0" />
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 space-y-5">
@@ -214,7 +216,7 @@ export default function ExamSubmissionView({ initialSubmission }) {
               </div>
 
               <div className="space-y-4">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block">ATTACHED DOCUMENTS (MAX 5MB)</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block">ATTACHED DOCUMENTS (MAX 5MB • PDF ONLY)</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {selectedFiles.map((file, idx) => (
                         <div key={idx} className="flex items-center justify-between p-3 bg-blue-50/50 border border-blue-100 rounded-2xl group animate-in zoom-in-95 duration-200">
@@ -248,9 +250,9 @@ export default function ExamSubmissionView({ initialSubmission }) {
                          </div>
                          <div className="flex flex-col">
                              <span className="text-sm font-bold text-slate-500 group-hover:text-blue-700 leading-tight">Add File</span>
-                             <span className="text-[10px] text-slate-400 font-medium">Upload PDF or Images</span>
+                             <span className="text-[10px] text-slate-400 font-medium">Upload PDF Only</span>
                          </div>
-                         <input type="file" multiple onChange={handleFileChange} className="hidden" />
+                         <input type="file" multiple onChange={handleFileChange} accept="application/pdf" className="hidden" />
                       </label>
                   </div>
               </div>

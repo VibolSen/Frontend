@@ -1,154 +1,157 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ChevronRightIcon } from "lucide-react";
+import toast from "react-hot-toast";
+
 import { apiClient } from "@/lib/api";
+import BackButton from "@/components/ui/BackButton";
 
 const StatusBadge = ({ status }) => {
-  const styles = {
-    PENDING: "bg-gray-200 text-gray-800",
-    SUBMITTED: "bg-blue-200 text-blue-800",
-    GRADED: "bg-green-200 text-green-800",
-  };
-  return (
-    <span
-      className={`px-1.5 py-0.5 text-xs font-semibold rounded-full ${styles[status]}`}
-    >
-      {status}
-    </span>
-  );
-};
-
-const SubmissionRow = ({ submission, onGrade }) => {
-  const [grade, setGrade] = useState(submission.grade ?? "");
-  const [feedback, setFeedback] = useState(submission.feedback ?? "");
-  const [isSaving, setIsSaving] = useState(false);
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    await onGrade(submission.id, grade, feedback);
-    setIsSaving(false);
-  };
-
-  return (
-    <tr className="bg-white border-b hover:bg-slate-50">
-      <td className="px-4 py-3 font-normal text-gray-800">{`${submission.student?.firstName || 'Unknown'} ${submission.student?.lastName || ''}`}</td>
-      <td className="px-4 py-3">
-        <StatusBadge status={submission.status} />
-      </td>
-      <td className="px-4 py-3 text-slate-600 text-sm">
-        {submission.content || (
-          <span className="text-gray-400 italic">Not submitted yet</span>
-        )}
-      </td>
-      <td className="px-4 py-3">
-        <input
-          type="number"
-          value={grade}
-          onChange={(e) => setGrade(e.target.value)}
-          className="w-20 px-1.5 py-0.5 border rounded-sm text-xs"
-          placeholder="0-100"
-        />
-      </td>
-      <td className="px-4 py-3">
-        <input
-          type="text"
-          value={feedback}
-          onChange={(e) => setFeedback(e.target.value)}
-          className="w-full px-1.5 py-0.5 border rounded-sm text-xs"
-          placeholder="Optional feedback..."
-        />
-      </td>
-      <td className="px-4 py-3 text-center">
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="bg-blue-600 text-white px-2 py-0.5 rounded-sm text-xs font-normal hover:bg-blue-700 disabled:opacity-50"
-        >
-          {isSaving ? "Saving..." : "Save"}
-        </button>
-      </td>
-    </tr>
-  );
+    const styles = {
+      PENDING: "bg-yellow-50 text-yellow-600 border-yellow-100",
+      SUBMITTED: "bg-blue-50 text-blue-600 border-blue-100",
+      GRADED: "bg-emerald-50 text-emerald-600 border-emerald-100",
+    };
+    return (
+      <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded-md border ${styles[status]}`}>
+        {status}
+      </span>
+    );
 };
 
 export default function GradingView({ initialAssignment }) {
   const [assignment, setAssignment] = useState(initialAssignment);
+  const router = useRouter();
 
-  const handleGradeSubmission = async (submissionId, grade, feedback) => {
-    try {
-      const updatedSubmission = await apiClient.put(`/teacher/submissions/${submissionId}`, { grade, feedback });
-      setAssignment((prev) => ({
-        ...prev,
-        submissions: prev.submissions.map((sub) =>
-          sub.id === submissionId ? { ...sub, ...updatedSubmission } : sub
-        ),
-      }));
-      console.log("Grade saved successfully!");
-    } catch (err) {
-      console.error(err.response?.data?.message || err.message);
-    }
-  };
+  const totalSubmissions = assignment.submissions?.length || 0;
+  const gradedCount = assignment.submissions?.filter(s => s.status === "GRADED").length || 0;
+  const submissionRate = totalSubmissions > 0 ? Math.round((totalSubmissions / (assignment.group?._count?.students || totalSubmissions)) * 100) : 0;
 
   return (
-    <div className="space-y-4 p-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-800">
-          {assignment.title}
-        </h1>
-        <Link
-          href="/teacher/assignment"
-          className="group relative bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
-        >
-          <span className="flex items-center gap-1">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
-            </svg>
-            Back to Assignments
-          </span>
-        </Link>
-      </div>
-      <p className="text-slate-500 text-sm">
-        Grading for group:{" "}
-        <span className="font-semibold">{assignment.group?.name || 'N/A'}</span>
-      </p>
+    <div className="min-h-screen bg-slate-50/50 p-4 md:p-8">
+      <div className="max-w-5xl mx-auto space-y-6">
+        
+        {/* Navigation Layer */}
+        <div className="flex items-center justify-between">
+          <BackButton 
+            href="/teacher/assignments" 
+            label="Back to Assignments" 
+            className="mb-0" 
+          />
+          <div className="flex items-center gap-2 px-3 py-1 bg-white border border-slate-200 rounded-lg shadow-sm">
+            <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+            <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Assessment Active</span>
+          </div>
+        </div>
 
-      <div className="bg-white p-4 rounded-lg shadow-sm">
-        <h2 className="text-lg font-semibold mb-3 text-slate-800">
-          Student Submissions
-        </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left text-slate-500">
-            <thead className="text-xs text-slate-700 uppercase bg-slate-100">
-              <tr>
-                <th className="px-4 py-2">Student Name</th>
-                <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2">Submission Content</th>
-                <th className="px-4 py-2">Grade</th>
-                <th className="px-4 py-2">Feedback</th>
-                <th className="px-4 py-2 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(assignment.submissions || []).map((submission) => (
-                <SubmissionRow
-                  key={submission.id}
-                  submission={submission}
-                  onGrade={handleGradeSubmission}
-                />
-              ))}
-            </tbody>
-          </table>
+        {/* Header Section */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+          <div className="space-y-1">
+            <h1 className="text-xl font-black text-slate-900 tracking-tight leading-tight px-1 uppercase">
+              Assignment Roster
+            </h1>
+            <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest px-1">
+              Title: {assignment.title}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-slate-700 text-[11px] font-medium border-t border-slate-50 pt-4 px-1">
+            <div className="flex flex-col gap-0.5">
+                <span className="font-black uppercase tracking-widest text-[8px] text-slate-400">Class Group</span>
+                <span className="text-slate-900 font-bold">{assignment.group?.name || "N/A"}</span>
+            </div>
+            <div className="flex flex-col gap-0.5">
+                <span className="font-black uppercase tracking-widest text-[8px] text-slate-400">Due Date</span>
+                <span className="text-slate-900 font-bold">
+                    {assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "No Deadline"}
+                </span>
+            </div>
+            <div className="flex flex-col gap-0.5">
+                <span className="font-black uppercase tracking-widest text-[8px] text-slate-400">Engagement</span>
+                <div className="flex items-center gap-2">
+                    <span className="text-indigo-600 font-black">{submissionRate}%</span>
+                    <div className="h-1 w-16 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-indigo-500 transition-all duration-500" style={{ width: `${submissionRate}%` }} />
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Submissions Roster */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
+           <div className="flex items-center justify-between">
+                <h2 className="text-sm font-black text-slate-800 uppercase tracking-widest">Lodged Tasks</h2>
+                <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
+                        Evaluated: {gradedCount}/{totalSubmissions}
+                    </span>
+                </div>
+           </div>
+
+          {!assignment.submissions || assignment.submissions.length === 0 ? (
+            <div className="py-12 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest bg-slate-50/30 border-2 border-dashed border-slate-100 rounded-2xl">
+              No task entries detected.
+            </div>
+          ) : (
+            <div className="overflow-x-auto border border-slate-100 rounded-xl font-outfit">
+              <table className="min-w-full divide-y divide-slate-100">
+                <thead className="bg-slate-50/50">
+                  <tr>
+                    <th className="px-5 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Student</th>
+                    <th className="px-5 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
+                    <th className="px-5 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Submitted</th>
+                    <th className="px-5 py-3 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Grade</th>
+                    <th className="px-5 py-3 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-slate-50">
+                  {assignment.submissions.map((submission) => {
+                    const student = submission.student;
+                    
+                    return (
+                      <tr key={submission.id} className="hover:bg-slate-50/50 transition-colors group">
+                        <td className="px-5 py-3 whitespace-nowrap">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-[11px] font-black border border-indigo-100/50 shadow-sm">
+                              {student?.firstName?.[0]}{student?.lastName?.[0]}
+                            </div>
+                            <div className="text-[11px] font-black text-slate-900 uppercase tracking-tight">
+                              {student?.firstName} {student?.lastName}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-5 py-3 whitespace-nowrap">
+                          <StatusBadge status={submission.status} />
+                        </td>
+                        <td className="px-5 py-3 whitespace-nowrap text-[10px] text-slate-500 font-bold uppercase tracking-tight">
+                          {submission.submittedAt ? new Date(submission.submittedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
+                        </td>
+                        <td className="px-5 py-3 whitespace-nowrap">
+                          {submission.grade !== null ? (
+                            <span className="text-[11px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100/50">{submission.grade}/100</span>
+                          ) : (
+                            <span className="text-[10px] text-slate-300 font-black uppercase tracking-widest italic">Unranked</span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3 whitespace-nowrap text-right">
+                            <button
+                                onClick={() => router.push(`/teacher/assignment/${assignment.id}/submission/${submission.id}`)}
+                                className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all active:scale-95 border border-indigo-100 shadow-sm group/btn"
+                            >
+                                <span>Review</span>
+                                <ChevronRightIcon size={12} className="group-hover/btn:translate-x-0.5 transition-transform" />
+                            </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

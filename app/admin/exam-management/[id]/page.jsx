@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import ExamDetailView from "@/components/exam/ExamDetailView"; 
 import Link from "next/link";
+import BackButton from "@/components/ui/BackButton";
 
 async function getExamData(params) {
   const { id } = await params; 
@@ -33,13 +34,11 @@ export default async function AdminExamDetailPage({ params }) {
       <div className="text-center p-8">
         <h1 className="text-2xl font-bold">Exam Not Found</h1>
         <p className="text-slate-500">This exam could not be located.</p>
-        <Link
-          href="/admin/exam-management"
-          className="text-blue-600 hover:underline mt-4 inline-block"
-        >
-          &larr; Back to Exam Management
-        </Link>
+        <div className="mt-6 flex justify-center">
+          <BackButton href="/admin/exam-management" label="Back to Exam Management" className="mb-0" />
+        </div>
       </div>
+
     );
   }
 

@@ -119,7 +119,14 @@ export default function AddExamModal({
     // Use FormData for multi-part
     const data = new FormData();
     Object.keys(formData).forEach(key => {
-        data.append(key, formData[key] || "");
+        let value = formData[key] || "";
+        
+        // Combine date + time if it's startTime or endTime and we have a master date
+        if ((key === "startTime" || key === "endTime") && formData.date && value && value.length === 5) {
+            value = `${formData.date}T${value}:00`;
+        }
+        
+        data.append(key, value);
     });
     
     selectedFiles.forEach(file => {
@@ -247,7 +254,7 @@ export default function AddExamModal({
                       <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-600 ml-1">Start Time</label>
                         <input
-                          type="datetime-local" 
+                          type="time" 
                           name="startTime" 
                           value={formData.startTime}
                           onChange={handleChange}
@@ -257,7 +264,7 @@ export default function AddExamModal({
                       <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-600 ml-1">End Time</label>
                         <input
-                          type="datetime-local"
+                          type="time"
                           name="endTime"
                           value={formData.endTime}
                           onChange={handleChange}

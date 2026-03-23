@@ -6,6 +6,7 @@ import AssignmentModal from "./AssignmentModal";
 import AssignmentCard from "./assignment/AssignmentCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { apiClient } from "@/lib/api";
+import toast from "react-hot-toast";
 
 export default function AssignmentsView({ loggedInUser }) {
   // STATE MANAGEMENT
@@ -53,7 +54,9 @@ export default function AssignmentsView({ loggedInUser }) {
 
       // Courses
       if (results[1].status === 'fulfilled') {
-        setCourses(results[1].value || []);
+        const fetchedCourses = results[1].value || [];
+        // Filter strictly for lead courses only as per user request
+        setCourses(userRole === "TEACHER" ? fetchedCourses.filter(c => c.leadById === loggedInUser.id) : fetchedCourses);
       }
 
       // Groups
@@ -79,16 +82,15 @@ export default function AssignmentsView({ loggedInUser }) {
   const handleSaveAssignment = async (data) => {
     setIsLoading(true);
     try {
-      // data is FormData from AssignmentModal
       if (teacherId) {
         data.append("teacherId", teacherId);
       }
       await apiClient.post("/assignments", data);
-      console.log("Assignment created successfully!");
+      toast.success("Assignment created successfully!");
       setIsAddModalOpen(false);
       await fetchData();
     } catch (err) {
-      console.error("Save assignment error:", err);
+      toast.error(err.message || "Failed to create assignment");
     } finally {
       setIsLoading(false);
     }
@@ -104,12 +106,12 @@ export default function AssignmentsView({ loggedInUser }) {
     setIsLoading(true);
     try {
       await apiClient.put(`/assignments/${assignmentToEdit.id}`, formData);
-      console.log("Assignment updated successfully!");
+      toast.success("Assignment updated successfully!");
       setIsEditModalOpen(false);
       setAssignmentToEdit(null);
       await fetchData();
     } catch (err) {
-      console.error("Update assignment error:", err);
+      toast.error(err.message || "Failed to update assignment");
     } finally {
       setIsLoading(false);
     }
@@ -125,10 +127,10 @@ export default function AssignmentsView({ loggedInUser }) {
     setIsLoading(true);
     try {
       await apiClient.delete(`/assignments/${assignmentToDelete}`);
-      console.log("Assignment deleted successfully!");
+      toast.success("Assignment deleted successfully!");
       await fetchData();
     } catch (err) {
-      console.error("Delete assignment error:", err);
+      toast.error(err.message || "Failed to delete assignment");
     } finally {
       setIsLoading(false);
       setShowConfirmation(false);

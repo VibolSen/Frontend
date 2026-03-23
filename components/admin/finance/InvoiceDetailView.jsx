@@ -8,6 +8,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { ChevronLeft, Printer, Download, CreditCard, Clock, CheckCircle2, AlertCircle, Calendar, User, ArrowRight, ArrowLeft, Copy, Check, MapPin, Mail, Hash, ExternalLink } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import BackButton from "@/components/ui/BackButton";
 
 // Helper Component for Status Stamp
 const StatusStamp = ({ status }) => {
@@ -82,17 +83,12 @@ export default function InvoiceDetailView() {
           <AlertCircle className="text-rose-500 w-6 h-6" />
         </div>
         <h2 className="text-lg font-bold text-slate-900">Document Not Found</h2>
-        <p className="text-slate-500 text-xs mt-1 leading-relaxed px-4">
+        <p className="text-slate-500 text-xs mt-1 leading-relaxed px-4 mb-6">
           Invoice reference #{id?.substring(0,8).toUpperCase()} could not be retrieved.
         </p>
-        <Link 
-          href="/admin/finance/invoices"
-          className="mt-6 inline-flex items-center gap-2 px-5 py-2 bg-blue-900 text-white font-bold rounded-lg hover:bg-blue-800 transition-colors text-xs"
-        >
-          <ArrowLeft className="w-3 h-3" />
-          Back to Invoices
-        </Link>
+        <BackButton href="/admin/finance/invoices" label="Back to Invoices" className="mb-0" />
       </div>
+
     );
   }
 
@@ -102,14 +98,9 @@ export default function InvoiceDetailView() {
   return (
     <div className="min-h-screen bg-slate-100/50 py-10 px-6 font-sans">
       <div className="max-w-4xl mx-auto mb-6 flex items-center justify-between">
-        <Link 
-          href="/admin/finance/invoices" 
-          className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-blue-900 transition-colors bg-white px-3 py-2 rounded-lg border border-slate-200 shadow-sm"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Management
-        </Link>
+        <BackButton href="/admin/finance/invoices" label="Back to Management" className="mb-0" />
         <div className="flex gap-2">
+
           <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-all font-bold text-xs shadow-sm">
             <Printer className="w-4 h-4" />
             Print

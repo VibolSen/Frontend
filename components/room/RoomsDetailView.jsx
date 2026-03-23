@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { apiClient } from "@/lib/api";
+import BackButton from "@/components/ui/BackButton";
 
 export default function RoomsDetailView({ role = "admin" }) {
   const { id } = useParams();
@@ -70,13 +71,8 @@ export default function RoomsDetailView({ role = "admin" }) {
     <div className="space-y-6">
       {/* Header Section */}
       <div className="space-y-4">
-        <button 
-          onClick={() => router.back()}
-          className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 text-sm font-semibold transition-colors"
-        >
-          <ArrowLeft size={14} />
-          Back to Facilities
-        </button>
+        <BackButton onClick={() => router.back()} label="Back to Facilities" className="mb-0" />
+
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">

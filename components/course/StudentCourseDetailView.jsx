@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import AnnouncementsView from "@/components/announcements/AnnouncementsView";
 import { apiClient } from "@/lib/api";
+import BackButton from "@/components/ui/BackButton";
 
 export default function StudentCourseDetailView({ courseId, loggedInUser }) {
   const [course, setCourse] = useState(null);
@@ -48,10 +49,11 @@ export default function StudentCourseDetailView({ courseId, loggedInUser }) {
         <InfoIcon className="mx-auto h-12 w-12 text-slate-300 mb-4" />
         <h2 className="text-xl font-bold text-slate-900">Course Not Found</h2>
         <p className="text-slate-500 mt-2">We couldn't retrieve the details for this course.</p>
-        <Link href="/student/courses" className="mt-6 inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
-          <ArrowLeftIcon size={16} className="mr-2" /> back to My Courses
-        </Link>
+        <div className="mt-6 flex justify-center">
+          <BackButton href="/student/courses" label="Back to My Courses" className="mb-0" />
+        </div>
       </div>
+
     );
   }
 
@@ -61,10 +63,9 @@ export default function StudentCourseDetailView({ courseId, loggedInUser }) {
       <div className="relative overflow-hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-3">
-            <Link href="/student/courses" className="inline-flex items-center px-3 py-1.5 bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 rounded-lg text-xs font-bold transition-all border border-slate-200 shadow-sm group/back">
-              <ArrowLeftIcon size={14} className="mr-1.5 group-hover/back:-translate-x-0.5 transition-transform" /> back to My Courses
-            </Link>
+            <BackButton href="/student/courses" label="Back to My Courses" className="mb-0 border-slate-200 shadow-sm" />
             <div className="space-y-1">
+
               <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider">
                 {course.courseDepartments?.[0]?.department?.name || "Academic"}
               </div>

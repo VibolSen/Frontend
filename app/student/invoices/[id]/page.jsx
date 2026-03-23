@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Printer, Download, MapPin, Mail, Hash, Calendar, Clock, User, CreditCard, AlertCircle, QrCode, ShieldCheck, BadgeCheck } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { QRCodeCanvas } from "qrcode.react";
+import BackButton from "@/components/ui/BackButton";
 
 // Helper Component for Status Stamp
 const StatusStamp = ({ status }) => {
@@ -138,17 +139,12 @@ const InvoiceDetailPage = () => {
           <AlertCircle className="text-rose-500 w-6 h-6" />
         </div>
         <h2 className="text-lg font-bold text-slate-900">Document Not Found</h2>
-        <p className="text-slate-500 text-xs mt-1 leading-relaxed px-4">
+        <p className="text-slate-500 text-xs mt-1 leading-relaxed px-4 mb-6">
           Invoice reference #{id?.substring(0,8).toUpperCase()} could not be retrieved.
         </p>
-        <Link 
-          href="/student/invoices"
-          className="mt-6 inline-flex items-center gap-2 px-5 py-2 bg-blue-900 text-white font-bold rounded-lg hover:bg-blue-800 transition-colors text-xs"
-        >
-          <ArrowLeft className="w-3 h-3" />
-          Return to History
-        </Link>
+        <BackButton href="/student/invoices" label="Return to History" className="mb-0" />
       </div>
+
     );
   }
 
@@ -239,16 +235,9 @@ const InvoiceDetailPage = () => {
       </AnimatePresence>
 
       <div className="max-w-4xl mx-auto mb-6 flex items-center justify-between">
-        <Link 
-          href="/student/invoices" 
-          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-600 transition-colors bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm group"
-        >
-          <div className="w-5 h-5 bg-indigo-50 rounded-full flex items-center justify-center group-hover:-translate-x-0.5 transition-transform">
-            <ArrowLeft className="w-3 h-3 text-indigo-600" />
-          </div>
-          Back to Invoices
-        </Link>
+        <BackButton href="/student/invoices" label="Back to Invoices" className="mb-0" />
         <div className="flex gap-2">
+
           <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-black text-[10px] uppercase tracking-widest shadow-sm">
             <Printer className="w-4 h-4" />
             Print

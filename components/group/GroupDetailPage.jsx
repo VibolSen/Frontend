@@ -14,8 +14,8 @@ import {
   MoreVertical,
   PlusCircle
 } from "lucide-react";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { apiClient } from "@/lib/api";
+import BackButton from "@/components/ui/BackButton";
 
 export default function GroupDetailPage({ initialGroup, allStudents, role }) {
   const [group, setGroup] = useState(initialGroup);
@@ -90,14 +90,8 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="space-y-1">
-            <Link
-              href={`/${role}/groups`}
-              prefetch={false}
-              className="inline-flex items-center px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm text-[13px] font-bold mb-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Groups
-            </Link>
+            <BackButton href={`/${role}/groups`} label="Back to Groups" className="mb-4" />
+
             <h1 className="text-2xl font-black text-slate-800 tracking-tight">
               Group Details
             </h1>

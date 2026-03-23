@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import { SubmissionStatus } from "../types";
 import LoadingSpinner from "./ui/LoadingSpinner";
 import { apiClient } from "@/lib/api";
+import toast from "react-hot-toast";
+import BackButton from "@/components/ui/BackButton";
 
 const getStatusBadge = (status, grade) => {
   switch (status) {
@@ -102,7 +104,7 @@ const SubmissionDetailView = ({ assignment, course, onBack, onEdit }) => {
   const handleSaveGrade = async (submissionId, studentId) => {
     const grade = parseInt(gradeValue, 10);
     if (isNaN(grade) || grade < 0 || grade > 100) {
-      alert("Please enter a valid grade between 0 and 100.");
+      toast.error("Please enter a valid grade between 0 and 100.");
       return;
     }
 
@@ -116,10 +118,11 @@ const SubmissionDetailView = ({ assignment, course, onBack, onEdit }) => {
         s.id === updatedSubmission.id ? updatedSubmission : s
       );
       setSubmissions(updatedSubmissions);
+      toast.success("Grade assigned successfully!");
       setEditingGrade(null);
       setGradeValue("");
     } catch (error) {
-      alert(error.response?.data?.error || error.message || "An unknown error occurred");
+      toast.error(error.response?.data?.error || error.message || "An unknown error occurred");
     }
   };
 
@@ -146,25 +149,9 @@ const SubmissionDetailView = ({ assignment, course, onBack, onEdit }) => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <button
-        onClick={onBack}
-        className="flex items-center text-sm font-semibold text-blue-600 hover:underline"
-      >
-        <svg
-          className="w-4 h-4 mr-1"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M15 19l-7-7 7-7"
-          ></path>
-        </svg>
-        Back to Assignments
-      </button>
+      <div className="flex items-center">
+        <BackButton onClick={onBack} label="Back to Assignments" className="mb-0" />
+      </div>
 
       <div className="bg-white p-6 rounded-xl shadow-md">
         <div className="border-b border-slate-200 pb-4 mb-4">

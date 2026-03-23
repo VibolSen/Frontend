@@ -31,10 +31,10 @@ export default function ManageGroupCoursesModal({
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-white/20"
+          className="relative bg-white/80 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-white/40"
         >
           {/* Header */}
-          <div className="p-5 border-b flex justify-between items-center bg-white shrink-0">
+          <div className="p-8 border-b border-white/20 flex justify-between items-center shrink-0">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-indigo-50 rounded-2xl">
                 <BookOpen className="w-6 h-6 text-indigo-600" />
@@ -56,7 +56,7 @@ export default function ManageGroupCoursesModal({
             </button>
           </div>
 
-          <div className="p-6 bg-slate-50/50 overflow-y-auto">
+          <div className="p-8 pt-4">
             <ManageGroupCourses
               initialGroup={group}
               allCourses={allCourses}
