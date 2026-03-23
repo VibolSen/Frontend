@@ -22,7 +22,10 @@ import {
   Award,
   Clock,
   MessageSquare,
-  AlertCircle,
+  PenTool,
+  Book,
+  GraduationCap,
+  UserPlus,
 } from "lucide-react";
 import AnalyticsChart from "./AnalyticsChart";
 
@@ -115,7 +118,7 @@ export default function StudyOfficeDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/20 pb-10">
+    <div className="min-h-screen bg-slate-50/20 pb-10 font-sans">
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -123,10 +126,10 @@ export default function StudyOfficeDashboard() {
         className="max-w-7xl mx-auto p-3 md:p-6 space-y-6"
       >
         {/* Header */}
-        <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
           <div className="space-y-0.5">
             <h1 className="text-2xl md:text-3xl font-black text-blue-600 tracking-tight">
-              {getGreeting()}, <span className="text-indigo-600">{welcomeName}</span>!
+              {getGreeting()}, <span className="text-indigo-600 font-black">{welcomeName}</span>!
             </h1>
             <p className="text-slate-500 font-medium text-sm">
               Academic coordination, student performance, and curriculum monitoring.
@@ -134,28 +137,33 @@ export default function StudyOfficeDashboard() {
           </div>
           <div className="flex items-center gap-2.5 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm border-l-4 border-l-emerald-500">
             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Academic Systems Live</span>
+            <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest leading-none">
+              Academic Systems: Synchronized
+            </span>
           </div>
         </motion.header>
 
-        {/* Stats Section */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {/* Dynamic Metric Strip - High Density Overview */}
+        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-7 gap-3">
           {[
-            { title: "Total Students", val: dashboardData.studentCount, icon: Users, color: "blue", href: "/study-office/students" },
-            { title: "Total Teachers", val: dashboardData.teacherCount, icon: UserCheck, color: "indigo", href: "/study-office/teachers" },
-            { title: "Total Courses", val: dashboardData.courseCount, icon: Library, color: "violet", href: "/study-office/courses" },
-            { title: "Departments", val: dashboardData.departmentCount, icon: Building2, color: "sky", href: "/study-office/departments" },
-            { title: "Faculties", val: dashboardData.facultyCount, icon: Briefcase, color: "cyan", href: "/study-office/faculty" },
-            { title: "Groups", val: dashboardData.groupCount, icon: Group, color: "slate", href: "/study-office/groups" },
+            { title: "Students", val: dashboardData.studentCount, icon: Users, color: "blue", href: "/study-office/students" },
+            { title: "Teachers", val: dashboardData.teacherCount, icon: UserCheck, color: "indigo", href: "/study-office/teacher" },
+            { title: "Courses", val: dashboardData.courseCount, icon: Library, color: "violet", href: "/study-office/courses" },
+            { title: "Groups", val: dashboardData.groupCount, icon: Group, color: "cyan", href: "/study-office/groups" },
+            { title: "Dept", val: dashboardData.departmentCount, icon: Building2, color: "rose", href: "/study-office/departments" },
+            { title: "Faculty", val: dashboardData.facultyCount, icon: Activity, color: "emerald", href: "/study-office/faculty" },
+            { title: "Attendance", val: `${dashboardData.attendanceRate}%`, icon: Clock, color: "orange", href: "/study-office/student-attendance" },
           ].map((stat) => (
-            <motion.div variants={itemVariants} key={stat.title} whileHover={{ y: -3 }}>
-              <Link href={stat.href} prefetch={false} className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-blue-100 hover:shadow-md transition-all">
-                <div>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{stat.title}</p>
-                  <p className="text-xl font-black text-slate-900 leading-none">{stat.val || 0}</p>
+            <motion.div variants={itemVariants} key={stat.title} whileHover={{ y: -2 }}>
+              <Link href={stat.href} className="group flex items-center justify-between p-3.5 bg-white rounded-xl border border-slate-200 shadow-sm hover:border-blue-200 hover:shadow-md transition-all">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5 truncate">{stat.title}</p>
+                  <p className="font-black text-sm text-slate-900 leading-none tracking-tight">
+                    {stat.val || 0}
+                  </p>
                 </div>
-                <div className={`h-10 w-10 rounded-lg bg-${stat.color}-50 text-${stat.color}-600 flex items-center justify-center`}>
-                  <stat.icon size={20} />
+                <div className={`h-8 w-8 rounded-lg bg-${stat.color}-50 text-${stat.color}-600 flex items-center justify-center shrink-0`}>
+                  <stat.icon size={16} />
                 </div>
               </Link>
             </motion.div>
@@ -164,32 +172,39 @@ export default function StudyOfficeDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            {/* Quick Actions */}
+            {/* Academic Controls Grid - Premium Coordination Hub */}
             <motion.section variants={itemVariants} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-lg font-black text-slate-800 tracking-tight">Academic Controls</h3>
-                <TrendingUp size={16} className="text-slate-300" />
+                <h3 className="text-lg font-black text-slate-800 tracking-tight">Academic Management</h3>
+                <div className="h-6 w-6 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100">
+                   <Briefcase size={12} className="text-slate-400" />
+                </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
                 {[
                   { label: "Students", icon: Users, href: "/study-office/students", bg: "bg-blue-50", text: "text-blue-600" },
                   { label: "Teachers", icon: UserCheck, href: "/study-office/teacher", bg: "bg-indigo-50", text: "text-indigo-600" },
                   { label: "Courses", icon: Library, href: "/study-office/courses", bg: "bg-violet-50", text: "text-violet-600" },
                   { label: "Schedules", icon: Calendar, href: "/study-office/schedule", bg: "bg-sky-50", text: "text-sky-600" },
-                  { label: "Performance", icon: TrendingUp, href: "/study-office/student-performance", bg: "bg-cyan-50", text: "text-cyan-600" },
-                  { label: "E-Library", icon: BookOpen, href: "/study-office/e-library", bg: "bg-slate-50", text: "text-slate-600" },
-                  { label: "Analytics", icon: BarChart3, href: "/study-office/reports", bg: "bg-blue-50", text: "text-blue-600" },
+                  { label: "Attendance", icon: Clock, href: "/study-office/student-attendance", bg: "bg-orange-50", text: "text-orange-600" },
+                  { label: "Exams", icon: PenTool, href: "/study-office/exams", bg: "bg-rose-50", text: "text-rose-600" },
+                  { label: "Assignments", icon: Book, href: "/study-office/assignments", bg: "bg-amber-50", text: "text-amber-600" },
+                  { label: "Gradebook", icon: GraduationCap, href: "/study-office/gradebook", bg: "bg-emerald-50", text: "text-emerald-600" },
+                  { label: "Performance", icon: TrendingUp, href: "/study-office/student-performance", bg: "bg-blue-50", text: "text-blue-600" },
+                  { label: "E-Library", icon: BookOpen, href: "/study-office/e-library", bg: "bg-indigo-50", text: "text-indigo-600" },
+                  { label: "Certificates", icon: Award, href: "/study-office/certificate-management", bg: "bg-violet-50", text: "text-violet-600" },
+                  { label: "Analytics", icon: BarChart3, href: "/study-office/course-analytics", bg: "bg-sky-50", text: "text-sky-600" },
                 ].map((action) => (
                   <Link
                     href={action.href}
                     prefetch={false}
                     key={action.label}
-                    className="group flex flex-col items-center gap-2 p-3 rounded-xl border border-slate-50 hover:border-blue-100 hover:bg-slate-50/50 transition-all active:scale-95"
+                    className="group flex flex-col items-center gap-2 p-3 rounded-xl border border-slate-50 hover:border-blue-100 hover:bg-slate-50/50 transition-all active:scale-95 text-center"
                   >
                     <div className={`p-3.5 ${action.bg} ${action.text} rounded-xl group-hover:bg-white transition-all shadow-sm`}>
                       <action.icon size={20} />
                     </div>
-                    <span className="text-[11px] font-bold text-slate-700 text-center tracking-tight leading-none px-1">
+                    <span className="text-[11px] font-bold text-slate-700 tracking-tight leading-none px-1">
                       {action.label}
                     </span>
                   </Link>
@@ -197,33 +212,9 @@ export default function StudyOfficeDashboard() {
               </div>
             </motion.section>
 
-            {/* Pending Tasks Section */}
-            {dashboardData.pendingEnrollments > 0 && (
-              <motion.section variants={itemVariants} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                <div className="flex items-center justify-between mb-4 px-1">
-                  <h3 className="text-lg font-black text-slate-800 tracking-tight">Pending Academic Tasks</h3>
-                  <div className="px-2 py-0.5 bg-amber-50 text-amber-600 text-[10px] font-black rounded-full border border-amber-100">
-                    ACTION REQUIRED
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <Link href="/study-office/enrollment" prefetch={false} className="flex items-center gap-4 p-4 rounded-xl border border-slate-50 hover:bg-slate-50 transition-all group">
-                    <div className="h-10 w-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                      <AlertCircle size={20} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-slate-800 tracking-tight">Pending Enrollments</p>
-                      <p className="text-xs text-slate-500 font-medium truncate">You have {dashboardData.pendingEnrollments} students waiting for course enrollment.</p>
-                    </div>
-                    <ChevronRight size={16} className="text-slate-300 group-hover:text-blue-500 transition-colors" />
-                  </Link>
-                </div>
-              </motion.section>
-            )}
-
             {/* Analytics Chart */}
             <motion.section variants={itemVariants} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-              <h3 className="text-lg font-black text-slate-800 tracking-tight mb-5">Academic Growth</h3>
+              <h3 className="text-lg font-black text-slate-800 tracking-tight mb-5 px-1">University Growth</h3>
               <div className="h-[280px]">
                 <AnalyticsChart data={chartData} />
               </div>
@@ -231,91 +222,114 @@ export default function StudyOfficeDashboard() {
           </div>
 
           <div className="space-y-6">
-            <motion.section variants={itemVariants} className="bg-gradient-to-br from-indigo-700 via-blue-600 to-blue-700 rounded-2xl p-6 text-white shadow-lg shadow-indigo-200/50 relative overflow-hidden">
+            {/* Intelligence Module - High Fidelity Gradient */}
+            <motion.section variants={itemVariants} className="bg-gradient-to-br from-indigo-700 via-blue-600 to-blue-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-200/50 relative overflow-hidden">
               <div className="relative z-10 space-y-4">
                 <div className="flex items-center gap-2">
                   <div className="p-1.5 bg-white/20 backdrop-blur-md rounded-lg">
                     <TrendingUp size={14} className="text-white" />
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-indigo-50">Academic Intelligence</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-indigo-50 leading-none">Academic Intelligence</span>
                 </div>
 
-                <h4 className="text-lg font-black leading-tight">
-                  Academy coordination is overseeing {dashboardData.studentCount} active students.
-                </h4>
-                <p className="text-xs text-indigo-100 font-medium leading-relaxed">
-                  With {dashboardData.courseCount} courses currently active, the academic workflow is operating at full capacity.
-                </p>
-
-                <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <p className="text-[9px] font-black text-indigo-200 uppercase tracking-tighter">Student/Teacher Ratio</p>
-                    <p className="text-sm font-black">
-                      Ratio {(dashboardData.studentCount / (dashboardData.teacherCount || 1)).toFixed(1)} : 1
+                <div className="space-y-3">
+                  <h4 className="text-lg font-black leading-tight">
+                    Academy coordination is overseeing {dashboardData.studentCount} active students.
+                  </h4>
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-black text-indigo-200 uppercase tracking-wider flex items-center gap-1.5 leading-none">
+                      <span className="w-1.5 h-1.5 bg-indigo-300 rounded-full animate-pulse" />
+                      Status: Performance Optimal
+                    </p>
+                    <p className="text-xs text-indigo-50 font-medium leading-relaxed opacity-90">
+                      With {dashboardData.courseCount} active courses, the student-to-teacher ratio is {(dashboardData.studentCount / (dashboardData.teacherCount || 1)).toFixed(1)}:1. System balance optimal.
                     </p>
                   </div>
-                  <Link href="/study-office/reports" prefetch={false} className="h-8 w-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
+                </div>
+
+                <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+                  <div className="flex gap-5">
+                    <div className="text-center">
+                      <p className="text-xs font-black text-white leading-none">{(dashboardData.enrollmentsCount / (dashboardData.studentCount || 1)).toFixed(1)}</p>
+                      <p className="text-[8px] font-bold text-indigo-200 uppercase mt-1 tracking-tighter">Scale</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs font-black text-white leading-none">100%</p>
+                      <p className="text-[8px] font-bold text-indigo-200 uppercase mt-1 tracking-tighter">Sync</p>
+                    </div>
+                  </div>
+                  <Link href="/study-office/course-analytics" className="h-8 w-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
                     <ChevronRight size={16} />
                   </Link>
                 </div>
               </div>
-              <div className="absolute -right-6 -bottom-6 h-32 w-32 bg-white/10 rounded-full blur-2xl" />
+              <div className="absolute -right-6 -bottom-6 h-32 w-32 bg-white/10 rounded-full blur-2xl opacity-60" />
             </motion.section>
 
-            <motion.section variants={itemVariants} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-              <div className="flex items-center justify-between mb-4 px-1">
-                <h3 className="text-sm font-black text-slate-800 tracking-tight uppercase">Academic Activity</h3>
-                <Clock size={14} className="text-slate-300" />
+            {/* Live Academic Stream - Compact Audit Stream */}
+            <motion.section variants={itemVariants} className="bg-white border border-slate-200 rounded-2xl flex flex-col h-[400px] overflow-hidden shadow-sm">
+              <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                <h3 className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Live Academic Stream</h3>
+                <Activity size={16} className="text-rose-500 animate-pulse" />
               </div>
-              <div className="space-y-4">
+              
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
                 {/* Announcements */}
-                {dashboardData.recentAnnouncements?.length > 0 ? (
-                  <div className="space-y-3">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Latest Announcements</p>
-                    {dashboardData.recentAnnouncements.map((ann, idx) => (
-                      <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-50">
-                        <div className="flex items-start gap-2 mb-1">
-                          <MessageSquare size={12} className="text-blue-500 mt-0.5 shrink-0" />
-                          <p className="text-xs font-bold text-slate-800 line-clamp-1">{ann.title}</p>
-                        </div>
-                        <p className="text-[10px] text-slate-500 font-medium ml-5">by {ann.author?.firstName} {ann.author?.lastName}</p>
+                {dashboardData.recentAnnouncements?.map((ann, idx) => (
+                  <div key={`ann-${idx}`} className="flex gap-4 p-3 rounded-xl bg-slate-50/50 hover:bg-white hover:border-slate-100 transition-all group border border-transparent">
+                    <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                      <MessageSquare size={14} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start mb-0.5">
+                        <p className="text-[10px] font-black text-slate-800 truncate uppercase tracking-tight">Announcement</p>
+                        <span className="text-[8px] font-bold text-slate-400">Recently</span>
                       </div>
-                    ))}
+                      <p className="text-[11px] font-bold text-slate-700 leading-tight line-clamp-1">{ann.title}</p>
+                      <p className="text-[9px] text-slate-500 font-medium">by {ann.author?.firstName} {ann.author?.lastName}</p>
+                    </div>
                   </div>
-                ) : null}
+                ))}
 
                 {/* New Courses */}
-                {dashboardData.recentCourses?.length > 0 ? (
-                  <div className="space-y-3 pt-2">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Newly Added Courses</p>
-                    {dashboardData.recentCourses.map((course, idx) => (
-                      <div key={idx} className="flex items-center gap-3 p-2 group">
-                        <div className="h-8 w-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                          <Library size={14} />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-[11px] font-bold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">{course.name}</p>
-                        </div>
-
+                {dashboardData.recentCourses?.map((course, idx) => (
+                  <div key={`course-${idx}`} className="flex gap-4 p-3 rounded-xl bg-indigo-50/30 hover:bg-white hover:border-indigo-100 transition-all group border border-transparent">
+                    <div className="h-8 w-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                      <Library size={14} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start mb-0.5">
+                        <p className="text-[10px] font-black text-indigo-600 truncate uppercase tracking-tight">New Course</p>
+                        <span className="text-[8px] font-bold text-indigo-400 font-black tracking-widest">NEW</span>
                       </div>
-                    ))}
+                      <p className="text-[11px] font-bold text-slate-700 leading-tight line-clamp-1">{course.name}</p>
+                      <p className="text-[9px] text-slate-500 font-medium">Curriculum Added</p>
+                    </div>
                   </div>
-                ) : null}
+                ))}
 
-                {!(dashboardData.recentAnnouncements?.length > 0) && !(dashboardData.recentCourses?.length > 0) && (
-                  <div className="py-8 text-center">
-                    <p className="text-xs font-medium text-slate-400">No recent academic activity.</p>
+                {(!dashboardData.recentAnnouncements?.length && !dashboardData.recentCourses?.length) && (
+                  <div className="flex flex-col items-center justify-center h-full text-slate-300 space-y-2 opacity-50">
+                    <Activity size={24} />
+                    <p className="text-[9px] font-black uppercase tracking-widest">No Stream Data</p>
                   </div>
                 )}
               </div>
+              
+              <div className="p-3 text-center border-t border-slate-50">
+                 <Link href="/study-office/course-analytics" className="text-[9px] font-black text-blue-600 uppercase tracking-widest hover:underline transition-all">
+                    University System Logs
+                 </Link>
+              </div>
             </motion.section>
 
+            {/* Profile Summary Card - Premium User Summary */}
             <motion.section variants={itemVariants} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-center">
-              <div className="h-14 w-14 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-white shadow-sm">
-                <Group size={28} />
+              <div className="h-16 w-16 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-white shadow-sm ring-4 ring-slate-50/50">
+                <Group size={24} />
               </div>
               <h4 className="text-sm font-black text-slate-900 leading-none mb-1">{welcomeName}</h4>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Academic Coordinator</p>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Master Academic Hub</p>
               <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-center gap-6">
                 <div className="text-center">
                   <p className="text-[11px] font-black text-slate-900 leading-none">Global</p>
@@ -323,7 +337,7 @@ export default function StudyOfficeDashboard() {
                 </div>
                 <div className="h-4 w-px bg-slate-100" />
                 <div className="text-center">
-                  <p className="text-[11px] font-black text-slate-900 leading-none">Active</p>
+                  <p className="text-[11px] font-black text-slate-900 leading-none">Primary</p>
                   <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1">Status</p>
                 </div>
               </div>

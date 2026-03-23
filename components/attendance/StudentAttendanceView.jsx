@@ -5,6 +5,7 @@ import StatusMessage from "@/components/StatusMessage";
 import StudentAttendanceControls from "./StudentAttendanceControls";
 import StudentAttendanceList from "./StudentAttendanceList";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import BackButton from "@/components/ui/BackButton";
 import { apiClient } from "@/lib/api";
 import { UserCheck, ShieldAlert, ClipboardCheck } from "lucide-react";
 
@@ -101,21 +102,31 @@ export default function StudentAttendanceView() {
     }
   };
 
+  const STATUS_CFG = {
+    PRESENT: { label: "Present", color: "text-emerald-600", bg: "bg-emerald-600", light: "bg-emerald-50", border: "border-emerald-100", ring: "ring-emerald-500/10" },
+    ABSENT: { label: "Absent", color: "text-rose-600", bg: "bg-rose-600", light: "bg-rose-50", border: "border-rose-100", ring: "ring-rose-500/10" },
+    LATE: { label: "Late", color: "text-amber-600", bg: "bg-amber-600", light: "bg-amber-50", border: "border-amber-100", ring: "ring-amber-500/10" },
+  };
+
+  const handleMarkAll = (status) => {
+    const newAttendance = {};
+    students.forEach((student) => {
+      newAttendance[student.id] = status;
+    });
+    setAttendance(newAttendance);
+  };
+
   const getStatusColor = (status) => {
-    switch (status) {
-      case "PRESENT":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case "ABSENT":
-        return "bg-rose-50 text-rose-700 border-rose-200";
-      case "LATE":
-        return "bg-amber-50 text-amber-700 border-amber-200";
-      default:
-        return "bg-slate-50 text-slate-400 border-slate-200";
-    }
+    if (!status) return "bg-slate-50 text-slate-400 border-slate-200";
+    const cfg = STATUS_CFG[status];
+    return `${cfg.light} ${cfg.color} ${cfg.border}`;
   };
 
   return (
     <div className="space-y-6">
+      <div className="mb-2">
+        <BackButton />
+      </div>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-0.5">
           <h1 className="text-2xl md:text-3xl font-black text-blue-600 tracking-tight flex items-center gap-2">
@@ -161,6 +172,8 @@ export default function StudentAttendanceView() {
           attendance={attendance}
           handleAttendanceChange={handleAttendanceChange}
           getStatusColor={getStatusColor}
+          STATUS_CFG={STATUS_CFG}
+          handleMarkAll={handleMarkAll}
         />
       ) : selectedGroup ? (
         <div className="bg-white rounded-2xl border border-slate-200 border-dashed p-24 text-center">
