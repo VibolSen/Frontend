@@ -66,8 +66,13 @@ export default function StudentCourseDetailView({ courseId, loggedInUser }) {
             <BackButton href="/student/courses" label="Back to My Courses" className="mb-0 border-slate-200 shadow-sm" />
             <div className="space-y-1">
 
-              <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider">
-                {course.courseDepartments?.[0]?.department?.name || "Academic"}
+              <div className="flex items-center gap-2">
+                <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider">
+                  {course.courseDepartments?.[0]?.department?.name || "Academic"}
+                </div>
+                <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-wider">
+                  {course.credits || 3} Credits
+                </div>
               </div>
               <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">
                 {course.name}

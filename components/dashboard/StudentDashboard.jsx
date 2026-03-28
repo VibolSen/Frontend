@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Percent,
   Award,
+  Trophy,
   Megaphone,
   Clock,
   MapPin,
@@ -197,8 +198,9 @@ const StudentDashboard = ({ loggedInUser }) => {
                   { label: "Schedule", icon: Calendar, href: "/student/schedule", color: "text-blue-500", bg: "bg-blue-50" },
                   { label: "Library", icon: Library, href: "/student/e-library", color: "text-indigo-500", bg: "bg-indigo-50" },
                   { label: "Finance", icon: FileText, href: "/student/invoices", color: "text-slate-500", bg: "bg-slate-50" },
-                  { label: "Points", icon: TrendingUp, href: "/student/points", color: "text-violet-500", bg: "bg-violet-50" },
+                  { label: "Merits", icon: Trophy, href: "/student/points", color: "text-violet-500", bg: "bg-violet-50" },
                   { label: "Transcript", icon: ScrollText, href: "/student/transcript", color: "text-emerald-600", bg: "bg-emerald-50" },
+                  { label: "Certificates", icon: Award, href: "/student/certificates", color: "text-amber-600", bg: "bg-amber-50" },
                 ].map((action) => (
                   <Link
                     href={action.href}

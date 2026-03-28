@@ -56,7 +56,7 @@ export default function ManageGroupMembersModal({
             </button>
           </div>
 
-          <div className="p-6 bg-slate-50/50 overflow-y-auto">
+          <div className="flex-1 min-h-0 bg-slate-50/50">
             <ManageGroupMembers
               initialGroup={group}
               allStudents={allStudents}

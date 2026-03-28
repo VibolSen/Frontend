@@ -45,10 +45,10 @@ import { apiClient } from "@/lib/api";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 // ─── Colour Palette ────────────────────────────────────────────────────────
-const CHART_COLORS = ["#06b6d4", "#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
+const CHART_COLORS = ["#4f46e5", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 const GRADE_COLORS = {
   A: "#10b981",
-  B: "#06b6d4",
+  B: "#4f46e5",
   C: "#f59e0b",
   D: "#f97316",
   F: "#ef4444",
@@ -66,15 +66,15 @@ function StatCard({ label, value, sub, icon: Icon, color, trend }) {
   return (
     <motion.div
       whileHover={{ y: -3 }}
-      className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex items-center gap-4 hover:border-cyan-100 hover:shadow-md transition-all"
+      className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm flex items-center gap-4 hover:border-indigo-100 hover:shadow-md transition-all"
     >
       <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
         <Icon size={22} />
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
-        <p className="text-2xl font-black text-slate-900 leading-none mt-1">{value ?? "–"}</p>
-        {sub && <p className="text-[10px] text-slate-400 font-medium mt-0.5">{sub}</p>}
+        <p className="text-sm font-black text-slate-900 leading-none mt-1.5">{value ?? "–"}</p>
+        {sub && <p className="text-[10px] text-slate-400 font-medium mt-1">{sub}</p>}
       </div>
       {trend !== undefined && (
         <div
@@ -173,7 +173,7 @@ export default function StudyOfficeAnalyticsView() {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard label="Total Students" value={data.summary?.totalStudents} icon={Users}
-          color="bg-cyan-50 text-cyan-600" trend={data.summary?.studentGrowth} sub="Active enrolments" />
+          color="bg-indigo-50 text-indigo-600" trend={data.summary?.studentGrowth} sub="Active enrolments" />
         <StatCard label="Avg. GPA" value={data.summary?.avgGpa} icon={Star}
           color="bg-indigo-50 text-indigo-600" sub="Across all courses" trend={data.summary?.gpaChange} />
         <StatCard label="Pass Rate" value={`${data.summary?.passRate}%`} icon={CheckCircle}
@@ -197,7 +197,7 @@ export default function StudyOfficeAnalyticsView() {
               />
               <Bar dataKey="students" radius={[6, 6, 0, 0]}>
                 {data.gradeDistribution?.map((entry, i) => (
-                  <Cell key={i} fill={GRADE_COLORS[entry.grade] || "#06b6d4"} />
+                  <Cell key={i} fill={GRADE_COLORS[entry.grade] || "#4f46e5"} />
                 ))}
               </Bar>
             </BarChart>
@@ -251,7 +251,7 @@ export default function StudyOfficeAnalyticsView() {
               contentStyle={{ borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 12, fontWeight: 600 }}
             />
             <Legend wrapperStyle={{ fontSize: 11, fontWeight: 700 }} />
-            <Line type="monotone" dataKey="avgScore" stroke="#06b6d4" strokeWidth={2.5} dot={{ r: 4, fill: "#06b6d4" }} name="Avg Score" />
+            <Line type="monotone" dataKey="avgScore" stroke="#4f46e5" strokeWidth={2.5} dot={{ r: 4, fill: "#4f46e5" }} name="Avg Score" />
             <Line type="monotone" dataKey="passThreshold" stroke="#e2e8f0" strokeWidth={1.5} strokeDasharray="6 3" dot={false} name="Pass Line (50)" />
           </LineChart>
         </ResponsiveContainer>
@@ -272,14 +272,14 @@ export default function StudyOfficeAnalyticsView() {
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between mb-1">
                     <p className="text-[11px] font-bold text-slate-700 truncate">{course.name}</p>
-                    <span className="text-[11px] font-black text-cyan-600 shrink-0 ml-2">{course.avgScore}%</span>
+                    <span className="text-[11px] font-black text-indigo-600 shrink-0 ml-2">{course.avgScore}%</span>
                   </div>
                   <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${course.avgScore}%` }}
                       transition={{ duration: 1, delay: i * 0.1 }}
-                      className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
+                      className="h-full bg-gradient-to-r from-indigo-500 to-blue-500 rounded-full"
                     />
                   </div>
                 </div>
@@ -296,7 +296,7 @@ export default function StudyOfficeAnalyticsView() {
               <PolarGrid stroke="#e2e8f0" />
               <PolarAngleAxis dataKey="skill" tick={{ fontSize: 10, fontWeight: 700, fill: "#64748b" }} />
               <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9, fill: "#94a3b8" }} />
-              <Radar name="Avg Score" dataKey="score" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.2} />
+              <Radar name="Avg Score" dataKey="score" stroke="#4f46e5" fill="#4f46e5" fillOpacity={0.2} />
             </RadarChart>
           </ResponsiveContainer>
         </div>
@@ -489,10 +489,10 @@ export default function StudyOfficeAnalyticsView() {
         {/* ── Header ────────────────────────────────────────── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-black text-cyan-600 tracking-tight">
+            <h1 className="text-xl md:text-2xl font-black text-indigo-950 tracking-tight">
               Reports & Analytics
             </h1>
-            <p className="text-slate-500 font-medium text-sm mt-0.5">
+            <p className="text-slate-500 font-medium text-[11px] mt-0.5">
               Academic performance insights, attendance trends, and at-risk identification.
             </p>
           </div>
@@ -520,9 +520,9 @@ export default function StudyOfficeAnalyticsView() {
             </select>
             <button
               onClick={handleRefresh}
-              className={`p-2.5 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-cyan-600 hover:border-cyan-200 transition-all shadow-sm ${isRefreshing ? "animate-spin" : ""}`}
+              className={`p-2 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm ${isRefreshing ? "animate-spin" : ""}`}
             >
-              <RefreshCw size={15} />
+              <RefreshCw size={14} />
             </button>
           </div>
         </div>
@@ -538,7 +538,7 @@ export default function StudyOfficeAnalyticsView() {
                   onClick={() => setActiveTab(tab.key)}
                   className={`relative flex items-center gap-2 px-6 py-4 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${
                     activeTab === tab.key
-                      ? "text-cyan-600 bg-cyan-50/40"
+                      ? "text-indigo-600 bg-indigo-50/40"
                       : "text-slate-400 hover:text-slate-700 hover:bg-slate-50"
                   }`}
                 >
@@ -547,7 +547,7 @@ export default function StudyOfficeAnalyticsView() {
                   {activeTab === tab.key && (
                     <motion.div
                       layoutId="analyticsTab"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-600"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600"
                     />
                   )}
                 </button>

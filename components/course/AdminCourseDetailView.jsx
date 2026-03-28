@@ -99,7 +99,7 @@ export default function AdminCourseDetailView({ courseId }) {
         {[
           { label: "Enrolled Students", value: stats.totalStudents, icon: UsersIcon, color: "blue" },
           { label: "Academic Groups", value: stats.totalGroups, icon: LayoutGridIcon, color: "indigo" },
-          { label: "Scheduled Slots", value: stats.totalSchedules, icon: CalendarIcon, color: "emerald" },
+          { label: "Course Credits", value: course.credits || 0, icon: ShieldCheckIcon, color: "rose" },
           { label: "Active Resources", value: course.announcements?.length || 0, icon: LibraryIcon, color: "amber" },
         ].map((metric, i) => (
           <motion.div

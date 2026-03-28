@@ -215,7 +215,7 @@ export default function ScheduleModal({ isOpen, onClose, onSave, schedule, isRea
                             <select id="roomId" name="roomId" value={roomId} onChange={(e) => setRoomId(e.target.value)} className={inputStyle} disabled={isReadOnly}>
                                 <option value="">Select Room</option>
                                 {rooms.map((room) => (
-                                    <option key={room.id} value={room.id}>{room.name} ({room.type} - Cap: {room.capacity})</option>
+                                    <option key={room.id} value={room.id}>{room.name}</option>
                                 ))}
                             </select>
                         </div>

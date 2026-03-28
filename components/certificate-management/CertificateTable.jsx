@@ -32,6 +32,8 @@ export default function CertificateTable({
   onBulkIssueClick,
   role = "admin",
   basePath,
+  canDelete = true,
+  canBulkIssue = true,
 }) {
   const dynamicBasePath = basePath || `/${role}/certificate-management`;
   const renderSortIcon = (field) => {
@@ -77,6 +79,7 @@ export default function CertificateTable({
             <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={12} />
           </div>
 
+          {canBulkIssue && (
           <button
             onClick={onBulkIssueClick}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-200 transition-all active:scale-95 whitespace-nowrap"
@@ -84,6 +87,7 @@ export default function CertificateTable({
             <Group size={14} />
             Group Issue
           </button>
+          )}
         </div>
       </div>
 
@@ -170,6 +174,7 @@ export default function CertificateTable({
                         >
                           <Edit size={14} />
                         </button>
+                        {canDelete && (
                         <button
                           onClick={() => handleDeleteCertificate(cert)}
                           className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
@@ -177,6 +182,7 @@ export default function CertificateTable({
                         >
                           <Trash2 size={14} />
                         </button>
+                        )}
                       </div>
                     </td>
                   </motion.tr>

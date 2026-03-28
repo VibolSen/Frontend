@@ -84,7 +84,7 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
   const handleCloseEditGroupModal = () => setIsEditGroupModalOpen(false);
 
   return (
-    <div className="min-h-screen bg-[#EBF4F6] p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-50/20 p-6 lg:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
 
         {/* Header Section */}

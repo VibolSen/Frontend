@@ -37,12 +37,12 @@ function AddEventModal({ selectedDate, onClose, onSave }) {
   const valid = form.title.trim() && form.startDate && form.endDate;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-indigo-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
         className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-md p-6 space-y-5">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-black text-slate-800">Add Calendar Event</h2>
+            <h2 className="text-base font-black text-indigo-950">Add Calendar Event</h2>
             <p className="text-[10px] text-slate-400 font-medium mt-0.5">{selectedDate || "Select dates below"}</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all">
@@ -194,13 +194,13 @@ export default function AcademicCalendarView() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-black text-indigo-600 tracking-tight">Academic Calendar</h1>
-            <p className="text-slate-500 font-medium text-sm mt-0.5">
+            <h1 className="text-xl md:text-2xl font-black text-indigo-950 tracking-tight">Academic Calendar</h1>
+            <p className="text-slate-500 font-medium text-[11px] mt-0.5">
               Manage exams, enrollment windows, holidays, and key academic dates.
             </p>
           </div>
           <button onClick={() => { setSelectedDate(null); setShowModal(true); }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-[11px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-200 hover:from-indigo-700 hover:to-violet-700 transition-all self-start">
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-200 hover:from-indigo-700 hover:to-violet-700 transition-all self-start">
             <Plus size={14} />Add Event
           </button>
         </div>
@@ -208,7 +208,7 @@ export default function AcademicCalendarView() {
         {/* Event Type Legend / Filter */}
         <div className="flex flex-wrap items-center gap-2">
           <button onClick={() => setFilterType("ALL")}
-            className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${filterType === "ALL" ? "bg-slate-800 text-white border-transparent" : "bg-white text-slate-500 border-slate-200"}`}>
+            className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${filterType === "ALL" ? "bg-indigo-950 text-white border-transparent" : "bg-white text-slate-500 border-slate-200"}`}>
             All
           </button>
           {Object.entries(EVENT_TYPES).map(([key, cfg]) => (

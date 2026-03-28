@@ -126,6 +126,7 @@ export default function CoursesTable({
                 </div>
               </th>
               <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Lecturer</th>
+              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Credits</th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest hidden md:table-cell">Groups</th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
             </tr>
@@ -202,6 +203,11 @@ export default function CoursesTable({
                          <span className="text-[10px] font-bold text-slate-300 italic">No Faculty Lead</span>
                        )}
                     </div>
+                  </td>
+                  <td className="px-5 py-3 whitespace-nowrap text-center hidden md:table-cell">
+                    <span className="px-2 py-0.5 text-[9px] font-black text-amber-700 bg-amber-50 border border-amber-100 rounded uppercase tracking-widest">
+                       {course.credits ?? 3} Credits
+                    </span>
                   </td>
                   <td className="px-5 py-3 whitespace-nowrap text-center hidden md:table-cell">
                     <span className="px-2 py-0.5 text-[9px] font-black text-indigo-700 bg-indigo-50 border border-indigo-100 rounded uppercase tracking-widest">

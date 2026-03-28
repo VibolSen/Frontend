@@ -17,6 +17,7 @@ export default function CourseModal({
   const [formData, setFormData] = useState({
     name: "",
     leadById: "",
+    credits: 3,
   });
   const [errors, setErrors] = useState({});
   const [mounted, setMounted] = useState(false);
@@ -33,11 +34,13 @@ export default function CourseModal({
         setFormData({
           name: courseToEdit.name || "",
           leadById: courseToEdit.leadById || "",
+          credits: courseToEdit.credits || 3,
         });
       } else {
         setFormData({
           name: "",
           leadById: "",
+          credits: 3,
         });
       }
       setErrors({});
@@ -75,7 +78,7 @@ export default function CourseModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-indigo-950/40 backdrop-blur-sm"
           />
 
           <motion.div
@@ -87,11 +90,11 @@ export default function CourseModal({
             <div className="p-5 border-b bg-gradient-to-r from-slate-50 to-white">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <BookOpen className="w-5 h-5 text-blue-600" />
+                  <div className="p-2 bg-indigo-100 rounded-lg">
+                    <BookOpen className="w-5 h-5 text-indigo-600" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-slate-800">
+                    <h2 className="text-base font-black text-indigo-950 tracking-tight">
                       {isEditMode ? "Modify Course" : "Create New Course"}
                     </h2>
                     <p className="text-xs text-slate-500">
@@ -161,6 +164,25 @@ export default function CourseModal({
                     </div>
                   </div>
                 </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 ml-1">
+                    Course Credits
+                  </label>
+                  <input
+                    type="number"
+                    name="credits"
+                    min="1"
+                    max="10"
+                    value={formData.credits}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white"
+                    placeholder="e.g., 3"
+                  />
+                  <p className="text-[10px] text-slate-400 ml-1 italic">
+                    Standard courses are typically 3 credits.
+                  </p>
+                </div>
               </div>
 
               <div className="p-5 bg-slate-50 border-t flex justify-end items-center gap-3">
@@ -175,7 +197,7 @@ export default function CourseModal({
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-200 hover:shadow-xl hover:shadow-blue-300 transition-all duration-200 active:scale-[0.98] disabled:opacity-70"
+                  className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-300 transition-all duration-200 active:scale-[0.98] disabled:opacity-70"
                 >
                   {isLoading ? "Saving..." : isEditMode ? "Update Course" : "Register Course"}
                 </button>

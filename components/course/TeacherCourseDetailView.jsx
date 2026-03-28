@@ -74,8 +74,13 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
             <BackButton href="/teacher/courses" label="Back to Catalog" className="mb-0 border-slate-100" />
             <div className="space-y-2">
 
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest border border-indigo-100">
-                {course.courseDepartments?.[0]?.department?.name || "General Academic"}
+              <div className="flex items-center gap-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest border border-indigo-100">
+                  {course.courseDepartments?.[0]?.department?.name || "General Academic"}
+                </div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-600 text-[10px] font-black uppercase tracking-widest border border-amber-100">
+                  {course.credits || 3} Credits
+                </div>
               </div>
               <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
                 {course.name}
@@ -116,6 +121,15 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
               <div>
                 <p className="text-2xl font-black text-slate-800">{course._count?.announcements || 0}</p>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dispatched Updates</p>
+              </div>
+            </div>
+            <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl flex items-center gap-4 lg:col-span-2">
+              <div className="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center border border-blue-500/20">
+                <Award size={24} />
+              </div>
+              <div>
+                <p className="text-xl font-black text-white">Completion Oversight</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Managed by Study Office</p>
               </div>
             </div>
           </div>

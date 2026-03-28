@@ -96,14 +96,14 @@ function EnrollmentRow({ enrollment, onStatusChange, onDelete, index }) {
       {/* Student */}
       <td className="px-5 py-4">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-100 to-blue-100 flex items-center justify-center shrink-0 border border-cyan-100">
-            <span className="text-[11px] font-black text-cyan-700">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-100 to-blue-100 flex items-center justify-center shrink-0 border border-indigo-100">
+            <span className="text-[11px] font-black text-indigo-700">
               {enrollment.student?.firstName?.[0] || "?"}
               {enrollment.student?.lastName?.[0] || "?"}
             </span>
           </div>
           <div className="min-w-0">
-            <p className="text-[12px] font-bold text-slate-800 truncate">
+            <p className="text-[11px] font-bold text-slate-800 truncate">
               {enrollment.student?.firstName} {enrollment.student?.lastName}
             </p>
             <p className="text-[10px] text-slate-400 font-medium truncate">
@@ -128,12 +128,12 @@ function EnrollmentRow({ enrollment, onStatusChange, onDelete, index }) {
 
       {/* Group / Semester */}
       <td className="px-5 py-4 hidden md:table-cell">
-        <div className="flex flex-col gap-1">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-black rounded-md uppercase tracking-tight w-fit">
+        <div className="flex flex-col gap-0.5">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-slate-100 text-slate-600 text-[9px] font-black rounded uppercase tracking-tight w-fit">
             {enrollment.group?.name || enrollment.groupName || "No Group"}
           </span>
           {enrollment.semester && (
-            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+            <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">
               {enrollment.semester}
             </span>
           )}
@@ -167,7 +167,7 @@ function EnrollmentRow({ enrollment, onStatusChange, onDelete, index }) {
       <td className="px-5 py-4">
         <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
           {isUpdating ? (
-            <LoadingSpinner size="xs" color="blue" />
+            <LoadingSpinner size="xs" color="indigo" />
           ) : (
             <>
               {enrollment.status === "PENDING" && (
@@ -259,7 +259,7 @@ function NewEnrollmentModal({ isOpen, onClose, onSave, students, courses, groups
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-md"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-indigo-950/40 backdrop-blur-md"
         onClick={onClose}
       >
         <motion.div
@@ -271,9 +271,9 @@ function NewEnrollmentModal({ isOpen, onClose, onSave, students, courses, groups
           className="bg-white rounded-2xl shadow-2xl border border-slate-100 w-full max-w-lg overflow-hidden"
         >
           {/* Modal Header */}
-          <div className="px-6 py-5 border-b border-slate-50 bg-gradient-to-r from-cyan-50 to-blue-50">
+          <div className="px-6 py-5 border-b border-slate-50 bg-gradient-to-r from-indigo-50 to-blue-50">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-cyan-600 rounded-xl">
+              <div className="p-2 bg-indigo-600 rounded-xl">
                 <GraduationCap size={16} className="text-white" />
               </div>
               <div>
@@ -357,7 +357,7 @@ function NewEnrollmentModal({ isOpen, onClose, onSave, students, courses, groups
                   placeholder="e.g. 2025-S1"
                   value={form.semester}
                   onChange={(e) => setForm({ ...form, semester: e.target.value })}
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[12px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-cyan-400 transition-all"
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[12px] font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 transition-all"
                 />
               </div>
             </div>
@@ -397,7 +397,7 @@ function NewEnrollmentModal({ isOpen, onClose, onSave, students, courses, groups
               <button
                 type="submit"
                 disabled={isSaving || !form.studentId || !form.courseId}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[11px] font-black uppercase tracking-widest hover:from-cyan-700 hover:to-blue-700 shadow-lg shadow-cyan-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-[11px] font-black uppercase tracking-widest hover:from-indigo-700 hover:to-blue-700 shadow-lg shadow-indigo-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSaving ? <LoadingSpinner size="xs" color="white" /> : <Plus size={13} />}
                 {isSaving ? "Saving..." : "Create Enrollment"}
@@ -541,7 +541,7 @@ export default function EnrollmentManagementView() {
               className={`fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border text-[12px] font-bold ${
                 toast.type === "error"
                   ? "bg-rose-600 text-white border-rose-500"
-                  : "bg-slate-900 text-white border-slate-700"
+                  : "bg-indigo-600 text-white border-indigo-500"
               }`}
             >
               {toast.type === "error" ? (
@@ -557,25 +557,25 @@ export default function EnrollmentManagementView() {
         {/* ── Header ───────────────────────────────────────── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-black text-cyan-600 tracking-tight">
+            <h1 className="text-xl md:text-2xl font-black text-indigo-950 tracking-tight">
               Enrollment Management
             </h1>
-            <p className="text-slate-500 font-medium text-sm mt-0.5">
+            <p className="text-slate-500 font-medium text-[11px] mt-0.5">
               Manage student enrollment requests, approvals, and course registrations.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={fetchEnrollments}
-              className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-cyan-600 hover:border-cyan-200 transition-all shadow-sm"
+              className="p-2 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm"
             >
-              <RefreshCw size={15} />
+              <RefreshCw size={14} />
             </button>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[11px] font-black uppercase tracking-widest rounded-2xl hover:from-cyan-700 hover:to-blue-700 shadow-lg shadow-cyan-200 transition-all active:scale-95"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:from-indigo-700 hover:to-blue-700 shadow-lg shadow-indigo-200 transition-all active:scale-95"
             >
-              <Plus size={15} />
+              <Plus size={14} />
               New Enrollment
             </button>
           </div>
@@ -591,17 +591,17 @@ export default function EnrollmentManagementView() {
             { label: "Dropped", value: stats.dropped, icon: XCircle, color: "text-rose-500", bg: "bg-rose-50" },
           ].map((stat) => (
             <motion.div
-              whileHover={{ y: -2 }}
+              whileHover={{ y: -3 }}
               key={stat.label}
-              className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center gap-3 cursor-pointer hover:border-cyan-100 transition-all"
+              className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-sm flex items-center gap-3 cursor-pointer hover:border-indigo-100 transition-all"
               onClick={() => setActiveTab(stat.label === "Total" ? "ALL" : stat.label.toUpperCase())}
             >
-              <div className={`w-9 h-9 rounded-lg ${stat.bg} ${stat.color} flex items-center justify-center shrink-0`}>
-                <stat.icon size={17} />
+              <div className={`w-8 h-8 rounded-lg ${stat.bg} ${stat.color} flex items-center justify-center shrink-0`}>
+                <stat.icon size={15} />
               </div>
               <div>
-                <p className="text-xl font-black text-slate-900 leading-none">{stat.value}</p>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mt-0.5">{stat.label}</p>
+                <p className="text-sm font-black text-slate-900 leading-none">{stat.value}</p>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">{stat.label}</p>
               </div>
             </motion.div>
           ))}
@@ -617,7 +617,7 @@ export default function EnrollmentManagementView() {
                 onClick={() => setActiveTab(tab)}
                 className={`px-5 py-3.5 text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all relative ${
                   activeTab === tab
-                    ? "text-cyan-600 bg-cyan-50/50"
+                    ? "text-indigo-600 bg-indigo-50/50"
                     : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
                 }`}
               >
@@ -632,7 +632,7 @@ export default function EnrollmentManagementView() {
                 {activeTab === tab && (
                   <motion.div
                     layoutId="enrollmentTabIndicator"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-600"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600"
                   />
                 )}
               </button>

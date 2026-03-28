@@ -93,7 +93,7 @@ export default function RoomsDetailView({ role = "admin" }) {
                 </span>
               </div>
               <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.2em] mt-1">
-                {room.type} • Capacity: {room.capacity} Students
+                Facility Details & Schedule
               </p>
             </div>
           </div>
@@ -104,41 +104,7 @@ export default function RoomsDetailView({ role = "admin" }) {
         {/* Left Column: Details & Resources */}
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-            <div>
-              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <Box size={14} />
-                Available Resources
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {room.resources && room.resources.length > 0 ? (
-                  room.resources.map((res, i) => (
-                    <span key={i} className="px-3 py-1.5 bg-slate-50 text-slate-600 text-[11px] font-black rounded-xl border border-slate-200 flex items-center gap-1.5">
-                      <CheckCircle size={10} className="text-emerald-500" />
-                      {res}
-                    </span>
-                  ))
-                ) : (
-                  <p className="text-xs text-slate-400 italic">No specific resources listed.</p>
-                )}
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-slate-100">
-              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <Layout size={14} />
-                Facility Stats
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100 text-center">
-                  <p className="text-2xl font-black text-blue-600">{room.schedules?.length || 0}</p>
-                  <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Schedules</p>
-                </div>
-                <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 text-center">
-                  <p className="text-2xl font-black text-indigo-600">{room.capacity}</p>
-                  <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Max Seats</p>
-                </div>
-              </div>
-            </div>
+            {/* Resources and Stats sections removed for simplification */}
           </div>
         </div>
 

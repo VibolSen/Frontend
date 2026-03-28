@@ -27,6 +27,43 @@ export default function GroupModal({
 
   const isEditMode = !!groupToEdit;
 
+  // Dynamically extract generations and merge with 'batches' prop for maximum coverage
+  const generations = React.useMemo(() => {
+    const gensMap = new Map();
+    
+    // 1. Start with explicit batches from the prop
+    (batches || []).forEach(b => {
+      gensMap.set(b.id, { 
+        id: b.id, 
+        name: b.name, 
+        department: b.department 
+      });
+    });
+
+    // 2. Supplement with batches found on students
+    (allStudents || []).forEach(s => {
+      if (s.profile?.batchId && !gensMap.has(s.profile.batchId)) {
+        const generationName = s.profile.generation || (s.profile.batch ? s.profile.batch.name : `Gen: ${s.profile.batchId.substring(0,8)}`);
+        gensMap.set(s.profile.batchId, { 
+          id: s.profile.batchId, 
+          name: generationName,
+          department: s.department 
+        }); 
+      }
+    });
+
+    // 3. Fallback: If editing, ensure the CURRENT group's batch is in the list
+    if (isEditMode && groupToEdit?.batchId && !gensMap.has(groupToEdit.batchId)) {
+      gensMap.set(groupToEdit.batchId, {
+        id: groupToEdit.batchId,
+        name: groupToEdit.batch?.name || (groupToEdit.batchId.length > 10 ? `Batch: ${groupToEdit.batchId.substring(0,8)}...` : `Batch: ${groupToEdit.batchId}`),
+        department: groupToEdit.batch?.department
+      });
+    }
+
+    return Array.from(gensMap.values());
+  }, [allStudents, batches, isEditMode, groupToEdit]);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -73,7 +110,7 @@ export default function GroupModal({
   };
 
   // Derive the selected batch object to get its departmentId
-  const selectedBatch = batches.find(b => b.id === formData.batchId) || null;
+  const selectedBatch = generations.find(b => b.id === formData.batchId) || null;
 
   const filteredStudents = allStudents.filter(student => {
     // Must match the generation (batchId on student profile)
@@ -183,7 +220,7 @@ export default function GroupModal({
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm transition-all duration-200 hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white appearance-none"
                   >
                     <option value="">Select Generation</option>
-                    {batches.map((batch) => (
+                    {generations.map((batch) => (
                       <option key={batch.id} value={batch.id}>
                         {batch.name} {batch.department ? `(${batch.department.name})` : ""}
                       </option>

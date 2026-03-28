@@ -19,9 +19,9 @@ const CourseAnalyticsView = ({ loggedInUser }) => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        // Admins see all courses, others see their own
+        // Admins and Study Office see all courses, others see their own
         const url =
-          loggedInUser.role === "ADMIN"
+          (loggedInUser.role === "ADMIN" || loggedInUser.role === "STUDY_OFFICE")
             ? "/courses"
             : `/courses?teacherId=${loggedInUser.id}`;
         const data = await apiClient.get(url);
@@ -74,49 +74,50 @@ const CourseAnalyticsView = ({ loggedInUser }) => {
   const selectedCourse = courseData?.course;
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <h1 className="text-3xl font-bold text-slate-800">Course Management</h1>
-      <p className="text-slate-500">
-        Dive into the performance, engagement metrics and announcements for your courses.
-      </p>
-
-      <div className="bg-white p-4 rounded-xl shadow-md top-0 z-10">
-        <label
-          htmlFor="course-selector"
-          className="block text-sm font-medium text-slate-700 mb-1"
-        >
-          Select a Course
-        </label>
-        <select
-          id="course-selector"
-          value={selectedCourseId || ""}
-          onChange={handleCourseChange}
-          disabled={loading && !courseData} // Disable while initial courses load
-          className="w-full sm:max-w-md px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
-        >
-          {courses.length > 0 ? (
-            courses.map((course) => (
-              <option key={course.id} value={course.id}>
-                {course.name}
-              </option>
-            ))
-          ) : (
-            <option disabled>
-              {loading ? "Loading courses..." : "No courses assigned to you"}
-            </option>
-          )}
-        </select>
+    <div className="space-y-6 animate-fade-in max-w-6xl mx-auto pb-20">
+      <div className="space-y-2">
+        <h1 className="text-2xl md:text-3xl font-black text-indigo-950 tracking-tight">
+          Course <span className="text-indigo-600">Analytics</span>
+        </h1>
+        <p className="text-[11px] font-medium text-slate-500 mt-0.5 max-w-xl leading-relaxed">
+          Dive into the performance, engagement metrics and announcements for your designated workspace.
+        </p>
       </div>
 
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+      <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-4 z-20">
+        <div className="flex-1 w-full max-w-md relative">
+          <label htmlFor="course-selector" className="absolute -top-2 left-3 bg-white px-1.5 text-[9px] font-black uppercase tracking-widest text-slate-400 shadow-sm rounded">
+            Active Workspace
+          </label>
+          <select
+            id="course-selector"
+            value={selectedCourseId || ""}
+            onChange={handleCourseChange}
+            disabled={loading && !courseData}
+            className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-50"
+          >
+            {courses.length > 0 ? (
+              courses.map((course) => (
+                <option key={course.id} value={course.id}>
+                  {course.name}
+                </option>
+              ))
+            ) : (
+              <option disabled>
+                {loading ? "Loading courses..." : "No courses assigned to you"}
+              </option>
+            )}
+          </select>
+        </div>
+
+        <nav className="flex space-x-2 bg-slate-50 p-1.5 rounded-xl border border-slate-100" aria-label="Tabs">
           <button
             onClick={() => setActiveTab('analytics')}
             className={`${
               activeTab === 'analytics'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                ? 'bg-white text-indigo-600 shadow-sm border-slate-200'
+                : 'text-slate-500 hover:text-slate-700 border-transparent hover:bg-slate-100'
+            } px-5 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border`}
           >
             Analytics
           </button>
@@ -124,9 +125,9 @@ const CourseAnalyticsView = ({ loggedInUser }) => {
             onClick={() => setActiveTab('announcements')}
             className={`${
               activeTab === 'announcements'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                ? 'bg-white text-indigo-600 shadow-sm border-slate-200'
+                : 'text-slate-500 hover:text-slate-700 border-transparent hover:bg-slate-100'
+            } px-5 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border`}
           >
             Announcements
           </button>
@@ -134,115 +135,88 @@ const CourseAnalyticsView = ({ loggedInUser }) => {
       </div>
 
       {loading && (
-        <div className="flex flex-col justify-center items-center h-64 gap-3">
-          <LoadingSpinner size="lg" color="blue" />
-          <span className="text-slate-500 font-medium animate-pulse">Gathering insights...</span>
+        <div className="flex flex-col justify-center items-center h-64 gap-3 bg-white rounded-3xl border border-slate-200">
+          <LoadingSpinner size="lg" color="indigo" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 animate-pulse">Gathering insights...</span>
         </div>
       )}
 
       {!loading && error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded text-center">
-          <h3 className="font-bold">An Error Occurred</h3>
-          <p>{error}</p>
+        <div className="bg-rose-50 border border-rose-200 text-rose-700 px-6 py-5 rounded-2xl">
+          <h3 className="text-xs font-black uppercase tracking-widest">System Error</h3>
+          <p className="text-sm font-medium mt-1">{error}</p>
         </div>
       )}
 
       {!loading && !error && !selectedCourseId && (
-         <div className="text-center py-20 bg-white rounded-xl shadow-md">
-           <h3 className="mt-2 text-sm font-semibold text-slate-900">
+         <div className="text-center py-20 bg-slate-50 rounded-3xl border border-slate-200 border-dashed">
+           <h3 className="mt-2 text-sm font-black text-slate-400 uppercase tracking-widest">
              No courses found
            </h3>
-           <p className="mt-1 text-sm text-slate-500">
-             You are not currently assigned to any courses.
-           </p>
          </div>
       )}
 
       {!loading && !error && selectedCourseId && activeTab === 'analytics' && !courseData && (
-        <div className="text-center py-20 bg-white rounded-xl shadow-md">
-          <h3 className="mt-2 text-sm font-semibold text-slate-900">
+        <div className="text-center py-20 bg-slate-50 rounded-3xl border border-slate-200 border-dashed">
+          <h3 className="mt-2 text-sm font-black text-slate-400 uppercase tracking-widest">
             Select a course
           </h3>
-          <p className="mt-1 text-sm text-slate-500">
-            Please choose a course from the dropdown to view its analytics.
-          </p>
         </div>
       )}
 
-
       {activeTab === 'analytics' && !loading && !error && courseData && (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <DashboardCard
-              title="Enrolled Students"
-              value={(courseData.enrolledStudents?.length || 0).toString()}
-              icon={<Users className="w-6 h-6 text-blue-500" />}
-              subtitle="Total students enrolled"
-            />
-            <DashboardCard
-              title="Completion Rate"
-              value={`${courseData.completionRate || 0}%`}
-              icon={<BarChart3 className="w-6 h-6 text-green-500" />}
-              subtitle="Based on progress"
-            />
-          </div>
+        <div className="bg-gradient-to-br from-indigo-950 to-slate-900 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden">
+             <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl pointer-events-none" />
+             <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-48 h-48 bg-indigo-500 opacity-20 rounded-full blur-3xl pointer-events-none" />
+             
+             <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+               
+               <div className="space-y-6">
+                 <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
+                   <BarChart3 className="text-indigo-400" size={20} /> Platform Analytics
+                 </h2>
+                 <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 hover:-translate-y-1 transition-transform shadow-xl">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-1">Enrolled</p>
+                      <p className="text-4xl font-black tabular-nums">{courseData.enrolledStudents?.length || 0}</p>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 hover:-translate-y-1 transition-transform shadow-xl">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-1">Completion</p>
+                      <p className="text-4xl font-black tabular-nums text-emerald-400">{courseData.completionRate || 0}%</p>
+                    </div>
+                 </div>
+               </div>
 
-          {/* Additional Analytics Section */}
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-xl font-semibold mb-4 text-slate-800">
-              Course Overview
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-lg font-medium text-slate-700 mb-3">
-                  Course Details
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Course Title:</span>
-                    <span className="font-medium">{selectedCourse?.name || "N/A"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Department:</span>
-                    <span className="font-medium">
-                      {selectedCourse?.courseDepartments?.[0]?.department?.name || "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Instructor:</span>
-                    <span className="font-medium">
-                      {selectedCourse?.leadBy ? `${selectedCourse.leadBy.firstName} ${selectedCourse.leadBy.lastName}` : "N/A"}
-                    </span>
-                  </div>
+                <div className="space-y-6">
+                 <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
+                   <Users className="text-indigo-400" size={20} /> Metadata Registry
+                 </h2>
+                 <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 space-y-5 shadow-xl">
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Course Identifier</p>
+                      <p className="text-sm font-bold text-white mt-1 leading-tight">{selectedCourse?.name || "N/A"}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Department</p>
+                        <p className="text-xs font-bold text-slate-200 mt-1">{selectedCourse?.courseDepartments?.[0]?.department?.name || "N/A"}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Instructor</p>
+                        <p className="text-xs font-bold text-indigo-200 mt-1">{selectedCourse?.leadBy ? `${selectedCourse.leadBy.firstName} ${selectedCourse.leadBy.lastName}` : "N/A"}</p>
+                      </div>
+                    </div>
+                 </div>
                 </div>
-              </div>
 
-              <div>
-                <h3 className="text-lg font-medium text-slate-700 mb-3">
-                  Performance Metrics
-                </h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Students Enrolled:</span>
-                    <span className="font-medium">
-                      {courseData.enrolledStudents?.length || 0}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Completion Rate:</span>
-                    <span className="font-medium">
-                      {courseData.completionRate || 0}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+             </div>
           </div>
-        </>
       )}
 
       {activeTab === 'announcements' && selectedCourseId && (
-        <AnnouncementsView courseId={selectedCourseId} loggedInUser={loggedInUser} />
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+           <AnnouncementsView courseId={selectedCourseId} loggedInUser={loggedInUser} />
+        </div>
       )}
     </div>
   );

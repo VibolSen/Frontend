@@ -155,9 +155,6 @@ export default function ScheduleDetailView({ isOpen, onClose, schedule }) {
                         <p className="text-sm font-semibold text-slate-700">
                           {schedule.room?.name || schedule.location || 'Not Specified'}
                         </p>
-                        {schedule.room && (
-                          <p className="text-xs text-slate-500 mt-0.5">{schedule.room.type} • Cap: {schedule.room.capacity}</p>
-                        )}
                       </div>
                     </div>
 

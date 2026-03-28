@@ -111,6 +111,7 @@ const STUDY_OFFICE_NAV_GROUPS = [
       { label: "Assignments", icon: <ClipboardList />, href: "/study-office/assignments" },
       { label: "Exams", icon: <FileText />, href: "/study-office/exams" },
       { label: "Certificates", icon: <Award />, href: "/study-office/certificate-management" },
+      { label: "Degree & Graduation", icon: <GraduationCap />, href: "/study-office/degree-management" },
       { label: "E-Library", icon: <BookOpen />, href: "/study-office/e-library" },
     ]
   },

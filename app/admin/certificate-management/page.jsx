@@ -6,6 +6,8 @@ import BulkCertificateModal from '@/components/certificate-management/BulkCertif
 import CertificateTable from '@/components/certificate-management/CertificateTable';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
 import { apiClient } from '@/lib/api';
+import { Award, BookOpen, Activity, Play } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 import {
   Dialog,
@@ -197,17 +199,60 @@ const CertificateManagementPage = () => {
       });
     
       return (
-      <div className="space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-0.5">
-            <h1 className="text-2xl md:text-3xl font-black text-blue-600 tracking-tight">
-              Institutional Certificates
-            </h1>
-            <p className="text-slate-500 font-medium text-sm">
-              Issue academic credentials, manage student certifications, and oversee professional qualifications.
+      <div className="space-y-6 max-w-6xl mx-auto p-4 md:p-6 lg:p-8">
+        {/* Dynamic Header Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 bg-gradient-to-br from-indigo-600 to-blue-700 p-8 md:p-10 rounded-[2rem] shadow-2xl border border-white/20 relative overflow-hidden"
+        >
+          {/* Decorative Backgrounds */}
+          <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-48 h-48 bg-indigo-400 opacity-20 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="space-y-4 relative z-10">
+            <div className="flex items-center gap-4">
+              <div className="p-3.5 bg-white/10 rounded-2xl backdrop-blur-md border border-white/20 shadow-2xl hover:-translate-y-1 transition-transform duration-300">
+                <Award className="w-8 h-8 md:w-10 md:h-10 text-white" strokeWidth={1.5} />
+              </div>
+              <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight drop-shadow-sm">
+                Certificates
+              </h1>
+            </div>
+            <p className="text-blue-100 font-medium text-sm md:text-lg max-w-xl leading-relaxed">
+              Dynamically oversee academic credentials and professional qualifications across the institution.
             </p>
           </div>
-        </div>
+
+          <div className="flex items-center gap-4 relative z-10 w-full lg:w-auto">
+             <motion.div 
+                whileHover={{ y: -4 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white/10 backdrop-blur-md px-6 py-5 rounded-2xl border border-white/20 flex-1 lg:flex-none shadow-2xl transition-all"
+             >
+                <div className="flex items-center gap-2 mb-2">
+                   <Activity className="w-4 h-4 text-blue-200" />
+                   <p className="text-[10px] font-black uppercase tracking-widest text-blue-200">Total Issued</p>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-4xl md:text-5xl font-black text-white tabular-nums tracking-tight">{certificates.length}</p>
+                </div>
+             </motion.div>
+             <motion.div 
+                whileHover={{ y: -4 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white/10 backdrop-blur-md px-6 py-5 rounded-2xl border border-white/20 flex-1 lg:flex-none shadow-2xl transition-all"
+             >
+                <div className="flex items-center gap-2 mb-2">
+                   <BookOpen className="w-4 h-4 text-blue-200" />
+                   <p className="text-[10px] font-black uppercase tracking-widest text-blue-200">Programs</p>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-4xl md:text-5xl font-black text-white tabular-nums tracking-tight">{courses.length}</p>
+                </div>
+             </motion.div>
+          </div>
+        </motion.div>
 
           <CertificateModal
             isOpen={showForm}

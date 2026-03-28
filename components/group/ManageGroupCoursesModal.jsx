@@ -56,7 +56,7 @@ export default function ManageGroupCoursesModal({
             </button>
           </div>
 
-          <div className="p-8 pt-4">
+          <div className="flex-1 min-h-0">
             <ManageGroupCourses
               initialGroup={group}
               allCourses={allCourses}

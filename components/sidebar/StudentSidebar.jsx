@@ -19,7 +19,8 @@ import {
   DollarSign,
   LogOut,
   GraduationCap,
-  Users
+  Users,
+  Trophy
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useUser } from "@/context/UserContext";
@@ -103,7 +104,7 @@ const STUDENT_NAV_GROUPS = [
     items: [
       { label: "My Transcript", icon: <ScrollText />, href: "/student/transcript" },
       { label: "Certificates", icon: <Award />, href: "/student/certificates" },
-      { label: "My Points", icon: <Award />, href: "/student/points" },
+      { label: "Merit Standings", icon: <Trophy />, href: "/student/points" },
     ]
   },
   {

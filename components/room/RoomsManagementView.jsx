@@ -16,9 +16,6 @@ export default function RoomsManagementView() {
   // Form State
   const [formData, setFormData] = useState({
     name: "",
-    capacity: 30,
-    type: "CLASSROOM",
-    resources: "", // Comma separated string for input
   });
 
   const [itemToDelete, setItemToDelete] = useState(null);
@@ -42,7 +39,7 @@ export default function RoomsManagementView() {
 
   const handleCreateClick = () => {
     setEditingRoom(null);
-    setFormData({ name: "", capacity: 30, type: "CLASSROOM", resources: "" });
+    setFormData({ name: "" });
     setIsModalOpen(true);
   };
 
@@ -50,9 +47,6 @@ export default function RoomsManagementView() {
     setEditingRoom(room);
     setFormData({
       name: room.name,
-      capacity: room.capacity,
-      type: room.type,
-      resources: room.resources ? room.resources.join(", ") : "",
     });
     setIsModalOpen(true);
   };
@@ -81,7 +75,6 @@ export default function RoomsManagementView() {
 
     const payload = {
         ...formData,
-        resources: formData.resources.split(",").map(s => s.trim()).filter(Boolean)
     };
 
     try {
@@ -104,7 +97,7 @@ export default function RoomsManagementView() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black text-blue-600 tracking-tight">
+          <h1 className="text-xl md:text-2xl font-black text-indigo-950 tracking-tight">
             Campus Facilities
           </h1>
           <p className="text-slate-500 font-medium text-sm">
@@ -113,7 +106,7 @@ export default function RoomsManagementView() {
         </div>
         <button
           onClick={handleCreateClick}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-200 transition-all active:scale-95"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:from-indigo-700 hover:to-blue-700 shadow-lg shadow-indigo-200 transition-all active:scale-95"
         >
           <Plus size={14} />
           Add Facility
@@ -135,8 +128,7 @@ export default function RoomsManagementView() {
                         <MapPin size={18} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-slate-800">{room.name}</h3>
-                        <p className="text-xs text-slate-500 font-medium">{room.type}</p>
+                        <h3 className="text-sm font-black text-indigo-950 tracking-tight">{room.name}</h3>
                     </div>
                 </div>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -152,21 +144,7 @@ export default function RoomsManagementView() {
                 </div>
             </div>
             
-            <div className="space-y-2 mt-4">
-                <div className="flex justify-between text-xs">
-                    <span className="text-slate-500 font-medium">Capacity</span>
-                    <span className="font-bold text-slate-700">{room.capacity} Students</span>
-                </div>
-                {room.resources && room.resources.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                        {room.resources.map((res, i) => (
-                            <span key={i} className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-semibold rounded-md border border-slate-200">
-                                {res}
-                            </span>
-                        ))}
-                    </div>
-                )}
-            </div>
+            {/* Room stats removed for simplification */}
             <div className="mt-4 pt-4 border-t border-slate-50 flex justify-end">
                 <Link 
                     href={`/study-office/rooms/${room.id}`}
@@ -189,15 +167,15 @@ export default function RoomsManagementView() {
       {/* Modal */}
       <AnimatePresence>
         {isModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-indigo-950/40 backdrop-blur-sm">
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
                 >
-                    <div className="p-5 border-b bg-gray-50">
-                        <h3 className="font-bold text-gray-800">
+                    <div className="px-5 py-4 border-b bg-gradient-to-r from-indigo-50 to-blue-50">
+                        <h3 className="text-base font-black text-indigo-950 tracking-tight">
                             {editingRoom ? "Edit Facility" : "Add New Facility"}
                         </h3>
                     </div>
@@ -213,40 +191,7 @@ export default function RoomsManagementView() {
                                 placeholder="e.g. Room 304"
                             />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">Type</label>
-                                <select 
-                                    value={formData.type}
-                                    onChange={e => setFormData({...formData, type: e.target.value})}
-                                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                >
-                                    <option value="CLASSROOM">Classroom</option>
-                                    <option value="LAB">Computer Lab</option>
-                                    <option value="AUDITORIUM">Auditorium</option>
-                                    <option value="MEETING_ROOM">Meeting Room</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1">Capacity</label>
-                                <input 
-                                    type="number" 
-                                    value={formData.capacity} 
-                                    onChange={e => setFormData({...formData, capacity: e.target.value})}
-                                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                />
-                            </div>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1">Resources (Comma separated)</label>
-                            <input 
-                                type="text" 
-                                value={formData.resources} 
-                                onChange={e => setFormData({...formData, resources: e.target.value})}
-                                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                placeholder="e.g. Projector, Whiteboard, AC"
-                            />
-                        </div>
+                        {/* Simplified form: Name only */}
 
                         <div className="flex justify-end gap-2 pt-4">
                             <button 
@@ -259,7 +204,7 @@ export default function RoomsManagementView() {
                             <button 
                                 type="submit" 
                                 disabled={isLoading}
-                                className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-lg shadow-blue-200"
+                                className="px-5 py-2 text-[10px] font-black uppercase tracking-widest text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 rounded-xl transition-all shadow-lg shadow-indigo-100"
                             >
                                 {isLoading ? "Saving..." : "Save Facility"}
                             </button>

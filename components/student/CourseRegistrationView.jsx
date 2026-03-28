@@ -349,9 +349,9 @@ const MOCK_COURSES = [
   { id: "c1", name: "Web Development", code: "CS303", credits: 3, department: "Computer Science", capacity: 40, enrolled: 32, description: "Build modern full-stack web apps with React and Node.js." },
   { id: "c2", name: "Machine Learning", code: "CS402", credits: 3, department: "Computer Science", capacity: 30, enrolled: 28, description: "Fundamentals of supervised and unsupervised learning algorithms." },
   { id: "c3", name: "Database Systems", code: "CS301", credits: 4, department: "Computer Science", capacity: 45, enrolled: 20, description: "Relational databases, SQL, indexing, and transactions." },
-  { id: "c4", name: "Financial Accounting", code: "BA201", credits: 3, department: "Business Admin", capacity: 50, enrolled: 40, description: "Principles of financial recording and reporting." },
-  { id: "c5", name: "Marketing Management", code: "BA301", credits: 3, department: "Business Admin", capacity: 45, enrolled: 30, description: "Strategic marketing principles and consumer behavior." },
-  { id: "c6", name: "Structural Analysis", code: "ENG201", credits: 4, department: "Engineering", capacity: 35, enrolled: 22, description: "Analysis and design of structural systems." },
+  { id: "c4", name: "Financial Accounting", code: "BA201", credits: 2, department: "Business Admin", capacity: 50, enrolled: 40, description: "Principles of financial recording and reporting." },
+  { id: "c5", name: "Marketing Management", code: "BA301", credits: 2, department: "Business Admin", capacity: 45, enrolled: 30, description: "Strategic marketing principles and consumer behavior." },
+  { id: "c6", name: "Structural Analysis", code: "ENG201", credits: 5, department: "Engineering", capacity: 35, enrolled: 22, description: "Analysis and design of structural systems." },
   { id: "c7", name: "Algorithms", code: "CS302", credits: 4, department: "Computer Science", capacity: 40, enrolled: 36, description: "Design and analysis of computational algorithms." },
   { id: "c8", name: "Mobile Development", code: "CS403", credits: 3, department: "Computer Science", capacity: 30, enrolled: 18, description: "Develop native and cross-platform mobile applications." },
 ];

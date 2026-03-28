@@ -39,6 +39,17 @@ function getStanding(gpa) {
   return { label: "Academic Suspension", color: "text-rose-600", icon: Shield };
 }
 
+function getLetterGrade(score) {
+  if (score >= 90) return "A";
+  if (score >= 85) return "B+";
+  if (score >= 80) return "B";
+  if (score >= 75) return "C+";
+  if (score >= 70) return "C";
+  if (score >= 65) return "D+";
+  if (score >= 60) return "D";
+  return "F";
+}
+
 // ─── Semester Section Component ───────────────────────────────────────────
 function SemesterSection({ semester, index }) {
   const [isExpanded, setIsExpanded] = useState(index === 0);
@@ -186,10 +197,29 @@ export default function AcademicTranscriptView() {
   const fetchTranscript = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await apiClient.get(`/students/transcript?studentId=${user?.id}`);
-      setTranscriptData(data);
+      const eligibility = await apiClient.get(`/certifications/eligibility/${user?.id}`);
+      
+      const mappedSemesters = eligibility.yearlyProgress.map((yearProgress) => {
+        return {
+          id: yearProgress.yearLabel,
+          name: yearProgress.yearLabel.replace("_", " "),
+          shortName: yearProgress.yearLabel,
+          courses: yearProgress.courses.map((c) => ({
+            credits: c.credits || 3, 
+            midterm: "-", 
+            final: "-",
+            grade: c.finalGrade !== null && c.finalGrade !== undefined ? getLetterGrade(c.finalGrade) : null,
+          })),
+        };
+      });
+
+      setTranscriptData({
+        program: `Batch: ${eligibility.student.batch}`,
+        department: "Academic Department",
+        semesters: mappedSemesters,
+      });
     } catch {
-      setTranscriptData(MOCK_TRANSCRIPT);
+      setTranscriptData({ semesters: [] });
     } finally {
       setIsLoading(false);
     }
@@ -398,54 +428,3 @@ export default function AcademicTranscriptView() {
   );
 }
 
-// ─── Mock Data ─────────────────────────────────────────────────────────────
-const MOCK_TRANSCRIPT = {
-  program: "Bachelor of Computer Science",
-  department: "Faculty of Engineering & Technology",
-  semesters: [
-    {
-      id: 1,
-      name: "Semester 1 — 2023",
-      shortName: "2023-S1",
-      courses: [
-        { name: "Introduction to Programming", code: "CS101", credits: 3, midterm: 78, final: 82, grade: "B+", teacher: "Dr. Sophea Lim" },
-        { name: "Mathematics for CS", code: "MATH101", credits: 4, midterm: 85, final: 88, grade: "A-", teacher: "Prof. Dara Kim" },
-        { name: "English Communication", code: "ENG101", credits: 2, midterm: 90, final: 92, grade: "A", teacher: "Ms. Pisey Chan" },
-        { name: "Digital Logic", code: "CS102", credits: 3, midterm: 70, final: 74, grade: "B", teacher: "Dr. Vibol Pich" },
-      ],
-    },
-    {
-      id: 2,
-      name: "Semester 2 — 2023",
-      shortName: "2023-S2",
-      courses: [
-        { name: "Data Structures", code: "CS201", credits: 4, midterm: 80, final: 84, grade: "A-", teacher: "Dr. Sophea Lim" },
-        { name: "Discrete Mathematics", code: "MATH201", credits: 3, midterm: 72, final: 68, grade: "B-", teacher: "Prof. Dara Kim" },
-        { name: "Object-Oriented Programming", code: "CS202", credits: 3, midterm: 88, final: 90, grade: "A", teacher: "Mr. Kosal Tep" },
-        { name: "Computer Networks Basics", code: "CS203", credits: 3, midterm: 65, final: 60, grade: "C+", teacher: "Dr. Mealea Sok" },
-      ],
-    },
-    {
-      id: 3,
-      name: "Semester 1 — 2024",
-      shortName: "2024-S1",
-      courses: [
-        { name: "Database Systems", code: "CS301", credits: 4, midterm: 84, final: 87, grade: "A-", teacher: "Dr. Vibol Pich" },
-        { name: "Algorithms", code: "CS302", credits: 4, midterm: 76, final: 80, grade: "B+", teacher: "Dr. Sophea Lim" },
-        { name: "Web Development", code: "CS303", credits: 3, midterm: 91, final: 94, grade: "A+", teacher: "Mr. Kosal Tep" },
-        { name: "Operating Systems", code: "CS304", credits: 3, midterm: 70, final: 73, grade: "B", teacher: "Dr. Mealea Sok" },
-      ],
-    },
-    {
-      id: 4,
-      name: "Semester 2 — 2024",
-      shortName: "2024-S2",
-      courses: [
-        { name: "Software Engineering", code: "CS401", credits: 4, midterm: 88, final: 90, grade: "A", teacher: "Dr. Sophea Lim" },
-        { name: "Machine Learning", code: "CS402", credits: 3, midterm: 82, final: 85, grade: "A-", teacher: "Prof. Rithya Heng" },
-        { name: "Mobile Development", code: "CS403", credits: 3, midterm: 79, final: 83, grade: "B+", teacher: "Mr. Kosal Tep" },
-        { name: "Final Year Project I", code: "CS490", credits: 4, midterm: 85, final: 87, grade: "A-", teacher: "Dr. Vibol Pich" },
-      ],
-    },
-  ],
-};
