@@ -187,7 +187,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
       />
 
       <aside
-        className={`bg-[#EBF4F6] border-r border-slate-200 text-slate-800 flex flex-col fixed md:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-40 h-full
+        className={`bg-white border-r border-slate-200 text-slate-800 flex flex-col fixed md:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-40 h-full
           ${isOpen ? "w-72" : "w-20"} overflow-hidden shadow-xl`}
       >
         {/* Decorative Background Elements */}
@@ -279,7 +279,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }) {
         </nav>
 
         {/* User Profile Summary */}
-        <div className="p-4 border-t border-slate-200 relative z-10 bg-white/50 backdrop-blur-md">
+        <div className="p-4 border-t border-slate-200 relative z-10 bg-white">
           <div className={`flex items-center gap-3 p-2 rounded-2xl transition-all ${isCollapsed ? "justify-center" : "bg-white border border-slate-100 shadow-sm"}`}>
             <div className="relative shrink-0">
               <img

@@ -127,8 +127,8 @@ export default function CertificateDetailView() {
           {/* Institution Header */}
           <div className="flex flex-col items-center gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="h-10 w-10 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-xl flex items-center justify-center shadow-md shadow-indigo-200">
-                <Building2 size={18} className="text-white" />
+              <div className="h-14 flex items-center justify-center">
+                <img src="/logo/STEP.png" alt="STEP Academy Logo" className="h-full w-auto object-contain drop-shadow-sm" />
               </div>
               <div className="text-left">
                 <p className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-600">

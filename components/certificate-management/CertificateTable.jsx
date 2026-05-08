@@ -2,8 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ChevronUp, ChevronDown, Eye, Edit, Trash2, Search, Filter, Group, Award } from "lucide-react";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { ChevronUp, ChevronDown, Eye, Edit, Trash2, Award, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SortIndicator = ({ direction }) => {
@@ -23,19 +22,13 @@ export default function CertificateTable({
   sortField,
   sortOrder,
   handleSort,
-  searchTerm,
-  setSearchTerm,
-  filterCourse,
-  setFilterCourse,
-  courses,
   isLoading,
-  onBulkIssueClick,
   role = "admin",
   basePath,
   canDelete = true,
-  canBulkIssue = true,
 }) {
   const dynamicBasePath = basePath || `/${role}/certificate-management`;
+  
   const renderSortIcon = (field) => {
     if (sortField === field) {
       return <SortIndicator direction={sortOrder} />;
@@ -44,144 +37,130 @@ export default function CertificateTable({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all">
-      <div className="p-4 border-b border-slate-100 bg-blue-50/30 flex flex-col md:flex-row justify-between items-center gap-3">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-1 bg-indigo-600 rounded-full" />
-          <h2 className="text-sm font-black text-slate-800 uppercase tracking-tight">Credential Registry</h2>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          <div className="relative group flex-1 md:w-48">
-            <input
-              type="text"
-              placeholder="Find recipient..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-black uppercase tracking-tight focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700 hover:border-slate-300 shadow-sm appearance-none"
-            />
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-blue-600 transition-colors" size={12} />
-          </div>
-          
-          <div className="relative group flex-1 md:w-48">
-             <select
-              value={filterCourse}
-              onChange={(e) => setFilterCourse(e.target.value)}
-              className="w-full pl-8 pr-8 py-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-black uppercase tracking-tight focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700 hover:border-slate-300 shadow-sm appearance-none cursor-pointer"
-            >
-              <option value="">All Courses</option>
-              {courses.map((course) => (
-                <option key={course.id} value={course.id}>
-                  {course.name}
-                </option>
-              ))}
-            </select>
-            <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-blue-600 transition-colors" size={12} />
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={12} />
-          </div>
-
-          {canBulkIssue && (
-          <button
-            onClick={onBulkIssueClick}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-200 transition-all active:scale-95 whitespace-nowrap"
-          >
-            <Group size={14} />
-            Group Issue
-          </button>
-          )}
-        </div>
-      </div>
-
+    <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead className="bg-slate-50/50 border-b border-slate-100">
             <tr>
               <th
-                className="px-5 py-3 text-left cursor-pointer group hover:bg-slate-100/50 transition-colors"
+                className="px-6 py-4 text-left cursor-pointer group hover:bg-slate-100/50 transition-colors"
                 onClick={() => handleSort("recipient")}
               >
-                <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                   Recipient Identity {renderSortIcon("recipient")}
                 </div>
               </th>
               <th
-                className="px-5 py-3 text-left cursor-pointer group hover:bg-slate-100/50 transition-colors"
+                className="px-6 py-4 text-left cursor-pointer group hover:bg-slate-100/50 transition-colors"
                 onClick={() => handleSort("course")}
               >
-                <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  Course Metadata {renderSortIcon("course")}
+                <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  Academic Program {renderSortIcon("course")}
                 </div>
               </th>
-              <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Administrative Control</th>
+              <th className="px-6 py-4 text-left">
+                <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  Issue Date
+                </div>
+              </th>
+              <th className="px-6 py-4 text-right">
+                <div className="inline-flex items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                  Administrative Control
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
             <AnimatePresence mode="popLayout">
               {isLoading && certificates.length === 0 ? (
-                <tr>
-                  <td colSpan="3" className="py-20 text-center">
-                    <div className="flex flex-col items-center justify-center gap-3 opacity-50">
-                      <div className="h-6 w-6 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Scanning Records...</span>
+                <motion.tr
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <td colSpan="4" className="py-24 text-center">
+                    <div className="flex flex-col items-center justify-center gap-4 opacity-50">
+                      <div className="h-8 w-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Scanning Archive...</span>
                     </div>
                   </td>
-                </tr>
+                </motion.tr>
               ) : certificates.length === 0 ? (
-                <tr>
-                  <td colSpan="3" className="py-20 text-center">
-                    <Award size={32} className="mx-auto text-slate-200 mb-3" />
-                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">No Credentials found</h3>
-                    <p className="text-slate-500 text-[10px] uppercase tracking-widest mt-1">Institutional records are currently unpopulated</p>
+                <motion.tr
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <td colSpan="4" className="py-24 text-center">
+                    <div className="w-16 h-16 mx-auto bg-slate-50 rounded-2xl flex items-center justify-center mb-4 border border-slate-100">
+                       <Award size={32} className="text-slate-300" />
+                    </div>
+                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">No Credentials Found</h3>
+                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">The active search returned zero results</p>
                   </td>
-                </tr>
+                </motion.tr>
               ) : (
                 certificates.map((cert, index) => (
                   <motion.tr
                     key={cert.id}
-                    initial={{ opacity: 0, y: 5 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ delay: Math.min(index * 0.02, 0.4) }}
-                    className="group hover:bg-slate-50/50 transition-colors"
+                    transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.2 }}
+                    className="group hover:bg-slate-50/80 transition-colors"
                   >
-                    <td className="px-5 py-3 whitespace-nowrap">
-                       <div className="flex items-center gap-3">
-                          <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center font-black text-[10px] shrink-0 border border-slate-200 group-hover:bg-white group-hover:text-blue-600 group-hover:border-blue-200 transition-all">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                       <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-sm border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
                             {cert.recipient.charAt(0)}
                           </div>
-                          <span className="text-[13px] font-black text-slate-800 tracking-tight">
-                            {cert.recipient}
-                          </span>
+                          <div>
+                             <span className="block text-[14px] font-black text-slate-900 tracking-tight leading-none mb-1">
+                               {cert.recipient}
+                             </span>
+                             <span className="block text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                               ID: {cert.studentId || "EXTERNAL"}
+                             </span>
+                          </div>
                        </div>
                     </td>
-                    <td className="px-5 py-3 whitespace-nowrap">
-                       <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-widest border border-slate-200 shadow-sm group-hover:bg-blue-50 group-hover:text-blue-700 group-hover:border-blue-100 transition-all">
-                          {getCourseName(cert.course.id)}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                       <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-widest border border-blue-100 shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
+                          {getCourseName(cert.course?.id || cert.courseId)}
                        </span>
                     </td>
-                    <td className="px-5 py-3 whitespace-nowrap text-center">
-                      <div className="flex items-center justify-center gap-1">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                       <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600">
+                          <Calendar size={12} className="text-slate-400" />
+                          {new Date(cert.issueDate).toLocaleDateString(undefined, { 
+                             year: 'numeric', month: 'short', day: 'numeric' 
+                          })}
+                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <div className="flex items-center justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                         <Link
                           href={`${dynamicBasePath}/${cert.id}`}
-                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                          className="flex items-center justify-center w-8 h-8 text-slate-400 bg-white border border-slate-200 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 rounded-xl transition-all shadow-sm hover:shadow-md"
                           title="View Document"
                         >
                           <Eye size={14} />
                         </Link>
                         <button
                           onClick={() => handleEditCertificate(cert)}
-                          className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                          className="flex items-center justify-center w-8 h-8 text-slate-400 bg-white border border-slate-200 hover:text-amber-600 hover:border-amber-300 hover:bg-amber-50 rounded-xl transition-all shadow-sm hover:shadow-md"
                           title="Edit Profile"
                         >
                           <Edit size={14} />
                         </button>
                         {canDelete && (
-                        <button
-                          onClick={() => handleDeleteCertificate(cert)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
-                          title="Purge Record"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                          <button
+                            onClick={() => handleDeleteCertificate(cert)}
+                            className="flex items-center justify-center w-8 h-8 text-slate-400 bg-white border border-slate-200 hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 rounded-xl transition-all shadow-sm hover:shadow-md"
+                            title="Purge Record"
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         )}
                       </div>
                     </td>

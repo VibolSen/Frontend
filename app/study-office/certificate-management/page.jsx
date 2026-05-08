@@ -1,24 +1,13 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import CertificateModal from '@/components/certificate-management/CertificateModal';
-import BulkCertificateModal from '@/components/certificate-management/BulkCertificateModal';
-import CertificateTable from '@/components/certificate-management/CertificateTable';
-import ConfirmationDialog from '@/components/ConfirmationDialog';
-import { apiClient } from '@/lib/api';
+import CertificateManagementView from "@/components/certificate-management/CertificateManagementView";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-
-import StudyOfficeCertificateView from "@/components/study-office/StudyOfficeCertificateView";
-
-const CertificateManagementPage = () => {
-  return <StudyOfficeCertificateView />;
-};
-          
-export default CertificateManagementPage;
+export default function StudyOfficeCertificateManagementPage() {
+  return (
+    <CertificateManagementView
+      canDelete={true}
+      canBulkIssue={true}
+      canCreate={true}
+      role="study-office"
+    />
+  );
+}

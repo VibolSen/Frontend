@@ -11,12 +11,14 @@ import {
   UsersIcon,
   ChevronRightIcon,
   ClipboardListIcon,
-  SettingsIcon
+  SettingsIcon,
+  AwardIcon
 } from "lucide-react";
 import Link from "next/link";
 import { apiClient } from "@/lib/api";
 import { motion } from "framer-motion";
 import BackButton from "@/components/ui/BackButton";
+import AnnouncementsView from "@/components/announcements/AnnouncementsView";
 
 export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
   const [course, setCourse] = useState(null);
@@ -125,7 +127,7 @@ export default function TeacherCourseDetailView({ courseId, loggedInUser }) {
             </div>
             <div className="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl flex items-center gap-4 lg:col-span-2">
               <div className="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center border border-blue-500/20">
-                <Award size={24} />
+                <AwardIcon size={24} />
               </div>
               <div>
                 <p className="text-xl font-black text-white">Completion Oversight</p>

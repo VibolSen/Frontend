@@ -5,7 +5,7 @@ import StatusMessage from "@/components/StatusMessage";
 import StudentAttendanceControls from "./StudentAttendanceControls";
 import StudentAttendanceList from "./StudentAttendanceList";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import BackButton from "@/components/ui/BackButton";
+
 import { apiClient } from "@/lib/api";
 import { UserCheck, ShieldAlert, ClipboardCheck } from "lucide-react";
 
@@ -124,9 +124,7 @@ export default function StudentAttendanceView() {
 
   return (
     <div className="space-y-6">
-      <div className="mb-2">
-        <BackButton />
-      </div>
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-0.5">
           <h1 className="text-2xl md:text-3xl font-black text-blue-600 tracking-tight flex items-center gap-2">

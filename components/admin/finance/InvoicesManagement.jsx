@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import InvoiceModal from "./InvoiceModal";
 import Link from "next/link";
 import { Plus, Eye, Edit, Trash2, FileText, Search, RefreshCcw, Filter, CheckSquare, Square } from "lucide-react";
@@ -12,6 +13,7 @@ import BulkActionsBar from "@/components/ui/BulkActionsBar";
 import { apiClient } from "@/lib/api";
 
 export default function InvoicesManagement() {
+  const pathname = usePathname();
   const [invoices, setInvoices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -497,7 +499,7 @@ export default function InvoicesManagement() {
                       <td className="px-5 py-3 whitespace-nowrap text-center">
                         <div className="flex items-center justify-center gap-1">
                           <Link
-                            href={`/admin/finance/invoices/${inv.id}`}
+                            href={`${pathname}/${inv.id}`}
                             className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
                             title="Audit View"
                           >

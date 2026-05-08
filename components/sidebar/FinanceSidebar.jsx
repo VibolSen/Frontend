@@ -147,7 +147,7 @@ export default function FinanceSidebar({ isOpen, setIsOpen }) {
       />
 
       <aside
-        className={`bg-[#EBF4F6] border-r border-slate-200 text-slate-800 flex flex-col fixed md:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-40 h-full
+        className={`bg-white border-r border-slate-200 text-slate-800 flex flex-col fixed md:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-40 h-full
           ${isOpen ? "w-72" : "w-20"} overflow-hidden shadow-xl`}
       >
         {/* Decorative Background Elements */}
@@ -240,7 +240,7 @@ export default function FinanceSidebar({ isOpen, setIsOpen }) {
 
 
         {/* User Profile Summary */}
-        <div className="p-4 border-t border-slate-200 relative z-10 bg-white/50 backdrop-blur-md">
+        <div className="p-4 border-t border-slate-200 relative z-10 bg-white">
           <Link
             href="/finance/profile"
             prefetch={false}
