@@ -3,13 +3,67 @@
 import React, { useState, useEffect } from "react";
 import { apiClient } from "@/lib/api";
 import { motion } from "framer-motion";
-import { History, Search, Filter, Shield, User, Clock, Info } from "lucide-react";
+import Link from "next/link";
+import { 
+  History, Search, Filter, Shield, User, Clock, Info, 
+  ArrowUpRight, UserPlus, UserMinus, ShieldCheck, 
+  AlertTriangle, Edit3, Key, RefreshCcw, Activity
+} from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function AuditLogView() {
   const [logs, setLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const getActionIcon = (action) => {
+    if (action.includes("CREATE")) return <UserPlus size={12} />;
+    if (action.includes("DELETE")) return <UserMinus size={12} />;
+    if (action.includes("UPDATE")) return <Edit3 size={12} />;
+    if (action.includes("RESET")) return <Key size={12} />;
+    if (action.includes("MIGRATION")) return <RefreshCcw size={12} />;
+    if (action.includes("ACTIVATED")) return <ShieldCheck size={12} />;
+    if (action.includes("SUSPENDED") || action.includes("DEACTIVATED")) return <AlertTriangle size={12} />;
+    return <Info size={12} />;
+  };
+
+  const getTargetLink = (target, targetId) => {
+    if (!targetId || targetId === "MULTIPLE") return null;
+    
+    switch (target?.toUpperCase()) {
+      case "USER":
+      case "STUDENT":
+      case "TEACHER":
+        return `/admin/users`; 
+      case "INVOICE":
+        return `/admin/finance/invoices/${targetId}`;
+      case "COURSE":
+        return `/admin/academic/courses/${targetId}`;
+      default:
+        return null;
+    }
+  };
+
+  const FormattedDetails = ({ details }) => {
+    try {
+      const data = JSON.parse(details);
+      if (typeof data !== 'object' || data === null) return <span>{details}</span>;
+      
+      return (
+        <div className="space-y-1">
+          {Object.entries(data).map(([key, value]) => (
+            <div key={key} className="flex justify-between gap-4 border-b border-white/10 pb-1 last:border-0">
+              <span className="font-black text-indigo-300 uppercase">{key}:</span>
+              <span className="opacity-90">{String(value)}</span>
+            </div>
+          ))}
+        </div>
+      );
+    } catch (e) {
+      return <span>{details}</span>;
+    }
+  };
+
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -129,26 +183,42 @@ export default function AuditLogView() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${getActionColor(log.action)}`}>
+                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border flex items-center gap-1.5 w-fit ${getActionColor(log.action)}`}>
+                        {getActionIcon(log.action)}
                         {log.action.replace(/_/g, " ")}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="text-[11px] font-bold text-slate-600">{log.target}</span>
-                        <span className="text-[9px] font-medium text-slate-400 font-mono truncate max-w-[120px]">{log.targetId}</span>
+                        <span className="text-[11px] font-black text-slate-600 tracking-tight uppercase">{log.target}</span>
+                        {getTargetLink(log.target, log.targetId) ? (
+                          <Link 
+                            href={getTargetLink(log.target, log.targetId)}
+                            className="group/link flex items-center gap-1 text-[9px] font-bold text-indigo-500 hover:text-indigo-700 transition-colors"
+                          >
+                            <span className="font-mono truncate max-w-[100px]">{log.targetId}</span>
+                            <ArrowUpRight size={10} className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                          </Link>
+                        ) : (
+                          <span className="text-[9px] font-medium text-slate-400 font-mono truncate max-w-[120px]">{log.targetId}</span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
                       {log.details ? (
                          <div className="group relative inline-block">
-                           <button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 transition-all">
+                           <button className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-indigo-600 transition-all border border-transparent hover:border-slate-200">
                              <Info size={14} />
                            </button>
-                           <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block z-20 w-48 bg-slate-900 text-white p-3 rounded-xl shadow-xl text-[10px] leading-relaxed">
-                             <p className="font-bold text-indigo-400 mb-1 font-mono uppercase">Payload Data:</p>
-                             <div className="break-all font-mono opacity-80">
-                               {log.details}
+                           <div className="absolute right-0 bottom-full mb-3 hidden group-hover:block z-30 w-64 bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl text-[10px] leading-relaxed border border-white/10">
+                             <div className="flex items-center gap-2 mb-3 border-b border-white/10 pb-2">
+                               <div className="p-1.5 bg-indigo-500 rounded-lg">
+                                 <Activity size={12} className="text-white" />
+                               </div>
+                               <span className="font-black text-indigo-400 uppercase tracking-widest">Operational Payload</span>
+                             </div>
+                             <div className="font-mono">
+                               <FormattedDetails details={log.details} />
                              </div>
                            </div>
                          </div>

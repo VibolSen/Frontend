@@ -65,8 +65,8 @@ const ReportsView = () => {
     <div className="space-y-6 animate-fade-in max-w-7xl mx-auto pb-20">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-black text-indigo-950 tracking-tight flex items-center gap-3">
-          <Activity className="text-indigo-600" size={28} /> Advanced <span className="text-indigo-600">Analytics</span>
+        <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+          <Activity className="text-indigo-600" size={28} /> Academic <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-700">Analytics</span>
         </h1>
         <p className="text-[11px] font-medium text-slate-500 mt-0.5 max-w-xl leading-relaxed">
           Real-time institutional intelligence tracking academic progression, engagement metrics, and attendance signals.
@@ -121,64 +121,64 @@ const ReportsView = () => {
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pt-4 animate-in slide-in-from-bottom-8 duration-700">
           
           {/* Performance Overview Chart */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm col-span-1 xl:col-span-2">
-            <h2 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-6 flex items-center gap-2">
-              <BarChart3 className="text-indigo-500" size={16} /> Global Grade Trajectories
+          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-2xl col-span-1 xl:col-span-2 relative overflow-hidden">
+            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-indigo-50/50 rounded-full blur-[100px] pointer-events-none" />
+            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8 flex items-center gap-2 relative z-10">
+              <BarChart3 className="text-indigo-600" size={16} /> Global Grade Trajectories
             </h2>
-            <div className="h-[350px] w-full">
+            <div className="h-[350px] w-full relative z-10">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={reportsData.studentPerformance} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorGrade" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
+                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.2}/>
                       <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 700 }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 700 }} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#94a3b8', fontWeight: 900 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#94a3b8', fontWeight: 900 }} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="grade" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorGrade)" activeDot={{ r: 6, strokeWidth: 0, fill: '#4f46e5' }} />
+                  <Area type="monotone" dataKey="grade" stroke="#4f46e5" strokeWidth={4} fillOpacity={1} fill="url(#colorGrade)" activeDot={{ r: 6, strokeWidth: 0, fill: '#4f46e5' }} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Attendance Trends */}
-          <div className="bg-gradient-to-b from-slate-900 to-indigo-950 p-6 rounded-3xl shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl"></div>
-            <h2 className="text-sm font-black text-white uppercase tracking-widest mb-6 flex items-center gap-2 relative z-10">
-              <TrendingUp className="text-emerald-400" size={16} /> Presence Signals (Last 10 Records)
+          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-emerald-50/50 rounded-full blur-[80px] pointer-events-none"></div>
+            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8 flex items-center gap-2 relative z-10">
+              <TrendingUp className="text-emerald-500" size={16} /> Presence Signals (Last 10 Records)
             </h2>
             <div className="h-[250px] w-full relative z-10">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={reportsData.attendanceTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" strokeOpacity={0.4} />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#94a3b8', fontWeight: 900 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#94a3b8', fontWeight: 900 }} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Line type="stepAfter" dataKey="present" stroke="#34d399" strokeWidth={3} dot={{ r: 4, fill: '#34d399', strokeWidth: 0 }} />
-                  <Line type="stepAfter" dataKey="absent" stroke="#f43f5e" strokeWidth={3} dot={{ r: 4, fill: '#f43f5e', strokeWidth: 0 }} />
+                  <Line type="stepAfter" dataKey="present" stroke="#10b981" strokeWidth={4} dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} />
+                  <Line type="stepAfter" dataKey="absent" stroke="#f43f5e" strokeWidth={4} dot={{ r: 4, fill: '#f43f5e', strokeWidth: 2, stroke: '#fff' }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Engagement */}
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
-             {/* decorative */}
-            <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
-            <h2 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-6 flex items-center gap-2 relative z-10">
+          <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-2xl relative overflow-hidden">
+            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-amber-50/50 rounded-full blur-[80px] pointer-events-none"></div>
+            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8 flex items-center gap-2 relative z-10">
               <Users className="text-amber-500" size={16} /> Campus Engagement Rate
             </h2>
             <div className="h-[250px] w-full relative z-10">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={reportsData.classParticipation} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 700 }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 700 }} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#94a3b8', fontWeight: 900 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#94a3b8', fontWeight: 900 }} />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
-                  <Bar dataKey="participation" fill="#f59e0b" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                  <Bar dataKey="participation" fill="#f59e0b" radius={[6, 6, 0, 0]} maxBarSize={32} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CreditCard, DollarSign, Hash } from "lucide-react";
+import { X, CreditCard, DollarSign, Hash, Calendar } from "lucide-react";
 import Select from "react-select";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { apiClient } from "@/lib/api";

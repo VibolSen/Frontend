@@ -36,8 +36,8 @@ const NavLink = ({ icon, label, href, isCollapsed, isActive }) => (
       prefetch={false}
       className={`group flex items-center gap-3 my-1 px-3 py-2.5 rounded-xl transition-all duration-300 relative
         ${isActive
-          ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
-          : "text-slate-500 hover:text-blue-700 hover:bg-white"
+          ? "bg-gradient-to-br from-indigo-600 to-blue-700 text-white shadow-lg shadow-indigo-500/30"
+          : "text-slate-500 hover:text-indigo-600 hover:bg-slate-50"
         }
       `}
       title={isCollapsed ? label : ""}
@@ -119,7 +119,7 @@ const STUDY_OFFICE_NAV_GROUPS = [
     group: "Performance",
     items: [
       { label: "Student Performance", icon: <TrendingUp />, href: "/study-office/student-performance" },
-      { label: "Reports & Analytics", icon: <BarChart3 />, href: "/study-office/reports" },
+      { label: "Academic Analytics", icon: <BarChart3 />, href: "/study-office/reports" },
       { label: "Course Analytics", icon: <BarChart2 />, href: "/study-office/course-analytics" },
     ]
   },
@@ -180,7 +180,7 @@ export default function StudyOfficeSidebar({ isOpen, setIsOpen }) {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-3"
             >
-              <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 rotate-3">
+              <div className="h-10 w-10 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 rotate-3">
                 <GraduationCap className="h-5 w-5 text-white" />
               </div>
               <div className="flex flex-col">
@@ -194,7 +194,7 @@ export default function StudyOfficeSidebar({ isOpen, setIsOpen }) {
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-blue-600 transition-all hover:bg-white group shadow-sm ${isCollapsed ? "" : "ml-4"}`}
+            className={`p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 transition-all hover:bg-white group shadow-sm ${isCollapsed ? "" : "ml-4"}`}
           >
             {isOpen ? (
               <ChevronLeft size={16} />
@@ -216,12 +216,12 @@ export default function StudyOfficeSidebar({ isOpen, setIsOpen }) {
                       onClick={() => toggleGroup(group.group)}
                       className="w-full flex items-center justify-between px-4 mb-2 group/header"
                     >
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/header:text-blue-600 transition-colors">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/header:text-indigo-600 transition-colors">
                         {group.group}
                       </span>
                       <motion.div
                         animate={{ rotate: isGroupCollapsed ? 0 : 90 }}
-                        className="text-slate-300 group-hover/header:text-blue-400"
+                        className="text-slate-300 group-hover/header:text-indigo-400"
                       >
                         <ChevronRight size={10} />
                       </motion.div>
@@ -290,7 +290,7 @@ export default function StudyOfficeSidebar({ isOpen, setIsOpen }) {
         </div>
 
         {/* Bottom Accent Line */}
-        <div className="h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600" />
+        <div className="h-1 bg-gradient-to-r from-indigo-600 via-blue-700 to-indigo-600" />
       </aside>
     </>
   );

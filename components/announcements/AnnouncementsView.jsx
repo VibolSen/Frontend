@@ -87,22 +87,23 @@ export default function AnnouncementsView({ courseId, loggedInUser, hideHeader =
   return (
     <div className={hideHeader ? "" : "p-6"}>
       {!hideHeader && (
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div className="space-y-0.5">
-            <h1 className="text-2xl md:text-3xl font-black text-blue-600 tracking-tight">
-              {courseId ? "Course Announcements" : "Announcements Registry"}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <div className="w-1.5 h-8 bg-indigo-600 rounded-full" />
+              {courseId ? "Course Bulletins" : "Broadcast Center"}
             </h1>
             <p className="text-slate-500 font-medium text-sm">
-              Broadcast critical updates, academic notices, and institutional news.
+              Keep your academic community informed with the latest updates and notices.
             </p>
           </div>
           {canCreate && (
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-200 transition-all active:scale-95 whitespace-nowrap"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-700 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:brightness-110 shadow-xl shadow-indigo-100 transition-all active:scale-95 whitespace-nowrap"
             >
-              <Plus size={14} />
-              New Announcement
+              <Plus size={16} />
+              Broadcast Notice
             </button>
           )}
         </div>

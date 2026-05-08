@@ -150,7 +150,7 @@ export default function PaymentsManagement() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-0.5">
           <h1 className="text-2xl md:text-3xl font-black text-blue-600 tracking-tight">
-            Treasury Feed
+            Payment Management
           </h1>
           <p className="text-slate-500 font-medium text-sm">
             Monitor incoming liquidity, verify transaction authentications, and maintain fiscal reconciliation logs.

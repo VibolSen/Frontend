@@ -15,7 +15,7 @@ export const metadata = {
   title: "School Management System",
   description: "School Management System",
   icons: {
-    icon: "/logo/favicon2.ico",
+    icon: "/favicon.ico",
   },
 };
 

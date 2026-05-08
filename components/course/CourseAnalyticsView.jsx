@@ -76,8 +76,8 @@ const CourseAnalyticsView = ({ loggedInUser }) => {
   return (
     <div className="space-y-6 animate-fade-in max-w-6xl mx-auto pb-20">
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-black text-indigo-950 tracking-tight">
-          Course <span className="text-indigo-600">Analytics</span>
+        <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+          Course <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-700">Analytics</span>
         </h1>
         <p className="text-[11px] font-medium text-slate-500 mt-0.5 max-w-xl leading-relaxed">
           Dive into the performance, engagement metrics and announcements for your designated workspace.
@@ -115,8 +115,8 @@ const CourseAnalyticsView = ({ loggedInUser }) => {
             onClick={() => setActiveTab('analytics')}
             className={`${
               activeTab === 'analytics'
-                ? 'bg-white text-indigo-600 shadow-sm border-slate-200'
-                : 'text-slate-500 hover:text-slate-700 border-transparent hover:bg-slate-100'
+                ? 'bg-gradient-to-br from-indigo-600 to-blue-700 text-white shadow-md shadow-indigo-500/20 border-transparent'
+                : 'text-slate-500 hover:text-indigo-600 border-transparent hover:bg-slate-100'
             } px-5 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border`}
           >
             Analytics
@@ -125,8 +125,8 @@ const CourseAnalyticsView = ({ loggedInUser }) => {
             onClick={() => setActiveTab('announcements')}
             className={`${
               activeTab === 'announcements'
-                ? 'bg-white text-indigo-600 shadow-sm border-slate-200'
-                : 'text-slate-500 hover:text-slate-700 border-transparent hover:bg-slate-100'
+                ? 'bg-gradient-to-br from-indigo-600 to-blue-700 text-white shadow-md shadow-indigo-500/20 border-transparent'
+                : 'text-slate-500 hover:text-indigo-600 border-transparent hover:bg-slate-100'
             } px-5 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all border`}
           >
             Announcements
@@ -165,45 +165,45 @@ const CourseAnalyticsView = ({ loggedInUser }) => {
       )}
 
       {activeTab === 'analytics' && !loading && !error && courseData && (
-        <div className="bg-gradient-to-br from-indigo-950 to-slate-900 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden">
-             <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl pointer-events-none" />
-             <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-48 h-48 bg-indigo-500 opacity-20 rounded-full blur-3xl pointer-events-none" />
+        <div className="bg-white rounded-[2.5rem] p-8 text-slate-900 shadow-2xl relative overflow-hidden border border-slate-200">
+             <div className="absolute top-0 right-0 -mt-16 -mr-16 w-96 h-96 bg-indigo-50/50 rounded-full blur-[100px] pointer-events-none" />
+             <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-72 h-72 bg-blue-50/50 rounded-full blur-[80px] pointer-events-none" />
              
              <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8">
                
                <div className="space-y-6">
-                 <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
-                   <BarChart3 className="text-indigo-400" size={20} /> Platform Analytics
-                 </h2>
+                  <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                    <BarChart3 className="text-indigo-600" size={20} /> Platform Analytics
+                  </h2>
                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 hover:-translate-y-1 transition-transform shadow-xl">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-1">Enrolled</p>
-                      <p className="text-4xl font-black tabular-nums">{courseData.enrolledStudents?.length || 0}</p>
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 hover:-translate-y-1 transition-transform shadow-sm group">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 group-hover:text-indigo-600 transition-colors">Enrolled</p>
+                      <p className="text-4xl font-black tabular-nums text-slate-900">{courseData.enrolledStudents?.length || 0}</p>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 hover:-translate-y-1 transition-transform shadow-xl">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-1">Completion</p>
-                      <p className="text-4xl font-black tabular-nums text-emerald-400">{courseData.completionRate || 0}%</p>
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 hover:-translate-y-1 transition-transform shadow-sm group">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 group-hover:text-indigo-600 transition-colors">Completion</p>
+                      <p className="text-4xl font-black tabular-nums text-emerald-600">{courseData.completionRate || 0}%</p>
                     </div>
                  </div>
                </div>
 
                 <div className="space-y-6">
-                 <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
-                   <Users className="text-indigo-400" size={20} /> Metadata Registry
+                 <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                   <Users className="text-indigo-600" size={20} /> Metadata Registry
                  </h2>
-                 <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 space-y-5 shadow-xl">
+                 <div className="bg-gradient-to-br from-indigo-50/50 to-blue-50/50 backdrop-blur-md p-6 rounded-2xl border border-indigo-100/50 space-y-5 shadow-sm">
                     <div>
                       <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Course Identifier</p>
-                      <p className="text-sm font-bold text-white mt-1 leading-tight">{selectedCourse?.name || "N/A"}</p>
+                       <p className="text-sm font-bold text-slate-900 mt-1 leading-tight">{selectedCourse?.name || "N/A"}</p>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Department</p>
-                        <p className="text-xs font-bold text-slate-200 mt-1">{selectedCourse?.courseDepartments?.[0]?.department?.name || "N/A"}</p>
+                         <p className="text-xs font-bold text-slate-700 mt-1">{selectedCourse?.courseDepartments?.[0]?.department?.name || "N/A"}</p>
                       </div>
                       <div>
                         <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Instructor</p>
-                        <p className="text-xs font-bold text-indigo-200 mt-1">{selectedCourse?.leadBy ? `${selectedCourse.leadBy.firstName} ${selectedCourse.leadBy.lastName}` : "N/A"}</p>
+                         <p className="text-xs font-bold text-indigo-600 mt-1">{selectedCourse?.leadBy ? `${selectedCourse.leadBy.firstName} ${selectedCourse.leadBy.lastName}` : "N/A"}</p>
                       </div>
                     </div>
                  </div>
