@@ -1,13 +1,19 @@
 "use client";
 import React, { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { ArrowLeft, BookOpen, Users, Building2 } from "lucide-react";
+import Link from "next/link";
 import FullPageLoading from "@/components/ui/FullPageLoading";
 import { apiClient } from "@/lib/api";
 
-export default function CourseDetailPage({ params }) {
-  // ✅ unwrap params (Next.js 15+)
-  const { id } = use(params);
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, type: "spring", stiffness: 60 } },
+};
 
+export default function CourseDetailPage({ params }) {
+  const { id } = use(params);
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,59 +32,106 @@ export default function CourseDetailPage({ params }) {
         setLoading(false);
       }
     }
-
     if (id) fetchCourse();
   }, [id]);
 
-  if (loading) {
-    return <FullPageLoading message="Retrieving course details..." />;
-  }
+  if (loading) return <FullPageLoading message="Retrieving course details..." />;
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-screen text-red-500">
-        <p className="text-xl">Error: {error}</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/20 flex items-center justify-center p-6">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+          className="bg-white/80 backdrop-blur-md rounded-2xl border border-rose-200/50 shadow-2xl p-10 text-center max-w-md">
+          <h2 className="text-xl font-black tracking-tight text-slate-900 mb-2">Error</h2>
+          <p className="text-rose-500 text-sm">{error}</p>
+        </motion.div>
       </div>
     );
   }
 
   if (!course) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-xl">Course not found.</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/20 flex items-center justify-center p-6">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+          className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/50 shadow-2xl p-10 text-center max-w-md">
+          <div className="w-14 h-14 mx-auto mb-4 bg-indigo-50 rounded-2xl flex items-center justify-center">
+            <BookOpen className="w-7 h-7 text-indigo-400" />
+          </div>
+          <h2 className="text-xl font-black tracking-tight text-slate-900 mb-2">Course Not Found</h2>
+          <p className="text-slate-500 text-sm">The course you are looking for does not exist.</p>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-6 py-8">
-      <h1 className="text-4xl font-bold mb-4 text-primary">{course.name}</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/20 py-12 px-4 sm:px-6 lg:px-8">
+      <motion.div className="max-w-4xl mx-auto" initial="hidden" animate="visible"
+        variants={{ visible: { transition: { staggerChildren: 0.1 } } }}>
 
-      <div className="bg-white shadow-lg rounded-xl p-6 mb-6">
-        <p className="text-gray-700 text-lg mb-2">
-          <span className="font-semibold">Course ID:</span> {course.id}
-        </p>
+        {/* Back Button */}
+        <motion.div variants={itemVariants}>
+          <button onClick={() => router.back()}
+            className="group inline-flex items-center gap-3 mb-8 px-5 py-3 bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-indigo-200 transition-all duration-300">
+            <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
+              <ArrowLeft className="w-4 h-4 text-indigo-600 group-hover:-translate-x-0.5 transition-transform" />
+            </div>
+            <span className="text-[10px] font-black tracking-widest uppercase text-slate-500">Go Back</span>
+          </button>
+        </motion.div>
 
-        {course.leadBy && (
-          <p className="text-gray-700 text-lg mb-2">
-            <span className="font-semibold">Lead By:</span>{" "}
-            {course.leadBy.firstName} {course.leadBy.lastName}
-          </p>
-        )}
+        {/* Main Card */}
+        <motion.div variants={itemVariants}
+          className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-2xl overflow-hidden">
 
-        {course.courseDepartments?.length > 0 && (
-          <div className="mb-2">
-            <span className="font-semibold text-lg">Departments:</span>
-            <ul className="list-disc list-inside ml-4">
-              {course.courseDepartments.map((cd) => (
-                <li key={cd.department.id} className="text-gray-700 text-lg">
-                  {cd.department.name}
-                </li>
-              ))}
-            </ul>
+          {/* Header Banner */}
+          <div className="relative bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 px-8 py-10">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+            <div className="absolute top-4 right-4 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+            <div className="relative z-10 flex items-center gap-5">
+              <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20 shadow-lg">
+                <BookOpen className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">{course.name}</h1>
+                <p className="text-indigo-200 text-sm font-mono mt-1">ID: {course.id}</p>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
+
+          {/* Content */}
+          <div className="p-8 space-y-6">
+            {/* Lead Instructor */}
+            {course.leadBy && (
+              <motion.div variants={itemVariants}
+                className="bg-gradient-to-br from-indigo-50/50 to-blue-50/50 rounded-2xl p-6 border border-indigo-100/50">
+                <h2 className="text-[10px] font-black tracking-widest uppercase text-slate-400 mb-3 flex items-center gap-2">
+                  <Users className="w-4 h-4 text-indigo-500" /> Lead Instructor
+                </h2>
+                <p className="text-lg font-bold text-slate-900">{course.leadBy.firstName} {course.leadBy.lastName}</p>
+              </motion.div>
+            )}
+
+            {/* Departments */}
+            {course.courseDepartments?.length > 0 && (
+              <motion.div variants={itemVariants}
+                className="bg-gradient-to-br from-blue-50/50 to-slate-50/50 rounded-2xl p-6 border border-blue-100/50">
+                <h2 className="text-[10px] font-black tracking-widest uppercase text-slate-400 mb-4 flex items-center gap-2">
+                  <Building2 className="w-4 h-4 text-blue-500" /> Departments
+                </h2>
+                <div className="flex flex-wrap gap-3">
+                  {course.courseDepartments.map((cd) => (
+                    <span key={cd.department.id}
+                      className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200/60 text-sm font-semibold text-slate-700 shadow-sm hover:shadow-md hover:border-indigo-200 hover:-translate-y-0.5 transition-all duration-300">
+                      {cd.department.name}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

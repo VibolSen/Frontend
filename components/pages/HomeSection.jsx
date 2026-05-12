@@ -20,18 +20,18 @@ export default function HomeSection() {
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="py-16 px-4 relative overflow-hidden">
-        <div className="absolute top-8 left-8 w-16 h-16 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-xl animate-pulse" />
-        <div className="absolute top-24 right-16 w-14 h-14 bg-gradient-to-br from-pink-400/20 to-rose-400/20 rounded-lg rotate-45 blur-lg animate-bounce" />
-        <div className="absolute bottom-16 left-1/3 w-10 h-10 bg-gradient-to-br from-emerald-400/20 to-teal-400/20 rounded-full blur-md animate-pulse delay-1000" />
+        <div className="absolute top-8 left-8 w-16 h-16 bg-gradient-to-br from-indigo-400/20 to-blue-400/20 rounded-full blur-xl animate-pulse" />
+        <div className="absolute top-24 right-16 w-14 h-14 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-lg rotate-45 blur-lg animate-bounce" />
+        <div className="absolute bottom-16 left-1/3 w-10 h-10 bg-gradient-to-br from-slate-400/20 to-indigo-400/20 rounded-full blur-md animate-pulse delay-1000" />
 
         <div className="container mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-full border border-blue-200/50 mb-6 shadow-lg backdrop-blur-sm">
-            <LoadingSpinner size="xs" color="blue" />
-            <span className="text-xs font-semibold text-blue-700 tracking-wide">
+          <div className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-full border border-indigo-200/50 mb-6 shadow-lg backdrop-blur-sm">
+            <LoadingSpinner size="xs" color="indigo" />
+            <span className="text-xs font-black text-indigo-700 tracking-widest uppercase">
               Empowering Global Education
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent mb-6 text-balance leading-tight">
+          <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-indigo-600 to-blue-700 bg-clip-text text-transparent mb-6 text-balance leading-tight tracking-tight">
             Transform Your Learning Journey
           </h1>
           <p className="text-lg text-slate-600 max-w-4xl mx-auto text-balance leading-relaxed font-medium">
@@ -44,20 +44,20 @@ export default function HomeSection() {
 
       {/* Enhanced Stats Section */}
       <section className="py-20 px-4 relative overflow-hidden bg-gradient-to-br from-white via-slate-50/30 to-blue-50/20">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/3 via-purple-500/3 to-pink-500/3" />
-        <div className="absolute top-0 left-1/4 w-80 h-80 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-gradient-to-br from-purple-400/10 to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-gradient-to-br from-emerald-400/8 to-teal-400/8 rounded-full blur-2xl animate-pulse delay-500" />
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/3 to-blue-500/3" />
+        <div className="absolute top-0 left-1/4 w-80 h-80 bg-gradient-to-br from-indigo-400/10 to-blue-400/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-gradient-to-br from-slate-400/8 to-indigo-400/8 rounded-full blur-2xl animate-pulse delay-500" />
 
         <div className="container mx-auto relative z-10">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-3 px-5 py-2 bg-gradient-to-r from-emerald-500/10 to-blue-500/10 rounded-full border border-emerald-200/50 mb-6 shadow-lg backdrop-blur-sm">
-              <TrendingUp className="w-4 h-4 text-emerald-600 animate-bounce" />
-              <span className="text-xs font-semibold text-emerald-700 tracking-wide">
+            <div className="inline-flex items-center gap-3 px-5 py-2 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-full border border-indigo-200/50 mb-6 shadow-lg backdrop-blur-sm">
+              <TrendingUp className="w-4 h-4 text-indigo-600 animate-bounce" />
+              <span className="text-xs font-black text-indigo-700 tracking-widest uppercase">
                 Our Global Impact
               </span>
             </div>
-            <h2 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-slate-900 via-emerald-900 to-blue-900 bg-clip-text text-transparent mb-6 text-balance">
+            <h2 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-indigo-600 to-blue-700 bg-clip-text text-transparent mb-6 text-balance tracking-tight">
               Trusted by Thousands Worldwide
             </h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto text-balance leading-relaxed">
@@ -159,13 +159,13 @@ export default function HomeSection() {
 
         <div className="container mx-auto relative z-10">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-3 px-5 py-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-full border border-purple-200/50 mb-6 shadow-lg backdrop-blur-sm">
-              <Award className="w-4 h-4 text-purple-600 animate-pulse" />
-              <span className="text-xs font-semibold text-purple-700 tracking-wide">
+            <div className="inline-flex items-center gap-3 px-5 py-2 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-full border border-indigo-200/50 mb-6 shadow-lg backdrop-blur-sm">
+              <Award className="w-4 h-4 text-indigo-600 animate-pulse" />
+              <span className="text-xs font-black text-indigo-700 tracking-widest uppercase">
                 Explore Categories
               </span>
             </div>
-            <h2 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-slate-900 via-purple-900 to-pink-900 bg-clip-text text-transparent mb-6 text-balance">
+            <h2 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-indigo-600 to-blue-700 bg-clip-text text-transparent mb-6 text-balance tracking-tight">
               Popular Learning Categories
             </h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto text-balance leading-relaxed">

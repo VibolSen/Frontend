@@ -44,19 +44,19 @@ export default function FAQ() {
 
   return (
     <section className="py-20 bg-gradient-to-br from-white via-slate-50/50 to-blue-50/30 relative overflow-hidden">
-      <div className="absolute top-16 left-16 w-28 h-28 bg-gradient-to-br from-purple-400/10 to-pink-400/10 rounded-full blur-2xl animate-pulse" />
-      <div className="absolute bottom-16 right-16 w-24 h-24 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-xl animate-pulse delay-1000" />
+      <div className="absolute top-16 left-16 w-28 h-28 bg-gradient-to-br from-indigo-400/10 to-blue-400/10 rounded-full blur-2xl animate-pulse" />
+      <div className="absolute bottom-16 right-16 w-24 h-24 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full blur-xl animate-pulse delay-1000" />
 
       <div className="container mx-auto px-4 max-w-4xl relative z-10">
         {/* Enhanced Heading */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-3 px-5 py-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-full border border-purple-200/50 mb-6 shadow-lg backdrop-blur-sm">
-            <HelpCircle className="w-4 h-4 text-purple-600 animate-pulse" />
-            <span className="text-xs font-semibold text-purple-700 tracking-wide">
+          <div className="inline-flex items-center gap-3 px-5 py-2 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-full border border-indigo-200/50 mb-6 shadow-lg backdrop-blur-sm">
+            <HelpCircle className="w-4 h-4 text-indigo-600 animate-pulse" />
+            <span className="text-xs font-semibold text-indigo-700 tracking-wide">
               Got Questions?
             </span>
           </div>
-          <h2 className="text-4xl font-black mb-4 bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+          <h2 className="text-4xl font-black mb-4 bg-gradient-to-r from-indigo-600 to-blue-700 bg-clip-text text-transparent">
             Frequently Asked Questions
           </h2>
           <p className="text-lg text-slate-600 leading-relaxed">
@@ -72,8 +72,8 @@ export default function FAQ() {
               className={`border-2 rounded-2xl shadow-lg transition-all duration-500 overflow-hidden backdrop-blur-sm
                 ${
                   openFaqIndex === index
-                    ? "bg-gradient-to-r from-purple-50/80 to-pink-50/80 border-purple-200 shadow-purple-500/20"
-                    : "bg-white/80 border-slate-200 hover:border-purple-300"
+                    ? "bg-gradient-to-r from-indigo-50/80 to-blue-50/80 border-indigo-200 shadow-indigo-500/20"
+                    : "bg-white/80 border-slate-200 hover:border-indigo-300"
                 }`}
             >
               {/* Question Button */}
@@ -82,11 +82,11 @@ export default function FAQ() {
                 className="flex justify-between items-center w-full text-left p-6 font-bold group"
               >
                 <span className="text-lg flex text-slate-800 items-center gap-3">
-                  <HelpCircle className="h-5 w-5 text-purple-500 group-hover:scale-110 transition-transform" />
+                  <HelpCircle className="h-5 w-5 text-indigo-500 group-hover:scale-110 transition-transform" />
                   {faq.question}
                 </span>
                 <ChevronRight
-                  className={`h-5 w-5 transform transition-transform duration-300 text-slate-600 group-hover:text-purple-500
+                  className={`h-5 w-5 transform transition-transform duration-300 text-slate-600 group-hover:text-indigo-500
                     ${openFaqIndex === index ? "rotate-90" : ""}`}
                 />
               </button>

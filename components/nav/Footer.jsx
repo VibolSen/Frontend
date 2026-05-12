@@ -105,7 +105,7 @@ export default function Footer() {
 
         {/* Bottom text */}
         <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 VSkill Learning Platform. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} STEP Academy. All rights reserved.</p>
         </div>
       </div>
     </footer>

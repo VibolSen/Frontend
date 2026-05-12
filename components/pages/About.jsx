@@ -72,7 +72,7 @@ const AboutUs = () => {
         <motion.div
           variants={floatingVariants}
           animate="animate"
-          className="absolute top-20 left-10 text-blue-200 dark:text-blue-800"
+          className="absolute top-20 left-10 text-indigo-200 dark:text-indigo-800"
         >
           <School size={40} />
         </motion.div>
@@ -113,7 +113,7 @@ const AboutUs = () => {
           className="text-center py-20 relative overflow-hidden"
           variants={itemVariants}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-3xl opacity-90 dark:opacity-80"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 rounded-3xl opacity-90 dark:opacity-80"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl"></div>
 
           <div className="relative z-10 text-white">
@@ -134,7 +134,7 @@ const AboutUs = () => {
               transition={{ delay: 0.5, duration: 0.8 }}
             >
               Welcome to{" "}
-              <span className="bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-indigo-200 to-blue-200 bg-clip-text text-transparent">
                 EduSys
               </span>
             </motion.h1>
@@ -158,7 +158,7 @@ const AboutUs = () => {
               initial={{ scale: 0.8, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-full text-sm font-medium mb-4 shadow-lg"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-700 text-white px-6 py-3 rounded-full text-sm font-medium mb-4 shadow-lg shadow-indigo-200/50"
             >
               <Users className="w-4 h-4" />
               Meet Our Team
@@ -194,7 +194,7 @@ const AboutUs = () => {
                     <h3 className="text-xl font-bold mb-2 text-center">
                       {member.name}
                     </h3>
-                    <p className="text-blue-600 dark:text-blue-400 font-semibold mb-3 text-center">
+                    <p className="text-indigo-600 dark:text-indigo-400 font-semibold mb-3 text-center">
                       {member.role}
                     </p>
                     <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
@@ -205,14 +205,14 @@ const AboutUs = () => {
                       <motion.a
                         href={member.social.facebook}
                         whileHover={{ scale: 1.1 }}
-                        className="p-3 bg-blue-500 text-white rounded-full"
+                        className="p-3 bg-indigo-600 text-white rounded-full shadow-lg shadow-indigo-200/50"
                       >
                         <Facebook className="w-5 h-5" />
                       </motion.a>
                       <motion.a
                         href={member.social.telegram}
                         whileHover={{ scale: 1.1 }}
-                        className="p-3 bg-blue-500 text-white rounded-full"
+                        className="p-3 bg-blue-600 text-white rounded-full shadow-lg shadow-blue-200/50"
                       >
                         <Send className="w-5 h-5" />
                       </motion.a>
@@ -240,13 +240,13 @@ const AboutUs = () => {
 
         {/* Vision Section */}
         <motion.section className="py-20" variants={itemVariants}>
-          <div className="bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100 dark:from-blue-900/30 p-12 rounded-3xl relative">
+          <div className="bg-gradient-to-br from-indigo-50/50 to-blue-50/50 dark:from-indigo-900/30 p-12 rounded-3xl relative border border-indigo-100/50">
             <div className="relative z-10 max-w-4xl mx-auto text-center">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileInView={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.6 }}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-full text-sm font-medium mb-6 shadow-lg"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-700 text-white px-6 py-3 rounded-full text-sm font-medium mb-6 shadow-lg shadow-indigo-200/50"
               >
                 <Target className="w-4 h-4" />
                 Our Vision

@@ -27,10 +27,10 @@ export default function Testimonials() {
   ];
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20 bg-slate-50/50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-black mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-4xl font-black mb-4 bg-gradient-to-r from-indigo-600 to-blue-700 bg-clip-text text-transparent">
             What Our Users Say
           </h2>
           <p className="text-lg text-slate-600 leading-relaxed">
@@ -42,13 +42,13 @@ export default function Testimonials() {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 border border-gray-100 dark:border-gray-700"
+              className="bg-white/80 backdrop-blur-md rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 border border-slate-100 group"
             >
               <div className="flex items-center mb-6">
                 <img
                   src={testimonial.avatar}
                   alt={testimonial.name}
-                  className="w-16 h-16 rounded-full object-cover border-4 border-white dark:border-gray-700"
+                  className="w-16 h-16 rounded-2xl object-cover border-4 border-white shadow-lg group-hover:rotate-3 transition-transform duration-500"
                 />
                 <div className="ml-4">
                   <h3 className="text-xl font-bold text-gray-800 dark:text-white">

@@ -103,8 +103,8 @@ export default function LoginPage() {
     <div className="h-screen w-full relative overflow-hidden flex items-center justify-center p-6 bg-[#F8FAFC]">
       {/* Soft Background Gradients */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-400/10 blur-[120px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-400/10 blur-[120px] rounded-full" />
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-400/10 blur-[120px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-400/10 blur-[120px] rounded-full" />
       </div>
 
       {/* Main Content Dashboard-style Grid */}
@@ -121,14 +121,14 @@ export default function LoginPage() {
               initial={{ opacity: 0, x: -15 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 shadow-sm"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 shadow-sm"
             >
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-              <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest px-0.5">Academic Excellence Protocol</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+              <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest px-0.5">Academic Excellence Protocol</span>
             </motion.div>
             <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-[1.1]">
               Transforming <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-700">
                 Education.
               </span>
             </h1>
@@ -158,7 +158,7 @@ export default function LoginPage() {
               <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-200/40 to-transparent" />
               
               <div className="text-center mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-blue-500/20 transform hover:rotate-3 transition-transform cursor-pointer">
+                <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-indigo-500/20 transform hover:rotate-3 transition-transform cursor-pointer">
                   <LogIn className="w-6 h-6 text-white" />
                 </div>
                 <h2 className="text-xl font-black text-slate-900 tracking-tight">Login Portal</h2>
@@ -181,7 +181,7 @@ export default function LoginPage() {
                 <div className="space-y-1.5 text-left">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 pl-1">Authorized Email</label>
                   <div className="relative group/field">
-                    <Mail className="w-3.5 h-3.5 text-slate-300 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within/field:text-blue-600 transition-colors" />
+                    <Mail className="w-3.5 h-3.5 text-slate-300 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within/field:text-indigo-600 transition-colors" />
                     <input
                       type="email"
                       name="email"
@@ -189,7 +189,7 @@ export default function LoginPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       placeholder="e.g. name@school.edu"
-                      className="w-full bg-slate-50/50 border border-slate-200 px-4 py-4 pl-11 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
+                      className="w-full bg-slate-50/50 border border-slate-200 px-4 py-4 pl-11 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
                     />
                   </div>
                 </div>
@@ -198,17 +198,17 @@ export default function LoginPage() {
                 <div className="space-y-1.5 text-left">
                   <div className="flex justify-between items-center ml-1 pl-1">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Security Pin</label>
-                    <a href="/forgot-password" size="sm" className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:text-blue-700 transition-colors cursor-pointer">Forgot?</a>
+                    <a href="/forgot-password" size="sm" className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-700 transition-colors cursor-pointer">Forgot?</a>
                   </div>
                   <div className="relative group/field">
-                    <Lock className="w-3.5 h-3.5 text-slate-300 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within/field:text-blue-600 transition-colors" />
+                    <Lock className="w-3.5 h-3.5 text-slate-300 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within/field:text-indigo-600 transition-colors" />
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       placeholder="••••••••"
-                      className="w-full bg-slate-50/50 border border-slate-200 px-4 py-4 pl-11 pr-12 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
+                      className="w-full bg-slate-50/50 border border-slate-200 px-4 py-4 pl-11 pr-12 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
                     />
                     <button
                       type="button"
@@ -224,7 +224,7 @@ export default function LoginPage() {
                   <input
                     type="checkbox"
                     id="remember"
-                    className="w-3.5 h-3.5 rounded border-slate-300 bg-white text-blue-600 focus:ring-2 focus:ring-blue-500/10 transition-all cursor-pointer"
+                    className="w-3.5 h-3.5 rounded border-slate-300 bg-white text-indigo-600 focus:ring-2 focus:ring-indigo-500/10 transition-all cursor-pointer"
                   />
                   <label htmlFor="remember" className="text-[11px] font-bold text-slate-500 cursor-pointer hover:text-slate-700 transition-colors">Keep me signed in</label>
                 </div>
@@ -235,14 +235,14 @@ export default function LoginPage() {
                   className={`relative w-full py-4 px-6 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-500 overflow-hidden group/btn ${
                     isLoading
                       ? "bg-slate-50 text-slate-300 cursor-not-allowed border border-slate-100"
-                      : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-500/10 hover:shadow-blue-500/25 hover:scale-[1.01] active:scale-[0.99]"
+                      : "bg-gradient-to-r from-indigo-600 to-blue-700 text-white shadow-xl shadow-indigo-500/10 hover:shadow-indigo-500/25 hover:scale-[1.01] active:scale-[0.99]"
                   }`}
                 >
                   <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
                   <div className="relative flex items-center justify-center gap-2.5">
                     {isLoading ? (
                       <>
-                        <div className="w-3.5 h-3.5 border-2 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
+                        <div className="w-3.5 h-3.5 border-2 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
                         <span className="text-slate-300">Authenticating...</span>
                       </>
                     ) : (

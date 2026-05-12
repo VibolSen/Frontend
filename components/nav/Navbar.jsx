@@ -64,7 +64,7 @@ export default function Navbar() {
 
         {/* Logo Section */}
         <Link href="/" prefetch={false} className="flex items-center gap-3 group transition-transform hover:scale-[1.02]">
-          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-blue-500/10 ring-2 ring-blue-50 relative group-hover:rotate-3 transition-transform duration-500">
+          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-indigo-500/10 ring-2 ring-indigo-50 relative group-hover:rotate-3 transition-transform duration-500">
             <img
               src="/logo/STEP.jpg"
               alt="STEP Logo"
@@ -73,7 +73,7 @@ export default function Navbar() {
           </div>
           <div className="flex flex-col text-left">
             <span className="font-black text-xl tracking-tighter text-slate-900 leading-none">
-              STEP<span className="text-blue-600">ACADEMY</span>
+              STEP<span className="text-indigo-600">ACADEMY</span>
             </span>
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-1">Institutional Portal</span>
           </div>
@@ -92,7 +92,7 @@ export default function Navbar() {
         {/* Right Section: Auth/Search */}
         <div className="flex items-center gap-3">
           {/* Subtle Search */}
-          <button className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all hidden sm:flex border border-transparent hover:border-blue-100">
+          <button className="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all hidden sm:flex border border-transparent hover:border-indigo-100">
             <Search size={18} />
           </button>
 
@@ -107,8 +107,8 @@ export default function Navbar() {
                   onClick={() => setActiveDropdown(activeDropdown === 'profile' ? null : 'profile')}
                   className={`flex items-center gap-3 p-1.5 pr-3 rounded-2xl border transition-all duration-300
                     ${activeDropdown === 'profile'
-                      ? 'bg-white border-blue-200 shadow-xl shadow-blue-500/5 translate-y-[-1px]'
-                      : 'bg-slate-50 border-slate-200 hover:border-blue-200 shadow-sm'}`}
+                      ? 'bg-white border-indigo-200 shadow-xl shadow-indigo-500/5 translate-y-[-1px]'
+                      : 'bg-slate-50 border-slate-200 hover:border-indigo-200 shadow-sm'}`}
                 >
                   <div className="relative">
                     <img
@@ -126,7 +126,7 @@ export default function Navbar() {
                       Account
                     </p>
                   </div>
-                  <ChevronDown size={12} className={`text-slate-400 transition-transform duration-500 ${activeDropdown === 'profile' ? 'rotate-180 text-blue-500' : ''}`} />
+                  <ChevronDown size={12} className={`text-slate-400 transition-transform duration-500 ${activeDropdown === 'profile' ? 'rotate-180 text-indigo-500' : ''}`} />
                 </button>
 
                 <AnimatePresence>
@@ -140,10 +140,10 @@ export default function Navbar() {
                       <Link
                         href={`/${user.role.toLowerCase().replace(/_/g, "-")}/profile`}
                         prefetch={false}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-blue-50 text-slate-600 hover:text-blue-700 transition-all group"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-indigo-50 text-slate-600 hover:text-indigo-700 transition-all group"
                         onClick={() => setActiveDropdown(null)}
                       >
-                        <UserIcon size={16} className="text-slate-400 group-hover:text-blue-600" />
+                        <UserIcon size={16} className="text-slate-400 group-hover:text-indigo-600" />
                         <span className="font-semibold text-sm">Client Profile</span>
                       </Link>
                       <div className="h-[1px] bg-slate-50 my-1 mx-4" />
@@ -162,7 +162,7 @@ export default function Navbar() {
               <Link
                 href="/login"
                 prefetch={false}
-                className="group flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-slate-900 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-slate-900/20 hover:shadow-blue-500/20 hover:bg-blue-600 transition-all duration-500 hover:scale-[1.05] active:scale-[0.98]"
+                className="group flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-700 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-indigo-200/50 hover:shadow-indigo-500/20 hover:scale-[1.05] active:scale-[0.98] transition-all duration-500"
               >
                 <span>Login</span>
                 <Search size={14} className="rotate-90" />
@@ -174,7 +174,7 @@ export default function Navbar() {
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className={`p-2.5 rounded-xl transition-all lg:hidden bg-slate-50 border 
-              ${isMobileMenuOpen ? 'border-blue-200 text-blue-600 bg-blue-50 shadow-inner' : 'border-slate-200 text-slate-500 hover:text-blue-600 hover:bg-blue-50'}`}
+              ${isMobileMenuOpen ? 'border-indigo-200 text-indigo-600 bg-indigo-50 shadow-inner' : 'border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50'}`}
           >
             <Menu size={20} className={`transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-90' : ''}`} />
           </button>
@@ -202,7 +202,7 @@ export default function Navbar() {
               {/* Mobile Header with Logo & Close */}
               <div className="p-6 flex items-center justify-between border-b border-slate-50 bg-slate-50/30">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
+                  <span className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse" />
                   <span className="font-black text-xs uppercase tracking-[0.2em] text-slate-400">Navigation</span>
                 </div>
                 <button
@@ -216,7 +216,7 @@ export default function Navbar() {
               {/* Mobile User Profile Card */}
               {user && (
                 <div className="px-8 pt-6 pb-2">
-                  <div className="p-5 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl shadow-xl shadow-blue-200 flex items-center gap-4 relative overflow-hidden group">
+                  <div className="p-5 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-3xl shadow-xl shadow-indigo-200/50 flex items-center gap-4 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:scale-150 transition-transform duration-700" />
                     <div className="relative">
                       <img className="w-14 h-14 rounded-2xl object-cover ring-4 ring-white/20 shadow-lg" src={user?.profile?.avatar || "/default-cover.jpg"} alt="User" />
@@ -230,7 +230,7 @@ export default function Navbar() {
                       href={`/${user.role.toLowerCase().replace(/_/g, "-")}/profile`}
                       prefetch={false}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-blue-600 rounded-xl transition-all drop-shadow-sm"
+                      className="p-2.5 bg-white/10 hover:bg-white text-white hover:text-indigo-600 rounded-xl transition-all drop-shadow-sm"
                     >
                       <UserIcon size={20} />
                     </Link>
@@ -261,7 +261,7 @@ export default function Navbar() {
                   <Link
                     href="/login"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-3 w-full py-5 rounded-[2rem] bg-slate-900 text-white font-black text-sm uppercase tracking-widest shadow-xl shadow-slate-900/20 hover:bg-blue-600 transition-all active:scale-95"
+                    className="flex items-center justify-center gap-3 w-full py-5 rounded-[2rem] bg-gradient-to-r from-indigo-600 to-blue-700 text-white font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-200/50 hover:scale-95 transition-all duration-300 active:scale-90"
                   >
                     <span>Get Started</span>
                     <Search size={18} className="rotate-90 opacity-40" />
@@ -296,9 +296,9 @@ function MobileNavLink({ href, label, icon, onClick }) {
         href={href}
         prefetch={false}
         onClick={onClick}
-        className="flex items-center gap-4 px-5 py-4 rounded-2xl text-slate-600 hover:text-blue-700 hover:bg-blue-50/50 font-bold border border-transparent hover:border-blue-100 group transition-all duration-300"
+        className="flex items-center gap-4 px-5 py-4 rounded-2xl text-slate-600 hover:text-indigo-700 hover:bg-indigo-50/50 font-bold border border-transparent hover:border-indigo-100 group transition-all duration-300"
       >
-        <div className="p-2 rounded-xl bg-slate-50 group-hover:bg-white border border-slate-100 transition-colors shadow-sm group-hover:shadow-blue-500/5 group-hover:scale-110 duration-500">
+        <div className="p-2 rounded-xl bg-slate-50 group-hover:bg-white border border-slate-100 transition-colors shadow-sm group-hover:shadow-indigo-500/5 group-hover:scale-110 duration-500">
           {icon}
         </div>
         <span className="text-[15px]">{label}</span>
@@ -316,7 +316,7 @@ function NavLink({ href, label }) {
       className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all duration-300 relative group overflow-hidden"
     >
       {label}
-      <span className="absolute bottom-1 left-4 right-4 h-0.5 bg-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
+      <span className="absolute bottom-1 left-4 right-4 h-0.5 bg-indigo-600 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300" />
     </Link>
   );
 }

@@ -69,7 +69,7 @@ const ContactUs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/20">
       {/* Floating Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -112,7 +112,7 @@ const ContactUs = () => {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-full text-sm font-medium mb-4 shadow-lg"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-700 text-white px-6 py-3 rounded-full text-sm font-medium mb-4 shadow-lg shadow-indigo-200/50"
           >
             <Sparkles className="w-4 h-4" />
             We're Here to Help
@@ -133,7 +133,7 @@ const ContactUs = () => {
             className="bg-white  dark:bg-white rounded-3xl p-8 shadow-xl border border-gray-100 dark:border-gray-700"
             variants={itemVariants}
           >
-            <h2 className="text-3xl font-bold text-blue-800 dark:text-white mb-6">
+            <h2 className="text-3xl font-black tracking-tight text-indigo-800 dark:text-white mb-6">
               Send Us a Message
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -147,7 +147,7 @@ const ContactUs = () => {
                   onChange={handleChange}
                   placeholder="Your Name"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-gray-100 border dark:border-gray-700 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-100 border dark:border-gray-700 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors"
                 />
               </div>
 
@@ -161,7 +161,7 @@ const ContactUs = () => {
                   onChange={handleChange}
                   placeholder="Your Email"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:border-gray-700 border border-gray-200  rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:border-gray-700 border border-gray-200  rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors"
                 />
               </div>
 
@@ -175,7 +175,7 @@ const ContactUs = () => {
                   onChange={handleChange}
                   placeholder="Subject"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:border-gray-700 border border-gray-200  rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:border-gray-700 border border-gray-200  rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors"
                 />
               </div>
 
@@ -189,14 +189,14 @@ const ContactUs = () => {
                   placeholder="Your Message"
                   rows={5}
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:border-gray-700border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-colors resize-none"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:border-gray-700 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors resize-none"
                 />
               </div>
 
               {/* Submit Button */}
               <motion.button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 inline-flex items-center justify-center gap-2 shadow-lg"
+                className="w-full bg-gradient-to-r from-indigo-600 to-blue-700 text-white px-8 py-3 rounded-full font-black text-sm uppercase tracking-widest hover:from-indigo-700 hover:to-blue-800 transition-all duration-300 inline-flex items-center justify-center gap-2 shadow-lg shadow-indigo-200/50"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -214,25 +214,25 @@ const ContactUs = () => {
               </h2>
               <ul className="space-y-4 text-gray-600 dark:text-gray-400">
                 <li className="flex items-start gap-4">
-                  <MapPin className="w-6 h-6 text-blue-500 mt-1 flex-shrink-0" />
+                  <MapPin className="w-6 h-6 text-indigo-500 mt-1 flex-shrink-0" />
                   <span>
                     Russian Federation Blvd (110), Phnom Penh, Cambodia
                   </span>
                 </li>
                 <li className="flex items-center gap-4">
-                  <Mail className="w-6 h-6 text-blue-500 flex-shrink-0" />
+                  <Mail className="w-6 h-6 text-indigo-500 flex-shrink-0" />
                   <a
                     href="mailto:support@edusys.com"
-                    className="hover:text-blue-500 transition-colors"
+                    className="hover:text-indigo-600 transition-colors"
                   >
                     vibolsen2002@gmail.com
                   </a>
                 </li>
                 <li className="flex items-center gap-4">
-                  <Phone className="w-6 h-6 text-blue-500 flex-shrink-0" />
+                  <Phone className="w-6 h-6 text-indigo-500 flex-shrink-0" />
                   <a
                     href="tel:+85512345678"
-                    className="hover:text-blue-500 transition-colors"
+                    className="hover:text-indigo-600 transition-colors"
                   >
                     (+855) 966845795
                   </a>
