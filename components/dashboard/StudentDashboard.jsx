@@ -320,31 +320,53 @@ const StudentDashboard = ({ loggedInUser }) => {
                 {upcomingSessions.length === 0 ? (
                   <p className="text-xs text-slate-400 p-4 text-center italic">No classes scheduled.</p>
                 ) : (
-                  upcomingSessions.map((session, idx) => (
-                    <div key={idx} className="p-3 bg-white border border-slate-100 rounded-xl hover:border-indigo-100 hover:bg-indigo-50/30 transition-all group">
-                      <div className="flex justify-between items-start mb-1">
-                        <h4 className="text-xs font-bold text-slate-800 group-hover:text-indigo-700 transition-colors truncate max-w-[150px]">
-                          {session.courseName || session.title}
-                        </h4>
-                        <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
-                          {moment(session.startTime).format("HH:mm")}
-                        </span>
-                      </div>
+                  upcomingSessions.map((session, idx) => {
+                    const sessionDate = moment(session.startTime);
+                    const now = moment();
+                    const isToday = sessionDate.isSame(now, 'day');
+                    const isTomorrow = sessionDate.isSame(now.clone().add(1, 'day'), 'day');
+                    const isLive = now.isBetween(moment(session.startTime), moment(session.endTime));
 
-                      <div className="flex items-center gap-3 mt-2">
-                        <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium whitespace-nowrap">
-                          <Clock size={10} className="text-slate-400" />
-                          {moment(session.startTime).format("h:mm A")}
-                        </div>
-                        {session.location && (
-                          <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium truncate">
-                            <MapPin size={10} className="text-rose-400" />
-                            {session.location}
+                    let dateLabel = sessionDate.format("MMM D");
+                    if (isToday) dateLabel = "Today";
+                    else if (isTomorrow) dateLabel = "Tomorrow";
+
+                    return (
+                      <div key={idx} className={`p-3 bg-white border ${isLive ? 'border-emerald-200 bg-emerald-50/20' : 'border-slate-100'} rounded-xl hover:border-indigo-100 hover:bg-indigo-50/30 transition-all group relative overflow-hidden`}>
+                        {isLive && (
+                          <div className="absolute top-0 right-0 px-2 py-0.5 bg-emerald-500 text-white text-[7px] font-black uppercase tracking-widest rounded-bl-lg animate-pulse">
+                            Live Now
                           </div>
                         )}
+                        <div className="flex justify-between items-start mb-1">
+                          <div className="flex flex-col">
+                            <span className={`text-[8px] font-black uppercase tracking-widest ${isToday ? 'text-blue-600' : 'text-slate-400'}`}>
+                              {dateLabel}
+                            </span>
+                            <h4 className="text-xs font-bold text-slate-800 group-hover:text-indigo-700 transition-colors truncate max-w-[150px]">
+                              {session.courseName || session.title}
+                            </h4>
+                          </div>
+                          <span className={`text-[10px] font-black ${isLive ? 'text-emerald-600 bg-emerald-50' : 'text-indigo-600 bg-indigo-50'} px-1.5 py-0.5 rounded`}>
+                            {moment(session.startTime).format("HH:mm")}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium whitespace-nowrap">
+                            <Clock size={10} className="text-slate-400" />
+                            {moment(session.startTime).format("h:mm A")}
+                          </div>
+                          {session.location && (
+                            <div className="flex items-center gap-1 text-[10px] text-slate-500 font-medium truncate">
+                              <MapPin size={10} className="text-rose-400" />
+                              {session.location}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </motion.section>
@@ -357,17 +379,29 @@ const StudentDashboard = ({ loggedInUser }) => {
               </div>
               <div className="space-y-3">
                 {recentGrades.length > 0 ? recentGrades.map((grade) => (
-                  <div key={grade.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors">
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-bold text-slate-800 truncate">{grade.assignment.title}</p>
-                      <p className="text-[9px] text-slate-400">{moment(grade.submittedAt).format("MMM D")}</p>
+                  <Link 
+                    key={grade.id} 
+                    href={grade.type === 'EXAM' ? `/student/exams/${grade.id}` : `/student/assignments/${grade.id}`}
+                    className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors group"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className={`text-[7px] font-black px-1 py-0.5 rounded border ${grade.type === 'EXAM' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-blue-50 text-blue-600 border-blue-100'} uppercase tracking-tighter`}>
+                          {grade.type}
+                        </span>
+                        <p className="text-[11px] font-bold text-slate-800 truncate group-hover:text-blue-600 transition-colors">{grade.displayTitle}</p>
+                      </div>
+                      <p className="text-[9px] text-slate-400 font-medium ml-1">{moment(grade.submittedAt).format("MMM D, YYYY")}</p>
                     </div>
-                    <div className={`h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-black ${grade.grade >= 80 ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
-                      {grade.grade}
+                    <div className={`h-8 w-8 shrink-0 rounded-full flex flex-col items-center justify-center border-2 ${grade.grade >= 80 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-blue-50 text-blue-600 border-blue-100 shadow-sm shadow-blue-500/5'}`}>
+                      <span className="text-[11px] font-black leading-none">{grade.grade}</span>
                     </div>
-                  </div>
+                  </Link>
                 )) : (
-                  <p className="text-[10px] text-slate-400 text-center py-2">No graded items yet.</p>
+                  <div className="text-center py-6 space-y-2 opacity-50">
+                     <ClipboardCheck size={24} className="mx-auto text-slate-300" />
+                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">No graded items yet.</p>
+                  </div>
                 )}
               </div>
               <Link href="/student/transcript" prefetch={false} className="mt-4 pt-4 border-t border-slate-50 text-[11px] font-bold text-blue-600 flex items-center justify-center gap-1">

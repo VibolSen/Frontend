@@ -6,17 +6,16 @@ import {
   Facebook,
   Send,
   Github,
-  Youtube,
-  Heart,
-  Star,
-  Users,
   Target,
   Sparkles,
   School,
   GraduationCap,
   BookOpen,
   Lightbulb,
-  Linkedin,
+  ShieldCheck,
+  Zap,
+  Globe,
+  Award,
 } from "lucide-react";
 
 const AboutUs = () => {
@@ -24,241 +23,162 @@ const AboutUs = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: 0.7, staggerChildren: 0.2 },
+      transition: { duration: 0.8, staggerChildren: 0.2 },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 50 },
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, type: "spring", stiffness: 50 },
+      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
     },
   };
 
-  const floatingVariants = {
-    animate: {
-      y: [-10, 10, -10],
-      rotate: [0, 5, -5, 0],
-      transition: {
-        duration: 4,
-        repeat: Number.POSITIVE_INFINITY,
-        ease: "easeInOut",
-      },
-    },
-  };
-
-  const teamMembers = [
+  const pillars = [
     {
-      name: "Mr. Sen Vibol",
-      image: "/profile.jpg",
-      role: "Full-Stack Developer",
-      description:
-        "Passionate about creating robust, scalable systems to streamline educational administration.",
-      social: {
-        facebook: "https://www.facebook.com/vibolsen02",
-        telegram: "https://t.me/vibolsen",
-        github: "https://github.com/VibolSen",
-        linkedin: "#",
-      },
+      icon: <ShieldCheck className="w-6 h-6 text-indigo-600" />,
+      title: "Integrity & Security",
+      description: "Implementing rigorous RBAC and encryption standards to safeguard sensitive institutional data.",
+    },
+    {
+      icon: <Zap className="w-6 h-6 text-blue-600" />,
+      title: "Agile Innovation",
+      description: "A commitment to iterative development, ensuring the platform evolves with modern academic needs.",
+    },
+    {
+      icon: <Globe className="w-6 h-6 text-indigo-600" />,
+      title: "Global Standards",
+      description: "Adopting enterprise-grade technologies like Next.js and Bakong for world-class performance.",
     },
   ];
 
   return (
-    <div className="min-h-screen">
-      {/* Floating Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          variants={floatingVariants}
-          animate="animate"
-          className="absolute top-20 left-10 text-indigo-200 dark:text-indigo-800"
-        >
-          <School size={40} />
-        </motion.div>
-        <motion.div
-          variants={floatingVariants}
-          animate="animate"
-          className="absolute top-40 right-20 text-indigo-200 dark:text-indigo-800"
-          style={{ animationDelay: "1s" }}
-        >
-          <GraduationCap size={35} />
-        </motion.div>
-        <motion.div
-          variants={floatingVariants}
-          animate="animate"
-          className="absolute bottom-40 left-20 text-purple-200 dark:text-purple-800"
-          style={{ animationDelay: "2s" }}
-        >
-          <BookOpen size={30} />
-        </motion.div>
-        <motion.div
-          variants={floatingVariants}
-          animate="animate"
-          className="absolute bottom-20 right-10 text-blue-200 dark:text-blue-800"
-          style={{ animationDelay: "3s" }}
-        >
-          <Lightbulb size={25} />
-        </motion.div>
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      {/* Institutional Background Texture */}
+      <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none select-none z-0">
+        <div className="absolute top-20 left-20 transform -rotate-12">
+          <School size={400} />
+        </div>
       </div>
 
       <motion.div
-        className="container mx-auto p-6 md:p-8 lg:p-10 relative z-10"
+        className="container mx-auto px-6 py-20 relative z-10"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        {/* Hero Section */}
-        <motion.section
-          className="text-center py-20 relative overflow-hidden"
-          variants={itemVariants}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 rounded-3xl opacity-90 dark:opacity-80"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl"></div>
-
-          <div className="relative z-10 text-white">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full text-sm font-medium mb-6 shadow-lg"
-            >
-              <Target className="w-4 h-4" />
-              About Our Mission
-            </motion.div>
-
-            <motion.h1
-              className="text-5xl md:text-7xl font-bold mb-6"
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.8 }}
-            >
-              Welcome to{" "}
-              <span className="bg-gradient-to-r from-indigo-200 to-blue-200 bg-clip-text text-transparent">
-                EduSys
-              </span>
-            </motion.h1>
-
-            <motion.p
-              className="text-xl md:text-2xl max-w-4xl mx-auto leading-relaxed font-light"
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.7, duration: 0.8 }}
-            >
-              Empowering educational institutions with a seamless, integrated,
-              and powerful management solution.
-            </motion.p>
+        {/* Institutional Hero Section */}
+        <motion.section className="max-w-4xl mb-32" variants={itemVariants}>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 mb-8">
+            <Sparkles className="w-4 h-4 text-indigo-600" />
+            <span className="text-xs font-black tracking-widest uppercase text-indigo-600">
+              Our Foundational Mission
+            </span>
           </div>
+          <h1 className="text-6xl md:text-8xl font-black text-slate-900 mb-8 tracking-tight leading-[0.9]">
+            Modernizing <br />
+            <span className="bg-gradient-to-r from-indigo-600 to-blue-700 bg-clip-text text-transparent">
+              Academic Governance
+            </span>
+          </h1>
+          <p className="text-slate-600 text-xl md:text-2xl leading-relaxed max-w-3xl">
+            EduSys was engineered as a response to the administrative fragmentation in modern education. 
+            We bridge the gap between traditional management and digital excellence through high-fidelity systems integration.
+          </p>
         </motion.section>
 
-        {/* Team Section */}
-        <motion.section className="py-20" variants={itemVariants}>
-          <div className="text-center mb-16">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-700 text-white px-6 py-3 rounded-full text-sm font-medium mb-4 shadow-lg shadow-indigo-200/50"
-            >
-              <Users className="w-4 h-4" />
-              Meet Our Team
-            </motion.div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              The Architects of EduSys
-            </h2>
+        {/* Vision Pillars Grid */}
+        <motion.section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32" variants={itemVariants}>
+          {pillars.map((pillar, i) => (
+            <div key={i} className="p-10 bg-slate-50 rounded-[2.5rem] border border-slate-100 group hover:bg-white hover:shadow-2xl hover:shadow-indigo-100/30 transition-all duration-500">
+              <div className="mb-6 p-4 bg-white rounded-2xl w-fit shadow-sm group-hover:scale-110 transition-transform duration-300">
+                {pillar.icon}
+              </div>
+              <h3 className="text-sm font-black tracking-widest uppercase text-slate-900 mb-4">{pillar.title}</h3>
+              <p className="text-slate-500 text-sm leading-relaxed">{pillar.description}</p>
+            </div>
+          ))}
+        </motion.section>
+
+        {/* Architect Profile Section */}
+        <motion.section className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center mb-32" variants={itemVariants}>
+          <div className="relative group">
+            <div className="absolute inset-0 bg-indigo-600 rounded-[3rem] rotate-3 group-hover:rotate-6 transition-transform duration-500" />
+            <div className="relative aspect-square overflow-hidden rounded-[3rem] border-8 border-white shadow-2xl">
+              <Image
+                src="/profile.jpg"
+                alt="Architect"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+            </div>
+            {/* Float Accents */}
+            <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-3xl shadow-xl flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white">
+                <Award className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black tracking-widest uppercase text-slate-400">Lead Architect</p>
+                <p className="font-black text-slate-900">Mr. Sen Vibol</p>
+              </div>
+            </div>
           </div>
 
-          <div className="flex justify-center">
-            <div className="grid grid-cols-1 gap-12">
-              {teamMembers.map((member, index) => (
-                <motion.div
-                  key={index}
-                  className="group relative"
-                  variants={itemVariants}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -10 }}
-                  transition={{ duration: 0.6, delay: index * 0.2 }}
-                >
-                  <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-xl transition-all duration-500 border border-gray-200 dark:border-gray-700">
-                    <div className="relative mb-6 w-32 h-32 mx-auto">
-                      <Image
-                        src={member.image}
-                        alt={member.name}
-                        width={128}
-                        height={128}
-                        className="rounded-full w-full h-full object-cover border-4 border-white dark:border-gray-700"
-                      />
-                    </div>
-
-                    <h3 className="text-xl font-bold mb-2 text-center">
-                      {member.name}
-                    </h3>
-                    <p className="text-indigo-600 dark:text-indigo-400 font-semibold mb-3 text-center">
-                      {member.role}
-                    </p>
-                    <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
-                      {member.description}
-                    </p>
-
-                    <div className="flex justify-center gap-4">
-                      <motion.a
-                        href={member.social.facebook}
-                        whileHover={{ scale: 1.1 }}
-                        className="p-3 bg-indigo-600 text-white rounded-full shadow-lg shadow-indigo-200/50"
-                      >
-                        <Facebook className="w-5 h-5" />
-                      </motion.a>
-                      <motion.a
-                        href={member.social.telegram}
-                        whileHover={{ scale: 1.1 }}
-                        className="p-3 bg-blue-600 text-white rounded-full shadow-lg shadow-blue-200/50"
-                      >
-                        <Send className="w-5 h-5" />
-                      </motion.a>
-                      <motion.a
-                        href={member.social.github}
-                        whileHover={{ scale: 1.1 }}
-                        className="p-3 bg-gray-200 dark:bg-gray-700 rounded-full"
-                      >
-                        <Github className="w-5 h-5" />
-                      </motion.a>
-                      <motion.a
-                        href={member.social.linkedin}
-                        whileHover={{ scale: 1.1 }}
-                        className="p-3 bg-gray-200 dark:bg-gray-700 rounded-full"
-                      >
-                        <Linkedin className="w-5 h-5" />
-                      </motion.a>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+          <div className="space-y-8">
+            <h2 className="text-sm font-black tracking-[0.3em] uppercase text-indigo-600">The Architect's Vision</h2>
+            <h3 className="text-4xl md:text-5xl font-black text-slate-900 leading-tight">
+              Designing for the <br />
+              <span className="text-indigo-600">Future of Learning.</span>
+            </h3>
+            <p className="text-slate-600 leading-relaxed text-lg">
+              "My journey with EduSys began with a single objective: to eliminate the operational friction that slows down academic progress. 
+              By focusing on high-density architecture and localized financial standards like Bakong, 
+              we've created a platform that doesn't just manage data—it empowers institutions."
+            </p>
+            <div className="flex gap-4 pt-4">
+              <a href="https://github.com/VibolSen" className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center hover:scale-110 transition-transform">
+                <Github size={20} />
+              </a>
+              <a href="https://t.me/vibolsen" className="w-12 h-12 rounded-2xl bg-blue-500 text-white flex items-center justify-center hover:scale-110 transition-transform">
+                <Send size={20} />
+              </a>
+              <a href="https://www.facebook.com/vibolsen02" className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center hover:scale-110 transition-transform">
+                <Facebook size={20} />
+              </a>
             </div>
           </div>
         </motion.section>
 
-        {/* Vision Section */}
-        <motion.section className="py-20" variants={itemVariants}>
-          <div className="bg-gradient-to-br from-indigo-50/50 to-blue-50/50 dark:from-indigo-900/30 p-12 rounded-3xl relative border border-indigo-100/50">
-            <div className="relative z-10 max-w-4xl mx-auto text-center">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                whileInView={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.6 }}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-700 text-white px-6 py-3 rounded-full text-sm font-medium mb-6 shadow-lg shadow-indigo-200/50"
-              >
-                <Target className="w-4 h-4" />
-                Our Vision
-              </motion.div>
-
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                Revolutionizing School Administration
-              </h2>
-              <p className="text-lg mb-8">
-                We are committed to building a reliable and user-friendly
-                platform for modern education.
-              </p>
+        {/* Development Trajectory Section */}
+        <motion.section className="py-20 bg-slate-900 rounded-[4rem] px-10 md:px-20 text-white relative overflow-hidden" variants={itemVariants}>
+          <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
+            <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-indigo-500 to-transparent" />
+          </div>
+          
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-4">
+              <h4 className="text-xs font-black tracking-[0.4em] uppercase text-indigo-400 mb-6">Strategic Trajectory</h4>
+              <h2 className="text-4xl font-black mb-8 leading-tight">Project <br />Milestones</h2>
+              <div className="flex gap-2">
+                <div className="w-2 h-2 rounded-full bg-indigo-600" />
+                <div className="w-2 h-2 rounded-full bg-indigo-800" />
+                <div className="w-2 h-2 rounded-full bg-indigo-900" />
+              </div>
+            </div>
+            
+            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <p className="text-indigo-400 text-xs font-black mb-2 tracking-widest uppercase">Phase 01 — Q1 2026</p>
+                <h5 className="font-black text-xl mb-4">Core Engine Launch</h5>
+                <p className="text-slate-400 text-sm leading-relaxed">Implementation of the high-density Admin Command Center and RBAC firewall logic.</p>
+              </div>
+              <div className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <p className="text-indigo-400 text-xs font-black mb-2 tracking-widest uppercase">Phase 02 — Q2 2026</p>
+                <h5 className="font-black text-xl mb-4">Financial Pillar</h5>
+                <p className="text-slate-400 text-sm leading-relaxed">Integration of national Bakong KHQR gateways and automated tuition billing systems.</p>
+              </div>
             </div>
           </div>
         </motion.section>

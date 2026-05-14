@@ -47,15 +47,15 @@ export default function MyStudentsView({ loggedInUser }) {
   }, [students, searchTerm]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Premium Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3 lowercase first-letter:uppercase">
-            <div className="h-10 w-1.5 bg-blue-600 rounded-full" />
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3 lowercase first-letter:uppercase">
+            <div className="h-8 w-1.5 bg-blue-600 rounded-full" />
             Student Community
           </h1>
-          <p className="text-slate-500 font-medium text-sm ml-4 border-l border-slate-200 pl-4">
+          <p className="text-slate-500 font-medium text-sm ml-2.5 border-l border-slate-200 pl-3">
             Unified view of active learners across all your assigned academic sessions.
           </p>
         </div>
@@ -69,7 +69,7 @@ export default function MyStudentsView({ loggedInUser }) {
       </div>
 
       {/* Control Bar */}
-      <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+      <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
         <div className="relative w-full lg:max-w-md group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
             <Search size={18} />
@@ -79,27 +79,27 @@ export default function MyStudentsView({ loggedInUser }) {
             placeholder="Search roster by name or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
+            className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all"
           />
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-100">
-                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Full Identity</th>
-                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact Details</th>
-                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Authority</th>
-                <th className="px-8 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Engagement</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Full Identity</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact Details</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Authority</th>
+                <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Engagement</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="py-24">
+                  <td colSpan={4} className="py-16">
                     <div className="flex flex-col items-center justify-center gap-4">
                       <LoadingSpinner size="lg" color="blue" />
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 animate-pulse">Syncing Personnel Roster...</p>
@@ -130,13 +130,13 @@ export default function MyStudentsView({ loggedInUser }) {
                       transition={{ delay: idx * 0.03 }}
                       className="group hover:bg-slate-50/80 transition-colors"
                     >
-                      <td className="px-8 py-6">
+                      <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm overflow-hidden">
+                          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm overflow-hidden">
                             {student.profile?.avatar ? (
                               <img src={student.profile.avatar} alt="" className="w-full h-full object-cover" />
                             ) : (
-                              <User size={20} />
+                              <User size={18} />
                             )}
                           </div>
                           <div>
@@ -149,16 +149,16 @@ export default function MyStudentsView({ loggedInUser }) {
                           </div>
                         </div>
                       </td>
-                      <td className="px-8 py-6">
+                      <td className="px-6 py-4">
                         <p className="text-xs font-bold text-slate-600">{student.email}</p>
                       </td>
-                      <td className="px-8 py-6">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-sky-50 text-sky-700 rounded-xl text-[10px] font-black uppercase tracking-wider border border-sky-100">
+                      <td className="px-6 py-4">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-sky-50 text-sky-700 rounded-lg text-[10px] font-black uppercase tracking-wider border border-sky-100">
                           <UserCheck size={12} />
                           {student.role}
                         </div>
                       </td>
-                      <td className="px-8 py-6 text-center">
+                      <td className="px-6 py-4 text-center">
                         <Link
                           href={`/teacher/students/${student.id}`}
                           prefetch={false}

@@ -12,8 +12,17 @@ const AssignmentCard = ({
   showActions = true,
   status,
   userRole,
+  grade,
 }) => {
   const isOverdue = assignment.dueDate && new Date(assignment.dueDate) < new Date();
+  const isGraded = status?.toLowerCase() === "graded";
+  
+  const TrophyIcon = () => (
+    <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8l-2 2-2-2m2 2V4m6 16H6a2 2 0 01-2-2V6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v12a2 2 0 01-2 2z" />
+      <circle cx="12" cy="14" r="3" strokeWidth={2.5} />
+    </svg>
+  );
 
   // Premium status configuration
   const getStatusTheme = (statusName) => {
@@ -87,6 +96,12 @@ const AssignmentCard = ({
                {assignment.type && (
                   <div className="text-[8px] text-slate-400 font-bold uppercase tracking-widest px-1">
                     {assignment.type}
+                  </div>
+               )}
+               {isGraded && grade !== undefined && (
+                  <div className="mt-1 flex items-center gap-1.5 px-2 py-1 bg-emerald-500 text-white rounded-lg shadow-lg shadow-emerald-200 border border-emerald-400 text-[10px] font-black animate-in zoom-in-50 duration-500">
+                    <TrophyIcon />
+                    Score: {grade}
                   </div>
                )}
            </div>

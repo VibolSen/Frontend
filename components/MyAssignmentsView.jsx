@@ -71,6 +71,7 @@ export default function MyAssignmentsView({ loggedInUser }) {
                 key={id}
                 assignment={assignment}
                 status={status}
+                grade={grade}
                 onNavigate={() => router.push(`/student/assignments/${id}`)}
                 showActions={false}
               />

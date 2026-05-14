@@ -35,13 +35,30 @@ export default function GroupsTable({
 
   const processedGroups = useMemo(() => {
     const filtered = groups.filter((group) => {
-      return group.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesName = group.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesGeneration = group.batch?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesName || matchesGeneration;
     });
 
     if (sortConfig.key) {
       filtered.sort((a, b) => {
-        let aValue = a[sortConfig.key];
-        let bValue = b[sortConfig.key];
+        let aValue, bValue;
+        
+        if (sortConfig.key.includes('.')) {
+          const parts = sortConfig.key.split('.');
+          aValue = a;
+          bValue = b;
+          parts.forEach(part => {
+            aValue = aValue ? aValue[part] : "";
+            bValue = bValue ? bValue[part] : "";
+          });
+        } else {
+          aValue = a[sortConfig.key] || "";
+          bValue = b[sortConfig.key] || "";
+        }
+
+        if (typeof aValue === 'string') aValue = aValue.toLowerCase();
+        if (typeof bValue === 'string') bValue = bValue.toLowerCase();
 
         if (aValue < bValue)
           return sortConfig.direction === "ascending" ? -1 : 1;
@@ -134,7 +151,18 @@ export default function GroupsTable({
                   <SortIndicator direction={sortConfig.key === "name" ? sortConfig.direction : null} />
                 </div>
               </th>
-              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest hidden lg:table-cell">Academic Lifecycle</th>
+              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest hidden lg:table-cell cursor-pointer group" onClick={() => handleSort("batch.name")}>
+                <div className="flex items-center gap-1">
+                  Generation
+                  <SortIndicator direction={sortConfig.key === "batch.name" ? sortConfig.direction : null} />
+                </div>
+              </th>
+              <th className="px-5 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest hidden lg:table-cell cursor-pointer group" onClick={() => handleSort("academicYear")}>
+                <div className="flex items-center gap-1">
+                  Academic Year
+                  <SortIndicator direction={sortConfig.key === "academicYear" ? sortConfig.direction : null} />
+                </div>
+              </th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Census</th>
               <th className="px-5 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Controls</th>
             </tr>
@@ -142,7 +170,7 @@ export default function GroupsTable({
           <tbody className="divide-y divide-slate-50">
             {isLoading && processedGroups.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-12 border-none">
+                <td colSpan={6} className="py-12 border-none">
                   <div className="flex flex-col items-center justify-center gap-3 opacity-50">
                     <div className="h-5 w-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Syncing Cohorts...</span>
@@ -151,7 +179,7 @@ export default function GroupsTable({
               </tr>
             ) : processedGroups.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-12 text-center">
+                <td colSpan={6} className="py-12 text-center">
                   <div className="flex flex-col items-center opacity-40">
                     <Users size={24} className="mb-2" />
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No active groups found</p>
@@ -195,14 +223,14 @@ export default function GroupsTable({
                       </div>
                     </td>
                     <td className="px-5 py-3 whitespace-nowrap hidden lg:table-cell">
-                      <div className="flex flex-col">
-                        <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">
-                          {group.batch?.name || "No Generation"}
-                        </span>
-                        <span className="text-[9px] font-bold text-slate-400 mt-0.5">
-                          {group.academicYear || "Year N/A"}
-                        </span>
-                      </div>
+                      <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">
+                        {group.batch?.name || "No Generation"}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3 whitespace-nowrap hidden lg:table-cell">
+                      <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">
+                        {group.academicYear || "Year N/A"}
+                      </span>
                     </td>
                     <td className="px-5 py-3 whitespace-nowrap text-center">
                       <span className="px-2 py-0.5 text-[10px] font-black text-blue-700 bg-blue-50 rounded border border-blue-100 uppercase tracking-widest shadow-sm">

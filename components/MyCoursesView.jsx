@@ -97,15 +97,15 @@ export default function MyCoursesView({ loggedInUser }) {
   }, [courses, searchTerm, selectedDepartment, sortCriteria, sortOrder]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Premium Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-             <div className="h-10 w-1.5 bg-indigo-600 rounded-full" />
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+             <div className="h-8 w-1.5 bg-indigo-600 rounded-full" />
              My Academic Catalog
           </h1>
-          <p className="text-slate-500 font-medium text-sm ml-4 border-l border-slate-200 pl-4">
+          <p className="text-slate-500 font-medium text-sm ml-2.5 border-l border-slate-200 pl-3">
             Managing courses, curriculum distribution, and student enrollment metrics.
           </p>
         </div>
@@ -119,7 +119,7 @@ export default function MyCoursesView({ loggedInUser }) {
       </div>
 
       {/* Control Bar */}
-      <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+      <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-4">
         <div className="flex flex-col lg:flex-row items-center gap-4">
           <div className="relative w-full lg:max-w-md group">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
@@ -130,7 +130,7 @@ export default function MyCoursesView({ loggedInUser }) {
               placeholder="Search catalog by course or faculty..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+              className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
             />
           </div>
 
@@ -142,7 +142,7 @@ export default function MyCoursesView({ loggedInUser }) {
               <select
                 value={selectedDepartment}
                 onChange={(e) => setSelectedDepartment(e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[12px] font-bold text-slate-600 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                className="w-full pl-10 pr-8 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[12px] font-bold text-slate-600 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
               >
                 <option value="">All Departments</option>
                 {departments.map((dept) => (
@@ -158,7 +158,7 @@ export default function MyCoursesView({ loggedInUser }) {
               <select
                 value={sortCriteria}
                 onChange={(e) => setSortCriteria(e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[12px] font-bold text-slate-600 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                className="w-full pl-10 pr-8 py-2 bg-slate-50 border border-slate-100 rounded-xl text-[12px] font-bold text-slate-600 appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
               >
                 <option value="name">Sort by Title</option>
                 <option value="department">Sort by Dept</option>
@@ -171,21 +171,21 @@ export default function MyCoursesView({ loggedInUser }) {
       </div>
 
       {/* Main Content */}
-      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-100">
-                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Course Description</th>
-                <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Faculty Dept</th>
-                <th className="px-8 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Groups</th>
-                <th className="px-8 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Student Load</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Course Description</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Faculty Dept</th>
+                <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Groups</th>
+                <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Student Load</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="py-24">
+                  <td colSpan={4} className="py-16">
                     <div className="flex flex-col items-center justify-center gap-4">
                       <LoadingSpinner size="lg" color="indigo" />
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 animate-pulse">Synchronizing Academic Data...</p>
@@ -217,10 +217,10 @@ export default function MyCoursesView({ loggedInUser }) {
                       onClick={() => router.push(`/teacher/courses/${course.id}`)}
                       className="group hover:bg-slate-50/80 transition-colors cursor-pointer border-b border-slate-50"
                     >
-                      <td className="px-8 py-6">
+                      <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shadow-sm">
-                            <BookOpen size={20} />
+                          <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                            <BookOpen size={18} />
                           </div>
                           <div>
                             <p className="text-sm font-black text-slate-800 leading-tight group-hover:text-indigo-600 transition-colors">
@@ -233,13 +233,13 @@ export default function MyCoursesView({ loggedInUser }) {
                           </div>
                         </div>
                       </td>
-                      <td className="px-8 py-6">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-wider border border-slate-200/50">
+                      <td className="px-6 py-4">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-wider border border-slate-200/50">
                           <Layers size={12} />
                           {course.department?.name || "Unassigned"}
                         </div>
                       </td>
-                      <td className="px-8 py-6 text-center">
+                      <td className="px-6 py-4 text-center">
                         <div className="inline-flex flex-col items-center">
                           <span className="text-sm font-black text-slate-800">{course.groupCount || 0}</span>
                           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Sections</span>

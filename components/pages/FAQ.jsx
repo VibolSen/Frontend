@@ -1,6 +1,8 @@
+"use client";
 
-import { HelpCircle, ChevronRight } from "lucide-react";
+import { HelpCircle, ChevronRight, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function FAQ() {
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
@@ -11,96 +13,89 @@ export default function FAQ() {
 
   const faqs = [
     {
-      question: "How do I get started with your platform?",
+      question: "How secure is the Bakong KHQR integration?",
       answer:
-        "Simply sign up for a free account, browse our course catalog, and enroll in the courses that interest you. You can start learning immediately after enrollment.",
+        "The system utilizes National Bank of Cambodia's encrypted API standards. All transactions are processed in real-time with atomic state updates, ensuring high-fidelity financial logging and zero data loss.",
     },
     {
-      question: "What payment methods do you accept?",
+      question: "Can I manage multiple faculty hierarchies?",
       answer:
-        "We accept all major credit cards, PayPal, and bank transfers. All payments are processed securely through our encrypted payment system.",
+        "Yes. EduSys is built on a high-density institutional architecture that allows for recursive nesting of Faculties, Departments, Batches, and specialized Student Groups.",
     },
     {
-      question: "Is there a free trial available?",
+      question: "Does the platform support Role-Based Access Control?",
       answer:
-        "Yes! We offer a 7-day free trial for new users. You can access selected courses and features to experience our platform before committing to a subscription.",
+        "Absolutely. The platform features a strict RBAC firewall logic that quarantines data and functionality across 7 specific operational ranks (Admin, Teacher, Student, Finance, HR, and more).",
     },
     {
-      question: "Can I access courses on mobile devices?",
+      question: "How does the Intelligence Command Center work?",
       answer:
-        "Our platform is fully responsive and works seamlessly on all devices including smartphones, tablets, and desktop computers.",
+        "It aggregates real-time academic and financial metrics into high-density dashboards, utilizing predictive algorithms to identify at-risk students based on GPA trajectories and attendance patterns.",
     },
     {
-      question: "Do you provide certificates upon completion?",
+      question: "Is the system optimized for mobile stakeholders?",
       answer:
-        "Yes, we provide verified certificates for all completed courses. These certificates can be shared on LinkedIn and added to your professional portfolio.",
-    },
-    {
-      question: "Is my data secure with your platform?",
-      answer:
-        "We take data security very seriously. All user data is encrypted and stored securely. We comply with international data protection standards and never share your information with third parties.",
+        "While the Administrative Command Center is optimized for desktop high-density data, the Student and Teacher portals are fully responsive and designed for seamless use on any mobile device.",
     },
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-white via-slate-50/50 to-blue-50/30 relative overflow-hidden">
-      <div className="absolute top-16 left-16 w-28 h-28 bg-gradient-to-br from-indigo-400/10 to-blue-400/10 rounded-full blur-2xl animate-pulse" />
-      <div className="absolute bottom-16 right-16 w-24 h-24 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full blur-xl animate-pulse delay-1000" />
-
-      <div className="container mx-auto px-4 max-w-4xl relative z-10">
-        {/* Enhanced Heading */}
+    <section className="py-24 bg-slate-50 relative overflow-hidden">
+      <div className="container mx-auto px-6 max-w-4xl relative z-10">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-3 px-5 py-2 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 rounded-full border border-indigo-200/50 mb-6 shadow-lg backdrop-blur-sm">
-            <HelpCircle className="w-4 h-4 text-indigo-600 animate-pulse" />
-            <span className="text-xs font-semibold text-indigo-700 tracking-wide">
-              Got Questions?
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 mb-6">
+            <Sparkles className="w-4 h-4 text-indigo-600" />
+            <span className="text-[10px] font-black tracking-[0.3em] uppercase text-indigo-600">
+              Institutional Queries
             </span>
           </div>
-          <h2 className="text-4xl font-black mb-4 bg-gradient-to-r from-indigo-600 to-blue-700 bg-clip-text text-transparent">
-            Frequently Asked Questions
+          <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">
+            Strategic <span className="bg-gradient-to-r from-indigo-600 to-blue-700 bg-clip-text text-transparent">Operations</span> FAQ
           </h2>
-          <p className="text-lg text-slate-600 leading-relaxed">
-            Find answers to common questions about our platform and courses.
+          <p className="text-slate-500 max-w-2xl mx-auto">
+            Comprehensive answers to the technical and operational dimensions of the EduSys governance platform.
           </p>
         </div>
 
-        {/* Enhanced FAQ Items */}
         <div className="space-y-4">
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className={`border-2 rounded-2xl shadow-lg transition-all duration-500 overflow-hidden backdrop-blur-sm
+              className={`group rounded-[2rem] border transition-all duration-300 overflow-hidden
                 ${
                   openFaqIndex === index
-                    ? "bg-gradient-to-r from-indigo-50/80 to-blue-50/80 border-indigo-200 shadow-indigo-500/20"
-                    : "bg-white/80 border-slate-200 hover:border-indigo-300"
+                    ? "bg-white border-indigo-600 shadow-2xl shadow-indigo-100/50"
+                    : "bg-white/50 border-slate-200 hover:border-indigo-300"
                 }`}
             >
-              {/* Question Button */}
               <button
                 onClick={() => toggleFaq(index)}
-                className="flex justify-between items-center w-full text-left p-6 font-bold group"
+                className="flex justify-between items-center w-full text-left p-8 group"
               >
-                <span className="text-lg flex text-slate-800 items-center gap-3">
-                  <HelpCircle className="h-5 w-5 text-indigo-500 group-hover:scale-110 transition-transform" />
+                <span className={`text-lg font-black tracking-tight transition-colors duration-300
+                  ${openFaqIndex === index ? "text-indigo-600" : "text-slate-900"}`}>
                   {faq.question}
                 </span>
-                <ChevronRight
-                  className={`h-5 w-5 transform transition-transform duration-300 text-slate-600 group-hover:text-indigo-500
-                    ${openFaqIndex === index ? "rotate-90" : ""}`}
-                />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                  ${openFaqIndex === index ? "bg-indigo-600 text-white rotate-90" : "bg-slate-100 text-slate-400"}`}>
+                  <ChevronRight size={18} />
+                </div>
               </button>
 
-              {/* Answer Section */}
-              <div
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                  openFaqIndex === index ? "max-h-96" : "max-h-0"
-                }`}
-              >
-                <div className="p-6 pt-0 text-slate-700 leading-relaxed">
-                  {faq.answer}
-                </div>
-              </div>
+              <AnimatePresence>
+                {openFaqIndex === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="px-8 pb-8 text-slate-500 leading-relaxed text-sm max-w-3xl">
+                      {faq.answer}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>
