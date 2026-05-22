@@ -10,6 +10,7 @@ export default function DepartmentsTable({
   onDeleteClick,
   isLoading = false,
   role = "admin",
+  canDelete = true,
 }) {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -118,13 +119,15 @@ export default function DepartmentsTable({
                       >
                         <Edit className="w-3.5 h-3.5" />
                       </button>
-                      <button
-                        onClick={() => onDeleteClick(dept)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
-                        title="Delete Unit"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {canDelete && (
+                        <button
+                          onClick={() => onDeleteClick(dept)}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                          title="Delete Unit"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </motion.tr>

@@ -65,18 +65,18 @@ export default function CourseDetailPage({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/20 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/20 py-8 px-4 sm:px-6 lg:px-8">
       <motion.div className="max-w-4xl mx-auto" initial="hidden" animate="visible"
         variants={{ visible: { transition: { staggerChildren: 0.1 } } }}>
 
         {/* Back Button */}
         <motion.div variants={itemVariants}>
           <button onClick={() => router.back()}
-            className="group inline-flex items-center gap-3 mb-8 px-5 py-3 bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-indigo-200 transition-all duration-300">
-            <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-              <ArrowLeft className="w-4 h-4 text-indigo-600 group-hover:-translate-x-0.5 transition-transform" />
+            className="group inline-flex items-center gap-3 mb-6 px-4 py-2.5 bg-white/80 backdrop-blur-md rounded-xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-indigo-200 transition-all duration-300">
+            <div className="w-7 h-7 bg-indigo-50 rounded-lg flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
+              <ArrowLeft className="w-3.5 h-3.5 text-indigo-600 group-hover:-translate-x-0.5 transition-transform" />
             </div>
-            <span className="text-[10px] font-black tracking-widest uppercase text-slate-500">Go Back</span>
+            <span className="text-[9px] font-black tracking-widest uppercase text-slate-500">Go Back</span>
           </button>
         </motion.div>
 
@@ -85,44 +85,44 @@ export default function CourseDetailPage({ params }) {
           className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-2xl overflow-hidden">
 
           {/* Header Banner */}
-          <div className="relative bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 px-8 py-10">
+          <div className="relative bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 px-6 py-8">
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
-            <div className="absolute top-4 right-4 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
-            <div className="relative z-10 flex items-center gap-5">
-              <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20 shadow-lg">
-                <BookOpen className="w-8 h-8 text-white" />
+            <div className="absolute top-4 right-4 w-24 h-24 bg-white/10 rounded-full blur-3xl" />
+            <div className="relative z-10 flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20 shadow-lg">
+                <BookOpen className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">{course.name}</h1>
-                <p className="text-indigo-200 text-sm font-mono mt-1">ID: {course.id}</p>
+                <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">{course.name}</h1>
+                <p className="text-indigo-200 text-[10px] font-mono mt-0.5 opacity-80">ID: {course.id}</p>
               </div>
             </div>
           </div>
 
           {/* Content */}
-          <div className="p-8 space-y-6">
+          <div className="p-6 space-y-4">
             {/* Lead Instructor */}
             {course.leadBy && (
               <motion.div variants={itemVariants}
-                className="bg-gradient-to-br from-indigo-50/50 to-blue-50/50 rounded-2xl p-6 border border-indigo-100/50">
-                <h2 className="text-[10px] font-black tracking-widest uppercase text-slate-400 mb-3 flex items-center gap-2">
-                  <Users className="w-4 h-4 text-indigo-500" /> Lead Instructor
+                className="bg-gradient-to-br from-indigo-50/50 to-blue-50/50 rounded-xl p-5 border border-indigo-100/50">
+                <h2 className="text-[9px] font-black tracking-widest uppercase text-slate-400 mb-2 flex items-center gap-2">
+                  <Users className="w-3.5 h-3.5 text-indigo-500" /> Lead Instructor
                 </h2>
-                <p className="text-lg font-bold text-slate-900">{course.leadBy.firstName} {course.leadBy.lastName}</p>
+                <p className="text-base font-bold text-slate-900">{course.leadBy.firstName} {course.leadBy.lastName}</p>
               </motion.div>
             )}
 
             {/* Departments */}
             {course.courseDepartments?.length > 0 && (
               <motion.div variants={itemVariants}
-                className="bg-gradient-to-br from-blue-50/50 to-slate-50/50 rounded-2xl p-6 border border-blue-100/50">
-                <h2 className="text-[10px] font-black tracking-widest uppercase text-slate-400 mb-4 flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-blue-500" /> Departments
+                className="bg-gradient-to-br from-blue-50/50 to-slate-50/50 rounded-xl p-5 border border-blue-100/50">
+                <h2 className="text-[9px] font-black tracking-widest uppercase text-slate-400 mb-3 flex items-center gap-2">
+                  <Building2 className="w-3.5 h-3.5 text-blue-500" /> Departments
                 </h2>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2">
                   {course.courseDepartments.map((cd) => (
                     <span key={cd.department.id}
-                      className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200/60 text-sm font-semibold text-slate-700 shadow-sm hover:shadow-md hover:border-indigo-200 hover:-translate-y-0.5 transition-all duration-300">
+                      className="inline-flex items-center px-3 py-1.5 bg-white/80 backdrop-blur-sm rounded-lg border border-slate-200/60 text-xs font-semibold text-slate-700 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all duration-300">
                       {cd.department.name}
                     </span>
                   ))}

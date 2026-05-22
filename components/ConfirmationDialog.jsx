@@ -111,9 +111,9 @@ export default function ConfirmationDialog({
 
         {/* Message */}
         <div className="px-6 pb-6">
-          <p className="text-slate-600 text-center leading-relaxed">
+          <div className="text-slate-600 text-center leading-relaxed">
             {message}
-          </p>
+          </div>
         </div>
 
         {/* Action buttons */}

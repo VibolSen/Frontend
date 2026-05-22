@@ -14,7 +14,7 @@ const SortIndicator = ({ direction }) => {
   );
 };
 
-const FacultyTable = ({ faculties, onEditClick, onDeleteClick, isLoading, onAddFacultyClick, role = 'admin' }) => {
+const FacultyTable = ({ faculties, onEditClick, onDeleteClick, isLoading, onAddFacultyClick, role = 'admin', canDelete = true }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortColumn, setSortColumn] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
@@ -181,13 +181,15 @@ const FacultyTable = ({ faculties, onEditClick, onDeleteClick, isLoading, onAddF
                       >
                         <Edit className="w-3.5 h-3.5" />
                       </button>
-                      <button
-                        onClick={() => onDeleteClick(faculty)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
-                        title="Remove Division"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {canDelete && (
+                        <button
+                          onClick={() => onDeleteClick(faculty)}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                          title="Remove Division"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </motion.tr>

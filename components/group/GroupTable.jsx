@@ -22,7 +22,6 @@ export default function GroupsTable({
   onEdit,
   onDelete,
   onBulkDelete,
-  onManageMembers,
   isLoading,
   role,
 }) {
@@ -248,13 +247,14 @@ export default function GroupsTable({
                         >
                           <Eye className="w-3.5 h-3.5" strokeWidth={2.5}/>
                         </Link>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); onManageMembers(group); }}
+                        <Link
+                          href={`/${role}/groups/${group.id}/roster`}
+                          onClick={(e) => e.stopPropagation()}
                           className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-100 rounded-lg transition-all"
                           title="Manage Members"
                         >
                           <UserPlus className="w-3.5 h-3.5" strokeWidth={2.5}/>
-                        </button>
+                        </Link>
                         <button
                           onClick={(e) => { e.stopPropagation(); onEdit(group); }}
                           className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 border border-transparent hover:border-amber-100 rounded-lg transition-all"

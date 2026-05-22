@@ -149,6 +149,7 @@ export default function FacultyManagement({ role = 'admin' }) {
           onAddFacultyClick={handleAddClick}
           isLoading={isLoading}
           role={role}
+          canDelete={role !== 'study-office'}
         />
       </motion.div>
 

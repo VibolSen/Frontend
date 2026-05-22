@@ -130,7 +130,13 @@ export default function InvoiceModal({ isOpen, invoice, onClose, onInvoiceSaved,
 
   const handleStudentSelectChange = (selectedOption) => {
     setSelectedStudent(selectedOption);
-    setFormData((prev) => ({ ...prev, studentId: selectedOption ? selectedOption.value : "" }));
+    const student = selectedOption ? students.find(s => s.id === selectedOption.value) : null;
+    setFormData((prev) => ({ 
+      ...prev, 
+      studentId: selectedOption ? selectedOption.value : "",
+      academicYear: student?.profile?.academicYear ? String(student.profile.academicYear) : prev.academicYear || "",
+      semester: student?.profile?.semester ? String(student.profile.semester) : prev.semester || "",
+    }));
   };
 
   const handleItemInputChange = (e) => {
@@ -193,6 +199,10 @@ export default function InvoiceModal({ isOpen, invoice, onClose, onInvoiceSaved,
   };
 
   const totalAmount = formData.items.reduce((acc, item) => acc + item.amount, 0);
+
+  const activeStudent = selectedStudent 
+    ? (students.find(s => s.id === selectedStudent.value) || (invoice && invoice.studentId === selectedStudent.value ? invoice.student : null))
+    : null;
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -327,6 +337,72 @@ export default function InvoiceModal({ isOpen, invoice, onClose, onInvoiceSaved,
                           required
                         />
                       </div>
+
+                      {activeStudent && (
+                        <div className="mt-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50/50 border border-blue-100 rounded-xl space-y-3 shadow-inner text-xs">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <ShieldCheck className="w-4 h-4 text-blue-600 animate-pulse" />
+                              <span className="text-[10px] font-black text-blue-800 uppercase tracking-wider">
+                                Verified Student Details
+                              </span>
+                            </div>
+                            <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${
+                              activeStudent.profile?.academicStatus === 'ACTIVE' 
+                                ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
+                                : 'bg-amber-100 text-amber-700 border border-amber-200'
+                            }`}>
+                              {activeStudent.profile?.academicStatus || 'ACTIVE'}
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider block">
+                                Student ID
+                              </span>
+                              <span className="font-bold text-slate-700">
+                                {activeStudent.profile?.studentId || `STU-${activeStudent.id.substring(activeStudent.id.length - 8).toUpperCase()}`}
+                              </span>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider block">
+                                Current Academic Level
+                              </span>
+                              <span className="font-bold text-slate-700">
+                                Year {activeStudent.profile?.academicYear || "1"} • Sem {activeStudent.profile?.semester || "1"}
+                              </span>
+                            </div>
+                            <div className="space-y-1 col-span-2">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider block">
+                                Faculty & Department
+                              </span>
+                              <span className="font-bold text-slate-700 block">
+                                {activeStudent.department?.faculty?.name || "Faculty of Science & Tech"}
+                              </span>
+                              <span className="text-[10px] font-medium text-slate-500 block leading-tight">
+                                {activeStudent.department?.name || "Department of Information Technology"}
+                              </span>
+                            </div>
+                            <div className="space-y-1 col-span-2">
+                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider block">
+                                Study Group / Class
+                              </span>
+                              <div className="flex flex-wrap gap-1 mt-0.5">
+                                {activeStudent.groups && activeStudent.groups.length > 0 ? (
+                                  activeStudent.groups.map((g) => (
+                                    <span key={g.id} className="bg-white px-2 py-0.5 border border-slate-200 rounded text-[9px] font-bold text-indigo-600">
+                                      {g.name}
+                                    </span>
+                                  ))
+                                ) : (
+                                  <span className="text-slate-400 font-medium italic">No Group Assigned</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       <div className="grid grid-cols-2 gap-4 px-1">
                         <div className="space-y-1.5">

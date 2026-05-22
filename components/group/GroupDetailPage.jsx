@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import ManageGroupMembersModal from "./ManageGroupMembersModal";
 import ManageGroupCoursesModal from "./ManageGroupCoursesModal";
 import GroupModal from "./GroupModal";
 import {
@@ -12,7 +11,8 @@ import {
   Edit3,
   UserPlus,
   MoreVertical,
-  PlusCircle
+  PlusCircle,
+  X
 } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import BackButton from "@/components/ui/BackButton";
@@ -20,8 +20,6 @@ import BackButton from "@/components/ui/BackButton";
 export default function GroupDetailPage({ initialGroup, allStudents, role }) {
   const [group, setGroup] = useState(initialGroup);
   const [allCourses, setAllCourses] = useState([]);
-  const [isManageMembersModalOpen, setIsManageMembersModalOpen] =
-    useState(false);
   const [isManageCoursesModalOpen, setIsManageCoursesModalOpen] =
     useState(false);
   const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);
@@ -31,21 +29,6 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
     // Fetch courses for the assign courses modal
     apiClient.get("/courses").then(setAllCourses).catch(console.error);
   }, []);
-
-  const handleSaveMembers = async (studentIds) => {
-    setIsLoading(true);
-    try {
-      const data = await apiClient.put(`/groups/${group.id}`, { studentIds });
-      setGroup(data);
-      console.log("Group members updated successfully!");
-      handleCloseManageMembersModal();
-    } catch (err) {
-      console.error(err.message);
-    }
-    finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleSaveCourses = async (courseIds) => {
     setIsLoading(true);
@@ -77,8 +60,6 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
     }
   };
 
-  const handleCloseManageMembersModal = () =>
-    setIsManageMembersModalOpen(false);
   const handleCloseManageCoursesModal = () =>
     setIsManageCoursesModalOpen(false);
   const handleCloseEditGroupModal = () => setIsEditGroupModalOpen(false);
@@ -98,6 +79,13 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
           </div>
 
           <div className="flex items-center gap-3">
+            <Link
+              href={`/${role}/groups/${group.id}/roster`}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-[13px] font-bold shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              Manage Members
+            </Link>
             <button
               onClick={() => setIsEditGroupModalOpen(true)}
               className="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:text-blue-600 hover:border-blue-200 rounded-xl text-[13px] font-bold shadow-sm transition-all flex items-center gap-2"
@@ -111,13 +99,6 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
             >
               <PlusCircle className="w-3.5 h-3.5 text-indigo-500" />
               Assign Course
-            </button>
-            <button
-              onClick={() => setIsManageMembersModalOpen(true)}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-[13px] font-bold shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2"
-            >
-              <UserPlus className="w-3.5 h-3.5" />
-              Manage Members
             </button>
           </div>
         </div>
@@ -170,7 +151,7 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
 
           {/* Right Column - Student List */}
           <div className="lg:col-span-2">
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col h-[600px]">
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col min-h-[600px]">
               <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                   <Users className="w-5 h-5 text-indigo-500" />
@@ -227,17 +208,6 @@ export default function GroupDetailPage({ initialGroup, allStudents, role }) {
         </div>
 
         {/* Modals */}
-        {isManageMembersModalOpen && (
-          <ManageGroupMembersModal
-            isOpen={isManageMembersModalOpen}
-            onClose={handleCloseManageMembersModal}
-            group={group}
-            allStudents={allStudents}
-            onSaveChanges={handleSaveMembers}
-            isLoading={isLoading}
-          />
-        )}
-
         {isManageCoursesModalOpen && (
           <ManageGroupCoursesModal
             isOpen={isManageCoursesModalOpen}

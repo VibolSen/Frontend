@@ -141,7 +141,7 @@ export default function ManageGroupMembers({
   );
 
   return (
-    <div className="flex flex-col h-[600px] lg:h-[700px] max-h-full overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Search & Filters (Static) */}
       <div className="p-6 pb-4 bg-white border-b border-slate-100 shrink-0">
         <div className="space-y-4 max-w-4xl mx-auto">

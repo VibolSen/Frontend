@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import GroupsTable from "./GroupTable";
 import GroupModal from "./GroupModal";
-import ManageGroupMembersModal from "./ManageGroupMembersModal";
+
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,9 +16,7 @@ export default function GroupManagementView({ role }) {
   const [allStudents, setAllStudents] = useState([]);
   const [batches, setBatches] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isManageMembersModalOpen, setIsManageMembersModalOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState(null);
-  const [groupForMemberManagement, setGroupForMemberManagement] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   
   // Can be a single group object or an array of group objects
@@ -84,21 +82,6 @@ export default function GroupManagementView({ role }) {
     }
   };
 
-  const handleSaveMembers = async (studentIds) => {
-    if (!groupForMemberManagement) return;
-    setIsLoading(true);
-    try {
-      await apiClient.put(`/groups/${groupForMemberManagement.id}`, { studentIds });
-      showMessage("Group members updated successfully!");
-      await fetchData();
-      handleCloseManageMembersModal();
-    } catch (err) {
-      showMessage(err.message, "error");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleConfirmDelete = async () => {
     if (!itemToDelete) return;
     setIsLoading(true);
@@ -145,19 +128,9 @@ export default function GroupManagementView({ role }) {
     setItemToDelete(groupsArray); // array
   };
 
-  const handleManageMembersClick = (group) => {
-    setGroupForMemberManagement(group);
-    setIsManageMembersModalOpen(true);
-  };
-
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingGroup(null);
-  };
-
-  const handleCloseManageMembersModal = () => {
-    setIsManageMembersModalOpen(false);
-    setGroupForMemberManagement(null);
   };
 
   const handleCloseSuccessModal = () => {
@@ -202,7 +175,7 @@ export default function GroupManagementView({ role }) {
           onEdit={handleEditClick}
           onDelete={handleDeleteRequest}
           onBulkDelete={handleBulkDeleteRequest}
-          onManageMembers={handleManageMembersClick}
+
           isLoading={isLoading}
           role={role}
         />
@@ -221,17 +194,7 @@ export default function GroupManagementView({ role }) {
         />
       )}
       
-      {isManageMembersModalOpen && (
-        <ManageGroupMembersModal
-          isOpen={isManageMembersModalOpen}
-          onClose={handleCloseManageMembersModal}
-          group={groupForMemberManagement}
-          allStudents={allStudents}
-          onSaveChanges={handleSaveMembers}
-          isLoading={isLoading}
-        />
-      )}
-      
+
       <ConfirmationDialog
         isOpen={!!itemToDelete}
         onCancel={() => setItemToDelete(null)}

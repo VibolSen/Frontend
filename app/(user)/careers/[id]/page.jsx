@@ -72,61 +72,60 @@ export default function JobDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/20 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/20 py-8 px-4 sm:px-6 lg:px-8">
       <motion.div className="max-w-4xl mx-auto" initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }}>
         {/* Back Button */}
         <motion.div variants={itemVariants}>
-          <Link href="/careers" className="group inline-flex items-center gap-3 mb-8 px-5 py-3 bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-indigo-200 transition-all duration-300">
-            <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-              <ArrowLeft className="w-4 h-4 text-indigo-600 group-hover:-translate-x-0.5 transition-transform" />
+          <Link href="/careers" className="group inline-flex items-center gap-3 mb-6 px-4 py-2.5 bg-white/80 backdrop-blur-md rounded-xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-indigo-200 transition-all duration-300">
+            <div className="w-7 h-7 bg-indigo-50 rounded-lg flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
+              <ArrowLeft className="w-3.5 h-3.5 text-indigo-600 group-hover:-translate-x-0.5 transition-transform" />
             </div>
-            <span className="text-[10px] font-black tracking-widest uppercase text-slate-500">Back to positions</span>
+            <span className="text-[9px] font-black tracking-widest uppercase text-slate-500">Back to positions</span>
           </Link>
         </motion.div>
 
         {/* Main Card */}
         <motion.div variants={itemVariants} className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-2xl overflow-hidden">
           {/* Header Banner */}
-          <div className="relative bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 px-8 py-10">
+          <div className="relative bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 px-6 py-8">
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
-            <div className="absolute top-4 right-4 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+            <div className="absolute top-4 right-4 w-24 h-24 bg-white/10 rounded-full blur-3xl" />
             <div className="relative z-10">
-              <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white mb-4">{jobPosting.title}</h1>
-              <div className="flex flex-wrap items-center gap-4 text-indigo-100 text-sm">
-                <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {jobPosting.location}</span>
-                <span className="flex items-center gap-1.5"><Briefcase className="w-4 h-4" /> {jobPosting.employmentType}</span>
-                {jobPosting.salaryRange && <span className="flex items-center gap-1.5"><DollarSign className="w-4 h-4" /> {jobPosting.salaryRange}</span>}
-                <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> Posted: {jobPosting.postedDate ? format(new Date(jobPosting.postedDate), "PPP") : "N/A"}</span>
-                <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> Apply by: {jobPosting.applicationDeadline ? format(new Date(jobPosting.applicationDeadline), "PPP") : "N/A"}</span>
+              <h1 className="text-xl md:text-2xl font-black tracking-tight text-white mb-3">{jobPosting.title}</h1>
+              <div className="flex flex-wrap items-center gap-3 text-indigo-100 text-[11px] font-medium opacity-90">
+                <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {jobPosting.location}</span>
+                <span className="flex items-center gap-1.5"><Briefcase className="w-3.5 h-3.5" /> {jobPosting.employmentType}</span>
+                {jobPosting.salaryRange && <span className="flex items-center gap-1.5"><DollarSign className="w-3.5 h-3.5" /> {jobPosting.salaryRange}</span>}
+                <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Apply by: {jobPosting.applicationDeadline ? format(new Date(jobPosting.applicationDeadline), "PPP") : "N/A"}</span>
               </div>
             </div>
           </div>
 
           {/* Content */}
-          <div className="p-8">
-            <p className="text-slate-600 leading-relaxed mb-8 text-[15px]">{jobPosting.description}</p>
+          <div className="p-6">
+            <p className="text-slate-600 leading-relaxed mb-6 text-sm">{jobPosting.description}</p>
 
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-gradient-to-br from-indigo-50/50 to-blue-50/50 rounded-2xl p-6 border border-indigo-100/50">
-                <h2 className="text-[10px] font-black tracking-widest uppercase text-slate-400 mb-4 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-indigo-500" /> Requirements
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              <div className="bg-gradient-to-br from-indigo-50/50 to-blue-50/50 rounded-xl p-5 border border-indigo-100/50">
+                <h2 className="text-[9px] font-black tracking-widest uppercase text-slate-400 mb-3 flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500" /> Requirements
                 </h2>
-                <ul className="space-y-2">
+                <ul className="space-y-1.5">
                   {jobPosting.requirements?.map((req, index) => (
-                    <li key={index} className="text-sm text-slate-600 flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full mt-1.5 flex-shrink-0" />{req}
+                    <li key={index} className="text-xs text-slate-600 flex items-start gap-2">
+                      <span className="w-1 h-1 bg-indigo-400 rounded-full mt-1.5 flex-shrink-0" />{req}
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="bg-gradient-to-br from-blue-50/50 to-slate-50/50 rounded-2xl p-6 border border-blue-100/50">
-                <h2 className="text-[10px] font-black tracking-widest uppercase text-slate-400 mb-4 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-blue-500" /> Responsibilities
+              <div className="bg-gradient-to-br from-blue-50/50 to-slate-50/50 rounded-xl p-5 border border-blue-100/50">
+                <h2 className="text-[9px] font-black tracking-widest uppercase text-slate-400 mb-3 flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Responsibilities
                 </h2>
-                <ul className="space-y-2">
+                <ul className="space-y-1.5">
                   {jobPosting.responsibilities?.map((res, index) => (
-                    <li key={index} className="text-sm text-slate-600 flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5 flex-shrink-0" />{res}
+                    <li key={index} className="text-xs text-slate-600 flex items-start gap-2">
+                      <span className="w-1 h-1 bg-blue-400 rounded-full mt-1.5 flex-shrink-0" />{res}
                     </li>
                   ))}
                 </ul>
@@ -134,9 +133,9 @@ export default function JobDetailPage() {
             </div>
 
             <div className="text-center pt-4 border-t border-slate-100">
-              <motion.button onClick={() => setIsModalOpen(true)} whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-indigo-600 to-blue-700 text-white font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-200/50 hover:shadow-2xl hover:shadow-indigo-300/50 transition-all duration-300">
-                <Send className="w-5 h-5" /> Apply Now
+              <motion.button onClick={() => setIsModalOpen(true)} whileHover={{ scale: 1.02, y: -1 }} whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-indigo-600 to-blue-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-200/50 hover:shadow-xl hover:shadow-indigo-300/50 transition-all duration-300">
+                <Send className="w-4 h-4" /> Apply Now
               </motion.button>
             </div>
           </div>

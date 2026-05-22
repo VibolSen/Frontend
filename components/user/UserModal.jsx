@@ -61,7 +61,7 @@ export default function UserModal({
           firstName: userToEdit.firstName || "",
           lastName: userToEdit.lastName || "",
           email: userToEdit.email || "",
-          role: userToEdit.role || roles?.[0] || "",
+          role: userToEdit.role || (roles || []).find(r => r !== "ADMIN") || roles?.[0] || "",
           password: "",
           gender: userToEdit.profile?.gender || "",
           academicStatus: userToEdit.profile?.academicStatus || "ACTIVE",
@@ -78,7 +78,8 @@ export default function UserModal({
           batchId: userToEdit.profile?.batchId || "",
         });
       } else {
-        setFormData({ ...initialFormState, role: roles?.[0] || "" });
+        const defaultRole = (roles || []).find(r => r !== "ADMIN") || roles?.[0] || "";
+        setFormData({ ...initialFormState, role: defaultRole });
       }
       setErrors({});
     }
@@ -109,11 +110,11 @@ export default function UserModal({
     else if (/\d/.test(formData.firstName)) newErrors.firstName = "First name cannot contain numbers";
     if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
     else if (/\d/.test(formData.lastName)) newErrors.lastName = "Last name cannot contain numbers";
-    if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = "A valid email is required";
     if (!formData.role) newErrors.role = "Role is required";
-    if (!isEditMode && (!formData.password || formData.password.length < 6))
-      newErrors.password = "Password must be at least 6 characters.";
+    if (isEditMode) {
+      if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email))
+        newErrors.email = "A valid email is required";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -196,12 +197,21 @@ export default function UserModal({
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-700">Email Address</label>
-                      <input name="email" placeholder="e.g. john@university.edu" value={formData.email}
-                        onChange={handleChange} className={inputClass("email")} />
-                      {errors.email && <p className="text-[10px] text-red-500">{errors.email}</p>}
-                    </div>
+                    {isEditMode ? (
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-700">Email Address</label>
+                        <input name="email" placeholder="e.g. john@university.edu" value={formData.email}
+                          onChange={handleChange} className={inputClass("email")} />
+                        {errors.email && <p className="text-[10px] text-red-500">{errors.email}</p>}
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5 bg-blue-50/50 border border-blue-100 p-3.5 rounded-xl flex flex-col justify-center">
+                        <p className="text-xs font-bold text-blue-700 mb-0.5">School Credentials</p>
+                        <p className="text-[10px] text-blue-600 leading-normal font-medium">
+                          Email and password will be generated automatically (e.g. vibolsen@step.edu.kh).
+                        </p>
+                      </div>
+                    )}
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-slate-700">Account Role</label>
                       <select name="role" value={formData.role} onChange={handleChange}
@@ -212,25 +222,6 @@ export default function UserModal({
                       </select>
                     </div>
                   </div>
-
-                  {!isEditMode && (
-                    <div className="space-y-1.5 mt-4">
-                      <label className="text-xs font-semibold text-slate-700">Account Password</label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          name="password" placeholder="Min. 6 characters"
-                          value={formData.password} onChange={handleChange}
-                          className={inputClass("password")}
-                        />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-2.5 text-slate-400">
-                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
-                      </div>
-                      {errors.password && <p className="text-[10px] text-red-500">{errors.password}</p>}
-                    </div>
-                  )}
                 </div>
 
                 {/* ── Section 2: Faculty & Department (Students only) ── */}

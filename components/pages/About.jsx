@@ -64,49 +64,49 @@ const AboutUs = () => {
       </div>
 
       <motion.div
-        className="container mx-auto px-6 py-20 relative z-10"
+        className="max-w-6xl mx-auto px-6 py-12 relative z-10"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         {/* Institutional Hero Section */}
-        <motion.section className="max-w-4xl mb-32" variants={itemVariants}>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 mb-8">
-            <Sparkles className="w-4 h-4 text-indigo-600" />
-            <span className="text-xs font-black tracking-widest uppercase text-indigo-600">
+        <motion.section className="max-w-3xl mb-16" variants={itemVariants}>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 mb-6">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+            <span className="text-[10px] font-black tracking-widest uppercase text-indigo-600">
               Our Foundational Mission
             </span>
           </div>
-          <h1 className="text-6xl md:text-8xl font-black text-slate-900 mb-8 tracking-tight leading-[0.9]">
+          <h1 className="text-2xl md:text-3xl font-black text-slate-900 mb-6 tracking-tight leading-tight">
             Modernizing <br />
             <span className="bg-gradient-to-r from-indigo-600 to-blue-700 bg-clip-text text-transparent">
               Academic Governance
             </span>
           </h1>
-          <p className="text-slate-600 text-xl md:text-2xl leading-relaxed max-w-3xl">
+          <p className="text-slate-600 text-base md:text-lg leading-relaxed max-w-2xl">
             EduSys was engineered as a response to the administrative fragmentation in modern education. 
             We bridge the gap between traditional management and digital excellence through high-fidelity systems integration.
           </p>
         </motion.section>
 
         {/* Vision Pillars Grid */}
-        <motion.section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32" variants={itemVariants}>
+        <motion.section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20" variants={itemVariants}>
           {pillars.map((pillar, i) => (
-            <div key={i} className="p-10 bg-slate-50 rounded-[2.5rem] border border-slate-100 group hover:bg-white hover:shadow-2xl hover:shadow-indigo-100/30 transition-all duration-500">
-              <div className="mb-6 p-4 bg-white rounded-2xl w-fit shadow-sm group-hover:scale-110 transition-transform duration-300">
+            <div key={i} className="p-8 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white hover:shadow-2xl hover:shadow-indigo-100/30 transition-all duration-500">
+              <div className="mb-5 p-3.5 bg-white rounded-xl w-fit shadow-sm group-hover:scale-110 transition-transform duration-300">
                 {pillar.icon}
               </div>
-              <h3 className="text-sm font-black tracking-widest uppercase text-slate-900 mb-4">{pillar.title}</h3>
-              <p className="text-slate-500 text-sm leading-relaxed">{pillar.description}</p>
+              <h3 className="text-xs font-black tracking-widest uppercase text-slate-900 mb-3">{pillar.title}</h3>
+              <p className="text-slate-500 text-xs leading-relaxed">{pillar.description}</p>
             </div>
           ))}
         </motion.section>
 
         {/* Architect Profile Section */}
-        <motion.section className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center mb-32" variants={itemVariants}>
-          <div className="relative group">
-            <div className="absolute inset-0 bg-indigo-600 rounded-[3rem] rotate-3 group-hover:rotate-6 transition-transform duration-500" />
-            <div className="relative aspect-square overflow-hidden rounded-[3rem] border-8 border-white shadow-2xl">
+        <motion.section className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-24" variants={itemVariants}>
+          <div className="relative group max-w-md mx-auto lg:mx-0">
+            <div className="absolute inset-0 bg-indigo-600 rounded-3xl rotate-2 group-hover:rotate-3 transition-transform duration-500" />
+            <div className="relative aspect-square overflow-hidden rounded-3xl border-4 border-white shadow-2xl">
               <Image
                 src="/profile.jpg"
                 alt="Architect"
@@ -115,69 +115,69 @@ const AboutUs = () => {
               />
             </div>
             {/* Float Accents */}
-            <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-3xl shadow-xl flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white">
-                <Award className="w-6 h-6" />
+            <div className="absolute -bottom-4 -right-4 bg-white p-4 rounded-2xl shadow-xl flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white">
+                <Award className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] font-black tracking-widest uppercase text-slate-400">Lead Architect</p>
-                <p className="font-black text-slate-900">Mr. Sen Vibol</p>
+                <p className="text-[9px] font-black tracking-widest uppercase text-slate-400">Lead Architect</p>
+                <p className="text-sm font-black text-slate-900">Mr. Sen Vibol</p>
               </div>
             </div>
           </div>
 
-          <div className="space-y-8">
-            <h2 className="text-sm font-black tracking-[0.3em] uppercase text-indigo-600">The Architect's Vision</h2>
-            <h3 className="text-4xl md:text-5xl font-black text-slate-900 leading-tight">
+          <div className="space-y-6">
+            <h2 className="text-[10px] font-black tracking-[0.3em] uppercase text-indigo-600">The Architect's Vision</h2>
+            <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight">
               Designing for the <br />
               <span className="text-indigo-600">Future of Learning.</span>
             </h3>
-            <p className="text-slate-600 leading-relaxed text-lg">
+            <p className="text-slate-600 leading-relaxed text-base">
               "My journey with EduSys began with a single objective: to eliminate the operational friction that slows down academic progress. 
               By focusing on high-density architecture and localized financial standards like Bakong, 
               we've created a platform that doesn't just manage data—it empowers institutions."
             </p>
-            <div className="flex gap-4 pt-4">
-              <a href="https://github.com/VibolSen" className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center hover:scale-110 transition-transform">
-                <Github size={20} />
+            <div className="flex gap-3 pt-2">
+              <a href="https://github.com/VibolSen" className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:scale-110 transition-transform">
+                <Github size={18} />
               </a>
-              <a href="https://t.me/vibolsen" className="w-12 h-12 rounded-2xl bg-blue-500 text-white flex items-center justify-center hover:scale-110 transition-transform">
-                <Send size={20} />
+              <a href="https://t.me/vibolsen" className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center hover:scale-110 transition-transform">
+                <Send size={18} />
               </a>
-              <a href="https://www.facebook.com/vibolsen02" className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center hover:scale-110 transition-transform">
-                <Facebook size={20} />
+              <a href="https://www.facebook.com/vibolsen02" className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center hover:scale-110 transition-transform">
+                <Facebook size={18} />
               </a>
             </div>
           </div>
         </motion.section>
 
         {/* Development Trajectory Section */}
-        <motion.section className="py-20 bg-slate-900 rounded-[4rem] px-10 md:px-20 text-white relative overflow-hidden" variants={itemVariants}>
+        <motion.section className="py-16 bg-slate-900 rounded-[2rem] px-8 md:px-16 text-white relative overflow-hidden" variants={itemVariants}>
           <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-indigo-500 to-transparent" />
           </div>
           
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-4">
-              <h4 className="text-xs font-black tracking-[0.4em] uppercase text-indigo-400 mb-6">Strategic Trajectory</h4>
-              <h2 className="text-4xl font-black mb-8 leading-tight">Project <br />Milestones</h2>
-              <div className="flex gap-2">
-                <div className="w-2 h-2 rounded-full bg-indigo-600" />
-                <div className="w-2 h-2 rounded-full bg-indigo-800" />
-                <div className="w-2 h-2 rounded-full bg-indigo-900" />
+              <h4 className="text-[10px] font-black tracking-[0.4em] uppercase text-indigo-400 mb-4">Strategic Trajectory</h4>
+              <h2 className="text-2xl font-black mb-6 leading-tight">Project <br />Milestones</h2>
+              <div className="flex gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
+                <div className="w-1.5 h-1.5 rounded-full bg-indigo-800" />
+                <div className="w-1.5 h-1.5 rounded-full bg-indigo-900" />
               </div>
             </div>
             
-            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <p className="text-indigo-400 text-xs font-black mb-2 tracking-widest uppercase">Phase 01 — Q1 2026</p>
-                <h5 className="font-black text-xl mb-4">Core Engine Launch</h5>
-                <p className="text-slate-400 text-sm leading-relaxed">Implementation of the high-density Admin Command Center and RBAC firewall logic.</p>
+            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <p className="text-indigo-400 text-[9px] font-black mb-1.5 tracking-widest uppercase">Phase 01 — Q1 2026</p>
+                <h5 className="font-black text-lg mb-3">Core Engine Launch</h5>
+                <p className="text-slate-400 text-xs leading-relaxed">Implementation of the high-density Admin Command Center and RBAC firewall logic.</p>
               </div>
-              <div className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <p className="text-indigo-400 text-xs font-black mb-2 tracking-widest uppercase">Phase 02 — Q2 2026</p>
-                <h5 className="font-black text-xl mb-4">Financial Pillar</h5>
-                <p className="text-slate-400 text-sm leading-relaxed">Integration of national Bakong KHQR gateways and automated tuition billing systems.</p>
+              <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <p className="text-indigo-400 text-[9px] font-black mb-1.5 tracking-widest uppercase">Phase 02 — Q2 2026</p>
+                <h5 className="font-black text-lg mb-3">Financial Pillar</h5>
+                <p className="text-slate-400 text-xs leading-relaxed">Integration of national Bakong KHQR gateways and automated tuition billing systems.</p>
               </div>
             </div>
           </div>

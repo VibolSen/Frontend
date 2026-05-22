@@ -60,12 +60,6 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
           if (statusData.paymentConfirmed || statusData.isPaid || statusData.status === 'PAID') {
             setIsSuccess(true);
             clearInterval(pollInterval);
-            
-            // Auto close & reload to display updated parent UI
-            setTimeout(() => {
-              onClose();
-              window.location.reload();
-            }, 3000);
           }
         } catch (err) {
           console.error("Polling error:", err);
@@ -76,7 +70,7 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
     return () => {
       if (pollInterval) clearInterval(pollInterval);
     };
-  }, [isOpen, invoice, qrString, md5, isSuccess, onClose]);
+  }, [isOpen, invoice, qrString, md5, isSuccess]);
 
   const generateQR = async () => {
     if (!invoice) return;
@@ -158,15 +152,16 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
                 {/* 2. QR Code Area / Success State */}
                 <div className="relative p-3.5 bg-white rounded-2xl border border-slate-100 shadow-sm mb-3 shrink-0 overflow-hidden">
                     {isSuccess ? (
-                        <div className="w-[140px] h-[140px] flex flex-col items-center justify-center gap-2 text-emerald-600">
+                        <div className="w-[140px] h-[140px] flex flex-col items-center justify-center gap-2">
                              <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                transition={{ type: "spring", damping: 12 }}
+                                transition={{ type: "spring", damping: 10 }}
+                                className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 border-4 border-emerald-100"
                              >
-                                <BadgeCheck size={60} fill="currentColor" className="text-emerald-100" />
+                                <BadgeCheck size={36} fill="white" className="text-emerald-500" strokeWidth={2} />
                              </motion.div>
-                             <p className="font-black text-[11px] uppercase">Payment Paid</p>
+                             <p className="font-black text-[10px] uppercase tracking-widest text-emerald-600">Confirmed!</p>
                         </div>
                     ) : isLoading ? (
                         <div className="w-[140px] h-[140px] flex flex-col items-center justify-center gap-2">
@@ -232,7 +227,17 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
                         </p>
                     </div>
 
-                    {!isSuccess && (
+                    {isSuccess ? (
+                      <button
+                        onClick={() => {
+                          onClose();
+                          window.location.reload();
+                        }}
+                        className="w-full py-2.5 rounded-xl bg-[#E1232E] text-white font-black text-[10px] uppercase tracking-widest shadow-md shadow-red-500/10 hover:bg-[#c91e27] active:scale-95 transition-all"
+                      >
+                        Done
+                      </button>
+                    ) : (
                       <div className="flex bg-slate-100/80 p-0.5 rounded-lg w-fit mx-auto border border-slate-200">
                           <button 
                               onClick={() => setCurrency("USD")}
@@ -268,7 +273,13 @@ export default function BakongPaymentModal({ isOpen, invoice, onClose }) {
                     </div>
                     
                     {isSuccess ? (
-                         <p className="text-[10px] font-bold text-emerald-600">Confirmed!</p>
+                         <div className="flex flex-col items-center gap-1">
+                           <div className="flex items-center gap-1.5">
+                             <ShieldCheck className="w-3.5 h-3.5 text-[#E1232E]" />
+                             <p className="text-[10px] font-black text-[#E1232E] uppercase tracking-widest">NBC Certified · Payment Secured</p>
+                           </div>
+                           <p className="text-[9px] text-slate-400 font-bold">Click Done to refresh invoice status</p>
+                         </div>
                     ) : (
                         <div className="flex items-center gap-2 text-[10px] text-slate-400">
                             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>

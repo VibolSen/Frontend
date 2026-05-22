@@ -160,6 +160,7 @@ export default function DepartmentManagementView({ role = "admin" }) {
           onDeleteClick={handleDeleteRequest}
           isLoading={isLoading}
           role={role}
+          canDelete={role !== 'study-office'}
         />
       </motion.div>
 

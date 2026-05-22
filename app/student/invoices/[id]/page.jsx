@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Printer, Download, MapPin, Mail, Hash, Calendar, Clock, User, CreditCard, AlertCircle, QrCode, ShieldCheck, BadgeCheck } from "lucide-react";
+import { ArrowLeft, Printer, Download, MapPin, Mail, Hash, Calendar, Clock, User, CreditCard, AlertCircle, QrCode, ShieldCheck, BadgeCheck, FileText } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { QRCodeCanvas } from "qrcode.react";
 import BackButton from "@/components/ui/BackButton";
@@ -96,15 +96,12 @@ const InvoiceDetailPage = () => {
                 
                 if (statusData.paymentConfirmed || statusData.isPaid || statusData.status === 'PAID') {
                     console.log(" ✅ Payment Confirmed by Bank API! Refreshing UI...");
-                    setIsSuccess(true);
                     clearInterval(pollingInterval);
-                    
+
                     const freshData = await apiClient.get(`/financial/invoices/${id}`);
                     setInvoice(freshData);
-                    
-                    setTimeout(() => {
-                        setIsSuccess(false);
-                    }, 3500);
+
+                    setIsSuccess(true); // stays open until user clicks "Done"
                 } else {
                     // Update state silently if a partial payment arrived
                     const currentData = await apiClient.get(`/financial/invoices/${id}`);
@@ -162,76 +159,139 @@ const InvoiceDetailPage = () => {
   return (
     <div className="min-h-screen bg-slate-100/50 py-10 px-6 font-sans">
       <AnimatePresence>
-        {isSuccess && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              className="absolute inset-0 bg-slate-950/85 backdrop-blur-[12px]"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.85, y: 40 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.85, y: -40 }}
-              transition={{ type: "spring", bounce: 0.5, duration: 0.8 }}
-              className="relative bg-slate-900/90 border border-slate-700/50 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] p-10 max-w-[360px] w-full text-center flex flex-col items-center overflow-hidden"
-            >
-              {/* Animated Background Glows */}
-              <div className="absolute -top-32 -left-32 w-[350px] h-[350px] bg-emerald-500/20 rounded-full blur-[80px] opacity-70 animate-pulse" style={{ animationDuration: '4s' }} />
-              <div className="absolute -bottom-32 -right-32 w-[350px] h-[350px] bg-blue-500/15 rounded-full blur-[80px]" />
-              
-              {/* Success Ring & Icon */}
-              <motion.div 
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", damping: 15, delay: 0.15 }}
-                className="relative flex items-center justify-center w-36 h-36 mb-6"
+        {isSuccess && (() => {
+          const latestPayment = invoice?.payments?.[invoice.payments.length - 1];
+          return (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              />
+
+              {/* Receipt Card */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
+                className="relative bg-white rounded-3xl shadow-2xl w-full max-w-[360px] overflow-hidden flex flex-col"
               >
-                {/* Expanding outer ring */}
-                <motion.div 
-                   animate={{ scale: [1, 1.4, 1.2], opacity: [0.5, 0, 0] }}
-                   transition={{ duration: 1.5, repeat: Infinity, delay: 0.8 }}
-                   className="absolute inset-0 bg-emerald-500/40 rounded-full"
-                />
-                
-                {/* Glossy inner circle */}
-                <div className="relative w-28 h-28 bg-gradient-to-tr from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-[0_0_50px_-5px_rgba(52,211,153,0.6)] border-4 border-emerald-300/30 overflow-hidden">
-                   <div className="absolute inset-0 bg-gradient-to-b from-white/30 to-transparent w-full h-[50%] rounded-t-full" />
-                   <BadgeCheck size={56} fill="white" stroke="none" className="drop-shadow-lg" />
-                   <motion.div 
+                {/* Official Bakong Red Header */}
+                <div className="bg-[#E1232E] px-6 pt-7 pb-14 flex flex-col items-center gap-2 relative">
+                  {/* KHQR Logo Text */}
+                  <div className="flex items-center gap-1.5">
+                    <QrCode className="w-5 h-5 text-white" />
+                    <span className="text-white font-black text-lg tracking-widest">KHQR</span>
+                  </div>
+                  <p className="text-red-200 text-[10px] font-bold uppercase tracking-widest">National Bank of Cambodia</p>
+                  {/* Wave cut */}
+                  <div className="absolute -bottom-[1px] left-0 right-0 h-8 bg-white" style={{ clipPath: 'ellipse(55% 100% at 50% 100%)' }} />
+                </div>
+
+                {/* Animated Check Icon (overlapping header) */}
+                <div className="flex justify-center -mt-8 relative z-10">
+                  <motion.div
+                    initial={{ scale: 0, rotate: -90 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: "spring", damping: 12, delay: 0.2 }}
+                    className="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/40 border-4 border-white"
+                  >
+                    <motion.div
                       initial={{ opacity: 0, scale: 0 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.6, type: "spring" }}
-                      className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                   >
-                      <ShieldCheck className="w-9 h-9 text-emerald-800 drop-shadow-md translate-y-[2px]" strokeWidth={2.5} />
-                   </motion.div>
+                      transition={{ delay: 0.5 }}
+                    >
+                      <BadgeCheck size={36} fill="white" className="text-emerald-500" strokeWidth={2} />
+                    </motion.div>
+                  </motion.div>
                 </div>
-              </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="z-10"
-              >
-                <h2 className="text-3xl font-black text-white tracking-tight mb-2 drop-shadow-sm">Payment Verified!</h2>
-                <p className="text-sm font-medium text-slate-300 mb-8 leading-relaxed">
-                   Your transaction has been securely confirmed via the <span className="text-emerald-400 font-bold tracking-tight">Bakong Network</span>.
-                </p>
-                
-                <div className="mx-auto flex items-center w-fit gap-3 bg-slate-950/60 pr-5 pl-2 py-2 rounded-full border border-slate-700/50 shadow-[rgba(0,0,0,0.3)_0px_3px_8px] backdrop-blur-md">
-                    <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                       <div className="w-4 h-4 border-[2.5px] border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin" />
+                {/* Content */}
+                <div className="px-6 pt-3 pb-6 flex flex-col items-center">
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35 }}
+                    className="text-center mb-5"
+                  >
+                    <h2 className="text-xl font-black text-slate-900 tracking-tight">Payment Successful!</h2>
+                    <p className="text-[11px] text-emerald-600 font-bold uppercase tracking-widest mt-0.5">Verified via Bakong Network</p>
+                  </motion.div>
+
+                  {/* Amount */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.45 }}
+                    className="mb-5 text-center"
+                  >
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Amount Paid</p>
+                    <p className="text-4xl font-black text-slate-900 tracking-tight">
+                      {latestPayment?.currency === 'KHR' ? '៛' : '$'}
+                      {latestPayment?.amount?.toLocaleString(undefined, { minimumFractionDigits: latestPayment?.currency === 'USD' ? 2 : 0 }) || invoice?.totalAmount?.toLocaleString()}
+                      <span className="text-sm font-bold text-slate-400 ml-2">{latestPayment?.currency || invoice?.currency || 'USD'}</span>
+                    </p>
+                  </motion.div>
+
+                  {/* Receipt Details */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.55 }}
+                    className="w-full bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3 mb-5"
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Merchant</span>
+                      <span className="text-[11px] font-bold text-slate-800">Step Academy Finance</span>
                     </div>
-                    <p className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em]">Updating Ledger...</p>
+                    <div className="h-px bg-slate-200" />
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Date & Time</span>
+                      <span className="text-[11px] font-bold text-slate-800">
+                        {latestPayment ? new Date(latestPayment.paymentDate).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : new Date().toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="h-px bg-slate-200" />
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Method</span>
+                      <span className="text-[11px] font-bold text-slate-800">{latestPayment?.paymentMethod?.replace('_', ' ') || 'Bank Transfer'}</span>
+                    </div>
+                    <div className="h-px bg-slate-200" />
+                    <div className="flex justify-between items-start gap-2">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider shrink-0">Transaction ID</span>
+                      <span className="text-[10px] font-mono text-[#E1232E] text-right break-all">{(latestPayment?.transactionId || latestPayment?.md5 || 'N/A').substring(0, 20)}...</span>
+                    </div>
+                  </motion.div>
+
+                  {/* Done Button */}
+                  <motion.button
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.65 }}
+                    onClick={() => setIsSuccess(false)}
+                    className="w-full py-3.5 rounded-2xl bg-[#E1232E] text-white font-black text-sm uppercase tracking-widest shadow-lg shadow-red-500/20 hover:bg-[#c91e27] active:scale-[0.98] transition-all"
+                  >
+                    Done
+                  </motion.button>
+
+                  {/* NBC Badge */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.75 }}
+                    className="flex items-center gap-2 mt-4"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#E1232E]" />
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">NBC Certified · Bakong Secured</span>
+                  </motion.div>
                 </div>
               </motion.div>
-            </motion.div>
-          </div>
-        )}
+            </div>
+          );
+        })()}
       </AnimatePresence>
 
       <div className="max-w-4xl mx-auto mb-6 flex items-center justify-between">
@@ -290,6 +350,12 @@ const InvoiceDetailPage = () => {
                     <Clock className="w-3 h-3" />
                     Due Date: {new Date(invoice.dueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </div>
+                  {invoice.academicYear && (
+                    <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 leading-none mt-1">
+                      <FileText className="w-3 h-3 text-indigo-500" />
+                      Billing Cycle: Year {invoice.academicYear} {invoice.semester ? `• Sem ${invoice.semester}` : ''}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -300,12 +366,50 @@ const InvoiceDetailPage = () => {
         <div className="px-12 py-10 grid grid-cols-1 md:grid-cols-2 gap-12 bg-slate-50/50 border-b border-slate-100">
           <div>
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 pb-2 border-b border-slate-200">Bill To (Recipient)</h3>
-            <div className="space-y-1">
+            <div className="space-y-1 text-left">
               <p className="text-lg font-black text-slate-900 tracking-tight">{invoice.student.firstName} {invoice.student.lastName}</p>
               <div className="text-xs text-slate-500 font-bold space-y-1 mt-2">
                 <p className="flex items-center gap-2 opacity-80"><User className="w-3 h-3 text-blue-600" /> Student ID: {invoice.student.id.substring(0, 8).toUpperCase()}</p>
                 <p className="flex items-center gap-2 opacity-80"><Mail className="w-3 h-3 text-blue-600" /> {invoice.student.email}</p>
               </div>
+
+              {invoice.student.profile && (
+                <div className="mt-4 p-3 bg-white border border-slate-200/80 rounded-xl space-y-2 text-[11px] font-bold text-slate-600 shadow-sm">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-[8px] font-black uppercase tracking-wider mb-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                    Verified Enrollment
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <span className="text-[8px] font-black text-slate-400 uppercase block tracking-wider leading-none">Current Level</span>
+                      <span className="text-slate-700">Year {invoice.student.profile.academicYear || 1} • Sem {invoice.student.profile.semester || 1}</span>
+                    </div>
+                    <div>
+                      <span className="text-[8px] font-black text-slate-400 uppercase block tracking-wider leading-none">Academic ID</span>
+                      <span className="text-slate-700">{invoice.student.profile.studentId || `STU-${invoice.student.id.substring(invoice.student.id.length - 8).toUpperCase()}`}</span>
+                    </div>
+                    <div className="col-span-2 border-t border-slate-100 pt-1.5">
+                      <span className="text-[8px] font-black text-slate-400 uppercase block tracking-wider leading-none">Faculty & Department</span>
+                      <span className="block text-slate-700">{invoice.student.department?.faculty?.name || 'Faculty of Science & Tech'}</span>
+                      <span className="text-[10px] text-slate-500 block font-semibold leading-tight">{invoice.student.department?.name || 'Department of Information Technology'}</span>
+                    </div>
+                    <div className="col-span-2 border-t border-slate-100 pt-1.5">
+                      <span className="text-[8px] font-black text-slate-400 uppercase block tracking-wider leading-none">Study Group / Class</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {invoice.student.groups && invoice.student.groups.length > 0 ? (
+                          invoice.student.groups.map(g => (
+                            <span key={g.id} className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-[8px] font-black text-indigo-600 uppercase tracking-tight">
+                              {g.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-slate-400 font-medium italic">No Group Assigned</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <div className="md:text-right">

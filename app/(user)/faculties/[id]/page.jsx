@@ -65,18 +65,18 @@ export default function FacultyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/20 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/20 py-8 px-4 sm:px-6 lg:px-8">
       <motion.div className="max-w-4xl mx-auto" initial="hidden" animate="visible"
         variants={{ visible: { transition: { staggerChildren: 0.1 } } }}>
 
         {/* Back Button */}
         <motion.div variants={itemVariants}>
           <button onClick={() => router.back()}
-            className="group inline-flex items-center gap-3 mb-8 px-5 py-3 bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-indigo-200 transition-all duration-300">
-            <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-              <ArrowLeft className="w-4 h-4 text-indigo-600 group-hover:-translate-x-0.5 transition-transform" />
+            className="group inline-flex items-center gap-3 mb-6 px-4 py-2.5 bg-white/80 backdrop-blur-md rounded-xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-indigo-200 transition-all duration-300">
+            <div className="w-7 h-7 bg-indigo-50 rounded-lg flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
+              <ArrowLeft className="w-3.5 h-3.5 text-indigo-600 group-hover:-translate-x-0.5 transition-transform" />
             </div>
-            <span className="text-[10px] font-black tracking-widest uppercase text-slate-500">Go Back</span>
+            <span className="text-[9px] font-black tracking-widest uppercase text-slate-500">Go Back</span>
           </button>
         </motion.div>
 
@@ -85,25 +85,25 @@ export default function FacultyPage() {
           className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-2xl overflow-hidden">
 
           {/* Header Banner */}
-          <div className="relative bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 px-8 py-10">
+          <div className="relative bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 px-6 py-8">
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
-            <div className="absolute top-4 right-4 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
-            <div className="relative z-10 flex items-center gap-5">
-              <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20 shadow-lg">
-                <GraduationCap className="w-8 h-8 text-white" />
+            <div className="absolute top-4 right-4 w-24 h-24 bg-white/10 rounded-full blur-3xl" />
+            <div className="relative z-10 flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/20 shadow-lg">
+                <GraduationCap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-[10px] font-black tracking-widest uppercase text-indigo-200 mb-1">Faculty</p>
-                <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">{faculty.name}</h1>
+                <p className="text-[9px] font-black tracking-widest uppercase text-indigo-200 mb-0.5 opacity-80">Faculty</p>
+                <h1 className="text-xl md:text-2xl font-black tracking-tight text-white">{faculty.name}</h1>
               </div>
             </div>
           </div>
 
           {/* Departments */}
-          <div className="p-8">
-            <div className="bg-gradient-to-br from-indigo-50/50 to-blue-50/50 rounded-2xl p-6 border border-indigo-100/50">
-              <h2 className="text-[10px] font-black tracking-widest uppercase text-slate-400 mb-5 flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-indigo-500" /> Departments
+          <div className="p-6">
+            <div className="bg-gradient-to-br from-indigo-50/50 to-blue-50/50 rounded-xl p-5 border border-indigo-100/50">
+              <h2 className="text-[9px] font-black tracking-widest uppercase text-slate-400 mb-4 flex items-center gap-2">
+                <Building2 className="w-3.5 h-3.5 text-indigo-500" /> Departments
               </h2>
               {faculty.departments.length > 0 ? (
                 <div className="grid sm:grid-cols-2 gap-3">
@@ -113,17 +113,17 @@ export default function FacultyPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
                       whileHover={{ y: -2 }}
-                      className="flex items-center gap-3 px-5 py-4 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-indigo-200 hover:shadow-indigo-100 transition-all duration-300">
-                      <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-                        <FolderOpen className="w-4 h-4 text-white" />
+                      className="flex items-center gap-3 px-4 py-3 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-sm hover:shadow-lg hover:border-indigo-200 transition-all duration-300">
+                      <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-lg flex items-center justify-center shadow-md flex-shrink-0">
+                        <FolderOpen className="w-3.5 h-3.5 text-white" />
                       </div>
-                      <span className="text-sm font-bold text-slate-800">{dept.name}</span>
+                      <span className="text-xs font-bold text-slate-800">{dept.name}</span>
                     </motion.div>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <p className="text-slate-400 text-sm font-medium">No departments found for this faculty.</p>
+                <div className="text-center py-6">
+                  <p className="text-slate-400 text-[11px] font-medium">No departments found for this faculty.</p>
                 </div>
               )}
             </div>

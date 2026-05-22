@@ -15,6 +15,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [otpRequired, setOtpRequired] = useState(false);
+  const [otp, setOtp] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,22 +24,34 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // 1. Direct validation call to capture specific backend errors (like suspension message)
-      const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      if (!otpRequired) {
+        // Step 1: Validate credentials & trigger OTP for Admin
+        const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
 
-      if (!verifyRes.ok) {
-        const errorData = await verifyRes.json();
-        throw new Error(errorData.error || "Invalid email or password");
+        if (!verifyRes.ok) {
+          const errorData = await verifyRes.json();
+          throw new Error(errorData.error || "Invalid email or password");
+        }
+
+        const verifyData = await verifyRes.json();
+        if (verifyData.otpRequired) {
+          // Admin: show OTP screen, OTP was sent to email
+          setOtpRequired(true);
+          setIsLoading(false);
+          return;
+        }
       }
 
-      // 2. Use NextAuth signIn to establish session for Server Components
+      // Step 2: Use NextAuth signIn to establish session.
+      // For Admin, NextAuth calls backend once with the otp — no double-call issue.
       const result = await signIn("credentials", {
         email,
         password,
+        otp: otpRequired ? otp : undefined,
         redirect: false,
       });
 
@@ -177,82 +191,146 @@ export default function LoginPage() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Email Field */}
-                <div className="space-y-1.5 text-left">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 pl-1">Authorized Email</label>
-                  <div className="relative group/field">
-                    <Mail className="w-3.5 h-3.5 text-slate-300 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within/field:text-indigo-600 transition-colors" />
-                    <input
-                      type="email"
-                      name="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      placeholder="e.g. name@school.edu"
-                      className="w-full bg-slate-50/50 border border-slate-200 px-4 py-4 pl-11 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
-                    />
-                  </div>
-                </div>
+                {otpRequired ? (
+                  <>
+                    {/* OTP Field */}
+                    <div className="space-y-2 text-left">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 pl-1">OTP Verification Code</label>
+                      <div className="relative group/field">
+                        <Lock className="w-3.5 h-3.5 text-slate-300 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within/field:text-indigo-600 transition-colors" />
+                        <input
+                          type="text"
+                          maxLength={6}
+                          name="otp"
+                          value={otp}
+                          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                          required
+                          placeholder="Enter 6-digit code"
+                          className="w-full bg-slate-50/50 border border-slate-200 px-4 py-4 pl-11 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-mono tracking-[4px] text-center font-bold"
+                        />
+                      </div>
+                      <p className="text-[10px] text-slate-400 leading-normal pl-1.5 mt-1 font-semibold">
+                        A 6-digit OTP code has been sent to your email. Enter it above to continue.
+                      </p>
+                    </div>
 
-                {/* Password Field */}
-                <div className="space-y-1.5 text-left">
-                  <div className="flex justify-between items-center ml-1 pl-1">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Security Pin</label>
-                    <a href="/forgot-password" size="sm" className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-700 transition-colors cursor-pointer">Forgot?</a>
-                  </div>
-                  <div className="relative group/field">
-                    <Lock className="w-3.5 h-3.5 text-slate-300 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within/field:text-indigo-600 transition-colors" />
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      placeholder="••••••••"
-                      className="w-full bg-slate-50/50 border border-slate-200 px-4 py-4 pl-11 pr-12 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
-                    />
+                    <button
+                      type="submit"
+                      disabled={isLoading || otp.length !== 6}
+                      className={`relative w-full py-4 px-6 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-500 overflow-hidden group/btn ${
+                        isLoading || otp.length !== 6
+                          ? "bg-slate-50 text-slate-300 cursor-not-allowed border border-slate-100"
+                          : "bg-gradient-to-r from-indigo-600 to-blue-700 text-white shadow-xl shadow-indigo-500/10 hover:shadow-indigo-500/25 hover:scale-[1.01] active:scale-[0.99]"
+                      }`}
+                    >
+                      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                      <div className="relative flex items-center justify-center gap-2.5">
+                        {isLoading ? (
+                          <>
+                            <div className="w-3.5 h-3.5 border-2 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
+                            <span className="text-slate-300">Verifying...</span>
+                          </>
+                        ) : (
+                          <>
+                            <LogIn className="w-3.5 h-3.5" />
+                            <span>Verify & Login</span>
+                          </>
+                        )}
+                      </div>
+                    </button>
+
                     <button
                       type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 transition-colors"
+                      onClick={() => {
+                        setOtpRequired(false);
+                        setOtp("");
+                        setError("");
+                      }}
+                      className="w-full text-center text-[10px] font-black text-slate-400 hover:text-indigo-600 uppercase tracking-widest transition-colors cursor-pointer py-1"
                     >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      Back to Credentials
                     </button>
-                  </div>
-                </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Email Field */}
+                    <div className="space-y-1.5 text-left">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 pl-1">Authorized Email</label>
+                      <div className="relative group/field">
+                        <Mail className="w-3.5 h-3.5 text-slate-300 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within/field:text-indigo-600 transition-colors" />
+                        <input
+                          type="email"
+                          name="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          placeholder="e.g. name@school.edu"
+                          className="w-full bg-slate-50/50 border border-slate-200 px-4 py-4 pl-11 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
+                        />
+                      </div>
+                    </div>
 
-                <div className="flex items-center gap-2.5 px-1 ml-1">
-                  <input
-                    type="checkbox"
-                    id="remember"
-                    className="w-3.5 h-3.5 rounded border-slate-300 bg-white text-indigo-600 focus:ring-2 focus:ring-indigo-500/10 transition-all cursor-pointer"
-                  />
-                  <label htmlFor="remember" className="text-[11px] font-bold text-slate-500 cursor-pointer hover:text-slate-700 transition-colors">Keep me signed in</label>
-                </div>
+                    {/* Password Field */}
+                    <div className="space-y-1.5 text-left">
+                      <div className="flex justify-between items-center ml-1 pl-1">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Security Pin</label>
+                        <a href="/forgot-password" size="sm" className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:text-indigo-700 transition-colors cursor-pointer">Forgot?</a>
+                      </div>
+                      <div className="relative group/field">
+                        <Lock className="w-3.5 h-3.5 text-slate-300 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within/field:text-indigo-600 transition-colors" />
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          placeholder="••••••••"
+                          className="w-full bg-slate-50/50 border border-slate-200 px-4 py-4 pl-11 pr-12 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 focus:bg-white transition-all duration-300 text-slate-900 placeholder:text-slate-300 text-[13px] font-medium"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 transition-colors"
+                        >
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                    </div>
 
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className={`relative w-full py-4 px-6 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-500 overflow-hidden group/btn ${
-                    isLoading
-                      ? "bg-slate-50 text-slate-300 cursor-not-allowed border border-slate-100"
-                      : "bg-gradient-to-r from-indigo-600 to-blue-700 text-white shadow-xl shadow-indigo-500/10 hover:shadow-indigo-500/25 hover:scale-[1.01] active:scale-[0.99]"
-                  }`}
-                >
-                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                  <div className="relative flex items-center justify-center gap-2.5">
-                    {isLoading ? (
-                      <>
-                        <div className="w-3.5 h-3.5 border-2 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
-                        <span className="text-slate-300">Authenticating...</span>
-                      </>
-                    ) : (
-                      <>
-                        <LogIn className="w-3.5 h-3.5" />
-                        <span>Confirm Login</span>
-                      </>
-                    )}
-                  </div>
-                </button>
+                    <div className="flex items-center gap-2.5 px-1 ml-1">
+                      <input
+                        type="checkbox"
+                        id="remember"
+                        className="w-3.5 h-3.5 rounded border-slate-300 bg-white text-indigo-600 focus:ring-2 focus:ring-indigo-500/10 transition-all cursor-pointer"
+                      />
+                      <label htmlFor="remember" className="text-[11px] font-bold text-slate-500 cursor-pointer hover:text-slate-700 transition-colors">Keep me signed in</label>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className={`relative w-full py-4 px-6 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all duration-500 overflow-hidden group/btn ${
+                        isLoading
+                          ? "bg-slate-50 text-slate-300 cursor-not-allowed border border-slate-100"
+                          : "bg-gradient-to-r from-indigo-600 to-blue-700 text-white shadow-xl shadow-indigo-500/10 hover:shadow-indigo-500/25 hover:scale-[1.01] active:scale-[0.99]"
+                      }`}
+                    >
+                      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                      <div className="relative flex items-center justify-center gap-2.5">
+                        {isLoading ? (
+                          <>
+                            <div className="w-3.5 h-3.5 border-2 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
+                            <span className="text-slate-300">Authenticating...</span>
+                          </>
+                        ) : (
+                          <>
+                            <LogIn className="w-3.5 h-3.5" />
+                            <span>Confirm Login</span>
+                          </>
+                        )}
+                      </div>
+                    </button>
+                  </>
+                )}
               </form>
 
               <div className="mt-8 pt-6 border-t border-slate-50 text-center">

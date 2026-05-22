@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ChevronLeft, Printer, Download, CreditCard, Clock, CheckCircle2, AlertCircle, Calendar, User, ArrowRight, ArrowLeft, Copy, Check, MapPin, Mail, Hash, ExternalLink } from "lucide-react";
+import { ChevronLeft, Printer, Download, CreditCard, Clock, CheckCircle2, AlertCircle, Calendar, User, ArrowRight, ArrowLeft, Copy, Check, MapPin, Mail, Hash, ExternalLink, FileText, ShieldCheck } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import BackButton from "@/components/ui/BackButton";
 
@@ -144,7 +144,7 @@ export default function InvoiceDetailView() {
               <div className="space-y-1.5">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Document Number</p>
                 <p className="text-lg font-black text-slate-900 tracking-tight leading-none">INV-{invoice.id.substring(0, 8).toUpperCase()}</p>
-                <div className="pt-2 flex flex-col md:items-end gap-1">
+                <div className="pt-2 flex flex-col md:items-end gap-1.5">
                   <div className="flex items-center gap-2 text-xs font-bold text-slate-500 leading-none">
                     <Calendar className="w-3 h-3 text-blue-900" />
                     Issue Date: {new Date(invoice.issueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -153,6 +153,12 @@ export default function InvoiceDetailView() {
                     <Clock className="w-3 h-3" />
                     Due Date: {new Date(invoice.dueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </div>
+                  {invoice.academicYear && (
+                    <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 leading-none">
+                      <FileText className="w-3 h-3 text-indigo-500" />
+                      Billing Cycle: Year {invoice.academicYear} {invoice.semester ? `• Sem ${invoice.semester}` : ''}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -163,15 +169,56 @@ export default function InvoiceDetailView() {
         <div className="px-12 py-10 grid grid-cols-1 md:grid-cols-2 gap-12 bg-slate-50/50 border-b border-slate-100">
           <div>
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 pb-2 border-b border-slate-200">Bill To (Recipient)</h3>
-            <div className="space-y-1">
+            <div className="space-y-1 text-left">
               <p className="text-lg font-black text-slate-900 tracking-tight">{invoice.student.firstName} {invoice.student.lastName}</p>
               <div className="text-xs text-slate-500 font-bold space-y-1 mt-2">
                 <p className="flex items-center gap-2 opacity-80"><User className="w-3 h-3 text-blue-600" /> Student ID: {invoice.student.id.substring(0, 8).toUpperCase()}</p>
                 <p className="flex items-center gap-2 opacity-80"><Mail className="w-3 h-3 text-blue-600" /> {invoice.student.email}</p>
               </div>
-              <Link href={`/admin/students/${invoice.student.id}`} className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-700 font-black text-[10px] uppercase tracking-widest mt-4 group">
-                View Profile <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              </Link>
+              
+              {invoice.student.profile && (
+                <div className="mt-4 p-3 bg-white border border-slate-200/80 rounded-xl space-y-2 text-[11px] font-bold text-slate-600 shadow-sm">
+                  <div className="flex items-center gap-1.5 text-slate-400 text-[8px] font-black uppercase tracking-wider mb-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                    Verified Enrollment
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <span className="text-[8px] font-black text-slate-400 uppercase block tracking-wider leading-none">Current Level</span>
+                      <span className="text-slate-700">Year {invoice.student.profile.academicYear || 1} • Sem {invoice.student.profile.semester || 1}</span>
+                    </div>
+                    <div>
+                      <span className="text-[8px] font-black text-slate-400 uppercase block tracking-wider leading-none">Academic ID</span>
+                      <span className="text-slate-700">{invoice.student.profile.studentId || `STU-${invoice.student.id.substring(invoice.student.id.length - 8).toUpperCase()}`}</span>
+                    </div>
+                    <div className="col-span-2 border-t border-slate-100 pt-1.5">
+                      <span className="text-[8px] font-black text-slate-400 uppercase block tracking-wider leading-none">Faculty & Department</span>
+                      <span className="block text-slate-700">{invoice.student.department?.faculty?.name || 'Faculty of Science & Tech'}</span>
+                      <span className="text-[10px] text-slate-500 block font-semibold leading-tight">{invoice.student.department?.name || 'Department of Information Technology'}</span>
+                    </div>
+                    <div className="col-span-2 border-t border-slate-100 pt-1.5">
+                      <span className="text-[8px] font-black text-slate-400 uppercase block tracking-wider leading-none">Study Group / Class</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {invoice.student.groups && invoice.student.groups.length > 0 ? (
+                          invoice.student.groups.map(g => (
+                            <span key={g.id} className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-[8px] font-black text-indigo-600 uppercase tracking-tight">
+                              {g.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-slate-400 font-medium italic">No Group Assigned</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-2">
+                <Link href={`/admin/students/${invoice.student.id}`} className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-700 font-black text-[10px] uppercase tracking-widest group">
+                  View Profile <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </Link>
+              </div>
             </div>
           </div>
           <div className="md:text-right">

@@ -194,8 +194,31 @@ export default function StudentManagementView() {
     }
 
     try {
-      await apiClient[method](endpoint, payload);
-      showMessage(`Student ${isEditing ? "updated" : "added"} successfully!`);
+      const resData = await apiClient[method](endpoint, payload);
+      if (isEditing) {
+        showMessage("Student updated successfully!");
+      } else {
+        setSuccessMessage(
+          <div className="space-y-4">
+            <p className="font-bold text-slate-800 text-base">Student Enrolled Successfully!</p>
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/60 space-y-2.5 text-left text-xs font-semibold">
+              <p className="text-slate-400 font-bold uppercase tracking-wider text-[9px] mb-1">Generated Account Credentials</p>
+              <div className="flex justify-between items-center py-1 border-b border-slate-100">
+                <span className="text-slate-500">Email:</span>
+                <span className="text-slate-800 font-mono select-all text-sm font-bold">{resData.email}</span>
+              </div>
+              <div className="flex justify-between items-center py-1">
+                <span className="text-slate-500">Password:</span>
+                <span className="text-indigo-600 font-mono select-all text-sm font-bold">{resData.generatedPassword}</span>
+              </div>
+            </div>
+            <p className="text-[10px] text-slate-400 font-normal mt-2 leading-relaxed">
+              Please copy and securely share these credentials with the student. The password will not be shown again.
+            </p>
+          </div>
+        );
+        setIsSuccessModalOpen(true);
+      }
       await fetchStudents();
       handleCloseModal();
     } catch (err) {
