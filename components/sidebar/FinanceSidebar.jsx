@@ -239,51 +239,6 @@ export default function FinanceSidebar({ isOpen, setIsOpen }) {
         </nav>
 
 
-        {/* User Profile Summary */}
-        <div className="p-4 border-t border-slate-200 relative z-10 bg-white">
-          <Link
-            href="/finance/profile"
-            prefetch={false}
-            className={`flex items-center gap-3 p-2 rounded-2xl transition-all hover:bg-white hover:shadow-md group ${isCollapsed ? "justify-center" : "bg-white border border-slate-100 shadow-sm"}`}
-          >
-            <div className="relative shrink-0">
-              <img
-                src={user?.profile?.avatar || "/default-cover.jpg"}
-                className="w-9 h-9 rounded-xl object-cover ring-2 ring-slate-100 group-hover:ring-blue-200 transition-all"
-                alt="Profile"
-              />
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
-            </div>
-
-            {!isCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-black text-slate-800 truncate group-hover:text-blue-700 transition-colors uppercase italic">{user?.firstName} {user?.lastName}</p>
-                <p className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">Finance Director</p>
-              </div>
-            )}
-
-            {!isCollapsed && (
-              <div className="p-2 text-slate-300 group-hover:text-blue-500 transition-colors">
-                <ChevronRight size={14} />
-              </div>
-            )}
-          </Link>
-
-          {!isCollapsed && (
-            <button
-              onClick={() => {
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
-                window.location.href = "/login";
-              }}
-              className="mt-3 w-full flex items-center justify-center gap-2 p-2.5 rounded-xl border border-slate-100 bg-white/50 text-slate-400 hover:text-rose-500 hover:bg-rose-50 hover:border-rose-100 transition-all font-black text-[10px] uppercase tracking-widest shadow-sm"
-            >
-              <LogOut size={14} />
-              Sign Out
-            </button>
-          )}
-        </div>
-
         {/* Bottom Accent Line */}
         <div className="h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600" />
       </aside>

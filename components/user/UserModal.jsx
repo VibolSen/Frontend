@@ -36,6 +36,7 @@ export default function UserModal({
   roles,
   departments = [],
   isLoading = false,
+  currentUserRole,
 }) {
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
@@ -45,6 +46,7 @@ export default function UserModal({
 
   const isEditMode = !!userToEdit;
   const isStudent = formData.role === "STUDENT";
+  const canEditEmail = !isEditMode || (currentUserRole !== "STUDY_OFFICE" && currentUserRole !== "FINANCE");
 
   // Load faculties once on mount
   useEffect(() => {
@@ -198,10 +200,21 @@ export default function UserModal({
 
                   <div className="grid grid-cols-2 gap-4">
                     {isEditMode ? (
-                      <div className="space-y-1.5">
+                      <div className="space-y-1.5 relative group">
                         <label className="text-xs font-semibold text-slate-700">Email Address</label>
-                        <input name="email" placeholder="e.g. john@university.edu" value={formData.email}
-                          onChange={handleChange} className={inputClass("email")} />
+                        <input 
+                          name="email" 
+                          placeholder="e.g. john@university.edu" 
+                          value={formData.email}
+                          onChange={handleChange} 
+                          disabled={!canEditEmail}
+                          className={`${inputClass("email")} ${!canEditEmail ? "bg-slate-50 text-slate-400 cursor-not-allowed border-slate-200" : ""}`} 
+                        />
+                        {!canEditEmail && (
+                          <div className="absolute -top-8 left-0 hidden group-hover:block bg-slate-800 text-white text-[10px] px-2 py-1 rounded shadow-lg z-10 whitespace-nowrap">
+                            Contact Admin to change institutional email
+                          </div>
+                        )}
                         {errors.email && <p className="text-[10px] text-red-500">{errors.email}</p>}
                       </div>
                     ) : (

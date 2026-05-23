@@ -4,6 +4,7 @@ import CertificateModal from "@/components/certificate-management/CertificateMod
 import BulkCertificateModal from "@/components/certificate-management/BulkCertificateModal";
 import CertificateTable from "@/components/certificate-management/CertificateTable";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
+import BulkActionsBar from "@/components/ui/BulkActionsBar";
 import { apiClient } from "@/lib/api";
 import {
   Award,
@@ -42,6 +43,8 @@ export default function CertificateManagementView({
   const [sortField, setSortField] = useState("recipient");
   const [sortOrder, setSortOrder] = useState("asc");
   const [filterCourse, setFilterCourse] = useState("");
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false);
 
   const showMessage = (message, type = "success") => {
     if (type === "error") {
@@ -86,6 +89,25 @@ export default function CertificateManagementView({
   };
 
   const handleBulkIssue = () => setShowBulkModal(true);
+
+  const handleBulkDeleteClick = () => {
+    setIsBulkDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmBulkDelete = async () => {
+    setIsLoading(true);
+    try {
+      await apiClient.post("/certificates/bulk-delete", { ids: selectedIds });
+      setSelectedIds([]);
+      fetchCertificates();
+      showMessage(`${selectedIds.length} certificates deleted successfully!`, "success");
+    } catch (error) {
+      showMessage(`Failed to delete certificates: ${error.message}`, "error");
+    } finally {
+      setIsLoading(false);
+      setIsBulkDeleteConfirmOpen(false);
+    }
+  };
 
   const handleEditCertificate = (certificate) => {
     setEditingCertificate({
@@ -189,6 +211,15 @@ export default function CertificateManagementView({
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
+      {/* ── Bulk Actions Bar ── */}
+      <BulkActionsBar
+        selectedIds={selectedIds}
+        onClear={() => setSelectedIds([])}
+        onDelete={handleBulkDeleteClick}
+        label="Certificates"
+        showDelete={canDelete}
+      />
+
       {/* ── Header & Primary Actions ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -328,6 +359,8 @@ export default function CertificateManagementView({
         handleSort={handleSort}
         isLoading={isLoading}
         role={role}
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
       />
 
       {/* ── Delete Confirmation ── */}
@@ -345,6 +378,17 @@ export default function CertificateManagementView({
           isLoading={isLoading}
         />
       )}
+
+      {/* ── Bulk Delete Confirmation ── */}
+      <ConfirmationDialog
+        isOpen={isBulkDeleteConfirmOpen}
+        title="Confirm Bulk Record Purge"
+        message={`Are you sure you want to permanently delete ${selectedIds.length} certificates? This action cannot be undone.`}
+        onConfirm={handleConfirmBulkDelete}
+        onCancel={() => setIsBulkDeleteConfirmOpen(false)}
+        isLoading={isLoading}
+        type="danger"
+      />
 
       {/* ── Success / Error dialogs ── */}
       <ConfirmationDialog

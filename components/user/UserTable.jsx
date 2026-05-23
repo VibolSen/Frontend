@@ -357,37 +357,51 @@ export default function UserTable({
                     {/* Actions */}
                     <td className="px-4 py-3 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-1">
-                        {(currentUserRole === "ADMIN" || currentUserRole === "HR" || currentUserRole === "STUDY_OFFICE" || currentUserRole === "FINANCE") && (
-                          <>
-                            <button onClick={() => onEditClick(user)} disabled={isLoading}
-                              className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="Edit">
-                              <Edit className="w-3.5 h-3.5" />
-                            </button>
-                            {(currentUserRole === "ADMIN" || currentUserRole === "HR") && (
-                              <button onClick={() => onMigrate(user)} disabled={isLoading}
-                                className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="Migrate role">
-                                <ShieldCheck className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                            <button onClick={() => onResetPassword(user)} disabled={isLoading}
-                              className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all" title="Reset password">
-                              <Lock className="w-3.5 h-3.5" />
-                            </button>
-                            {(currentUserRole !== "STUDY_OFFICE" || user.role === "STUDENT") && (
-                              <button onClick={() => onToggleStatus(user)} disabled={isLoading}
-                                className={`p-1.5 transition-all rounded-lg ${user.isActive ? "text-slate-400 hover:text-rose-600 hover:bg-rose-50" : "text-emerald-500 hover:bg-emerald-50"}`}
-                                title={user.isActive ? "Suspend account" : "Activate account"}>
-                                <Power className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </>
+                        {/* Edit Button: Restricted for Study Office/Finance when targeting non-students */}
+                        {((currentUserRole === "ADMIN" || currentUserRole === "HR") || 
+                          ((currentUserRole === "STUDY_OFFICE" || currentUserRole === "FINANCE") && user.role === "STUDENT")) && (
+                          <button onClick={() => onEditClick(user)} disabled={isLoading}
+                            className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="Edit">
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
                         )}
+
+                        {/* Migration Button: Admin/HR Only */}
+                        {(currentUserRole === "ADMIN" || currentUserRole === "HR") && (
+                          <button onClick={() => onMigrate(user)} disabled={isLoading}
+                            className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="Migrate role">
+                            <ShieldCheck className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+
+                        {/* Reset Password: Only Admin, HR, or Study Office (for students only) */}
+                        {((currentUserRole === "ADMIN" || currentUserRole === "HR") || 
+                          (currentUserRole === "STUDY_OFFICE" && user.role === "STUDENT")) && (
+                          <button onClick={() => onResetPassword(user)} disabled={isLoading}
+                            className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all" title="Reset password">
+                            <Lock className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+
+                        {/* Toggle Status: Restricted for Study Office on non-students */}
+                        {((currentUserRole === "ADMIN" || currentUserRole === "HR") || 
+                          (currentUserRole === "STUDY_OFFICE" && user.role === "STUDENT")) && (
+                          <button onClick={() => onToggleStatus(user)} disabled={isLoading}
+                            className={`p-1.5 transition-all rounded-lg ${user.isActive ? "text-slate-400 hover:text-rose-600 hover:bg-rose-50" : "text-emerald-500 hover:bg-emerald-50"}`}
+                            title={user.isActive ? "Suspend account" : "Activate account"}>
+                            <Power className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+
+                        {/* View Profile: Always available for authorized personnel */}
                         {currentUserRole && (
                           <Link href={`/${currentUserRole.toLowerCase().replace('_', '-')}/${basePath}/${user.id}`} prefetch={false}
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Full profile">
                             <Eye className="w-3.5 h-3.5" />
                           </Link>
                         )}
+
+                        {/* Delete: Admin Only */}
                         {currentUserRole === "ADMIN" && (
                           <button onClick={() => onDeleteClick(user)} disabled={isLoading}
                             className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all" title="Delete">

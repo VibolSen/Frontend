@@ -26,9 +26,27 @@ export default function CertificateTable({
   role = "admin",
   basePath,
   canDelete = true,
+  selectedIds = [],
+  onSelectionChange,
 }) {
   const dynamicBasePath = basePath || `/${role}/certificate-management`;
   
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      onSelectionChange(certificates.map((c) => c.id));
+    } else {
+      onSelectionChange([]);
+    }
+  };
+
+  const handleSelectOne = (id) => {
+    if (selectedIds.includes(id)) {
+      onSelectionChange(selectedIds.filter((item) => item !== id));
+    } else {
+      onSelectionChange([...selectedIds, id]);
+    }
+  };
+
   const renderSortIcon = (field) => {
     if (sortField === field) {
       return <SortIndicator direction={sortOrder} />;
@@ -42,8 +60,19 @@ export default function CertificateTable({
         <table className="w-full border-collapse">
           <thead className="bg-slate-50/50 border-b border-slate-100">
             <tr>
+              <th className="px-6 py-4 text-left w-10">
+                <input
+                  type="checkbox"
+                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 w-4 h-4 cursor-pointer transition-all"
+                  checked={
+                    certificates.length > 0 &&
+                    selectedIds.length === certificates.length
+                  }
+                  onChange={handleSelectAll}
+                />
+              </th>
               <th
-                className="px-6 py-4 text-left cursor-pointer group hover:bg-slate-100/50 transition-colors"
+                className="px-2 py-4 text-left cursor-pointer group hover:bg-slate-100/50 transition-colors"
                 onClick={() => handleSort("recipient")}
               >
                 <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
@@ -78,7 +107,7 @@ export default function CertificateTable({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <td colSpan="4" className="py-24 text-center">
+                  <td colSpan="5" className="py-24 text-center">
                     <div className="flex flex-col items-center justify-center gap-4 opacity-50">
                       <div className="h-8 w-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                       <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Scanning Archive...</span>
@@ -91,7 +120,7 @@ export default function CertificateTable({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <td colSpan="4" className="py-24 text-center">
+                  <td colSpan="5" className="py-24 text-center">
                     <div className="w-16 h-16 mx-auto bg-slate-50 rounded-2xl flex items-center justify-center mb-4 border border-slate-100">
                        <Award size={32} className="text-slate-300" />
                     </div>
@@ -107,9 +136,19 @@ export default function CertificateTable({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: Math.min(index * 0.03, 0.5), duration: 0.2 }}
-                    className="group hover:bg-slate-50/80 transition-colors"
+                    className={`group hover:bg-slate-50/80 transition-colors ${
+                      selectedIds.includes(cert.id) ? "bg-indigo-50/40" : ""
+                    }`}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4">
+                      <input
+                        type="checkbox"
+                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 w-4 h-4 cursor-pointer transition-all"
+                        checked={selectedIds.includes(cert.id)}
+                        onChange={() => handleSelectOne(cert.id)}
+                      />
+                    </td>
+                    <td className="px-2 py-4 whitespace-nowrap">
                        <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-sm border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
                             {cert.recipient.charAt(0)}

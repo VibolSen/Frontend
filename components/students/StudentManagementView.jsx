@@ -332,6 +332,7 @@ export default function StudentManagementView() {
           roles={["STUDENT"]}
           departments={departments}
           isLoading={isLoading}
+          currentUserRole={currentUser?.role}
         />
       )}
 
